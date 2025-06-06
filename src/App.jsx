@@ -544,8 +544,33 @@ const App = () => {
                 // For Vite, files in public directory are served at root.
                 const qResponse = await fetch('/data/question.json');
                 if (!qResponse.ok) throw new Error(`Questions fetch failed: ${qResponse.status} ${qResponse.statusText}`);
-                tempQuestions = await qResponse.json();
-                if (!Array.isArray(tempQuestions)) { throw new Error('Invalid questions format.'); }
+                const newQuestionsData = await qResponse.json();
+                if (!Array.isArray(newQuestionsData)) { throw new Error('Invalid questions format (expected array).'); }
+
+                // Transform new data structure to the old one
+                tempQuestions = newQuestionsData.map(newQuestion => {
+                    const options = ['a', 'b', 'c', 'd'].reduce((acc, key) => {
+                        if (newQuestion.hasOwnProperty(key)) {
+                            acc.push({
+                                id: key,
+                                text: newQuestion.translation?.en?.[key] || '',
+                                text_de: newQuestion[key] || ''
+                            });
+                        }
+                        return acc;
+                    }, []);
+
+                    return {
+                        id: newQuestion.id,
+                        question_text: newQuestion.translation?.en?.question || '',
+                        question_text_de: newQuestion.question || '',
+                        options: options,
+                        correct_answer: newQuestion.solution,
+                        explanation: newQuestion.translation?.en?.context || newQuestion.context || '',
+                        state_code: null // Not available in new structure
+                    };
+                });
+
             } catch (e) { qError = e.message; }
             try {
                 const sResponse = await fetch('/data/states.json');

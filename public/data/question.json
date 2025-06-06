@@ -1,41 +1,215 @@
 [
   {
-    "id": "q1",
-    "question_text": "What is the capital of Germany?",
-    "question_text_de": "Was ist die Hauptstadt von Deutschland?",
-    "options": [
-      {"id": "a", "text": "Munich", "text_de": "München"},
-      {"id": "b", "text": "Berlin", "text_de": "Berlin"},
-      {"id": "c", "text": "Hamburg", "text_de": "Hamburg"}
-    ],
-    "correct_answer": "b",
-    "state_code": null,
-    "explanation": "Berlin is the capital and largest city of Germany."
+    "num": "1",
+    "question": "Was war am 8. Mai 1945?",
+    "a": "Ende des Zweiten Weltkriegs in Europa",
+    "b": "Tod Adolf Hitlers",
+    "c": "Wahl von Konrad Adenauer zum Bundeskanzler",
+    "d": "Beginn des Berliner Mauerbaus",
+    "solution": "a",
+    "image": "-",
+    "translation": {
+      "en": {
+        "question": "What happened on May 8, 1945?",
+        "a": "End of World War II in Europe",
+        "b": "Tod Adolf Hitlers",
+        "c": "Election of Konrad Adenauer as Federal Chancellor",
+        "d": "Beginning of the construction of the Berlin Wall",
+        "context": "On May 8, 1945, the Second World War in Europe ended with the unconditional surrender of the German Wehrmacht to the Allies. This day is often referred to as the \"Day of Liberation\" because it brought the end of National Socialist rule and acts of war. Adolf Hitler committed suicide on April 30, 1945. Konrad Adenauer was elected the first Chancellor of the Federal Republic of Germany in 1949, and the construction of the Berlin Wall did not begin until 1961. Therefore, the correct answer is \"a: End of World War II in Europe\"."
+      },
+      "tr": {
+        "question": "8 Mayıs 1945'te ne oldu?",
+        "a": "Avrupa'da II. Dünya Savaşı'nın sona ermesi",
+        "b": "Tod Adolf Hitler'in hikayesi",
+        "c": "Konrad Adenauer'in Federal Şansölye olarak seçilmesi",
+        "d": "Berlin Duvarı'nın inşaatının başlangıcı",
+        "context": "8 Mayıs 1945'te Avrupa'daki İkinci Dünya Savaşı, Alman Wehrmacht'ın Müttefiklere koşulsuz teslim olmasıyla sona erdi. Bu gün genellikle \"Kurtuluş Günü\" olarak anılır çünkü Nasyonal Sosyalist yönetimin ve savaş eylemlerinin sonunu getirdi. Adolf Hitler 30 Nisan 1945'te intihar etti. Konrad Adenauer, 1949'da Federal Almanya Cumhuriyeti'nin ilk Şansölyesi seçildi ve Berlin Duvarı'nın inşası 1961'e kadar başlamadı. Bu nedenle doğru cevap \"a: Avrupa'da II. Dünya Savaşı'nın sonu\"."
+      },
+      "ru": {
+        "question": "Что произошло 8 мая 1945 года?",
+        "a": "Окончание Второй мировой войны в Европе",
+        "b": "Тод Адольф Гитлер",
+        "c": "Избрание Конрада Аденауэра федеральным канцлером",
+        "d": "Начало строительства Берлинской стены",
+        "context": "8 мая 1945 года Вторая мировая война в Европе завершилась безоговорочной капитуляцией германского вермахта перед союзниками. Этот день часто называют «Днем освобождения», потому что он положил конец национал-социалистическому правлению и военным действиям. Адольф Гитлер покончил жизнь самоубийством 30 апреля 1945 года. Конрад Аденауэр был избран первым канцлером Федеративной Республики Германия в 1949 году, а строительство Берлинской стены началось только в 1961 году. Следовательно, правильный ответ звучит так: «а: Окончание Второй мировой войны в Европе»."
+      },
+      "fr": {
+        "question": "Que s’est-il passé le 8 mai 1945 ?",
+        "a": "Fin de la Seconde Guerre mondiale en Europe",
+        "b": "Tod Adolf Hitler",
+        "c": "Élection de Konrad Adenauer au poste de chancelier fédéral",
+        "d": "Début de la construction du mur de Berlin",
+        "context": "Le 8 mai 1945, la Seconde Guerre mondiale en Europe s’est terminée par la reddition inconditionnelle de la Wehrmacht allemande aux Alliés. Ce jour est souvent appelé le « Jour de la Libération » car il a marqué la fin du régime national-socialiste et des actes de guerre. Adolf Hitler s’est suicidé le 30 avril 1945. Konrad Adenauer a été élu premier chancelier de la République fédérale d’Allemagne en 1949, et la construction du mur de Berlin n’a commencé qu’en 1961. Par conséquent, la bonne réponse est « a : Fin de la Seconde Guerre mondiale en Europe »."
+      },
+      "ar": {
+        "question": "ماذا حدث في 8 مايو 1945؟",
+        "a": "نهاية الحرب العالمية الثانية في أوروبا",
+        "b": "تود أدولف هتلر",
+        "c": "انتخاب كونراد أديناور مستشارا اتحاديا",
+        "d": "بداية بناء جدار برلين",
+        "context": "في 8 مايو 1945 ، انتهت الحرب العالمية الثانية في أوروبا بالاستسلام غير المشروط للفيرماخت الألماني للحلفاء. غالبا ما يشار إلى هذا اليوم باسم "يوم التحرير" لأنه أدى إلى إنهاء الحكم الاشتراكي الوطني وأعمال الحرب. انتحر أدولف هتلر في 30 أبريل 1945. انتخب كونراد أديناور أول مستشار لجمهورية ألمانيا الاتحادية في عام 1949 ، ولم يبدأ بناء جدار برلين حتى عام 1961. لذلك ، فإن الإجابة الصحيحة هي "أ: نهاية الحرب العالمية الثانية في أوروبا"."
+      },
+      "uk": {
+        "question": "Що сталося 8 травня 1945 року?",
+        "a": "Закінчення Другої світової війни в Європі",
+        "b": "Тод Адольф Гітлер",
+        "c": "Обрання Конрада Аденауера Федеральним канцлером",
+        "d": "Початок будівництва Берлінської стіни",
+        "context": "8 травня 1945 року Друга світова війна в Європі завершилася беззастережною капітуляцією німецького вермахту перед союзниками. Цей день часто називають «Днем визволення», оскільки він приніс кінець націонал-соціалістичному правлінню та воєнним діям. Адольф Гітлер покінчив життя самогубством 30 квітня 1945 року. Конрад Аденауер був обраний першим канцлером Федеративної Республіки Німеччина в 1949 році, а будівництво Берлінської стіни почалося лише в 1961 році. Тому правильна відповідь – «а: Закінчення Другої світової війни в Європі»."
+      },
+      "hi": {
+        "question": "8 मई, 1945 को क्या हुआ था?",
+        "a": "यूरोप में द्वितीय विश्व युद्ध का अंत",
+        "b": "टॉड एडॉल्फ हिटलर",
+        "c": "संघीय चांसलर के रूप में कोनराड एडेनॉयर का चुनाव",
+        "d": "बर्लिन की दीवार के निर्माण की शुरुआत",
+        "context": "8 मई, 1945 को, यूरोप में द्वितीय विश्व युद्ध मित्र राष्ट्रों के लिए जर्मन वेहरमाच के बिना शर्त आत्मसमर्पण के साथ समाप्त हुआ। इस दिन को अक्सर "मुक्ति का दिन" कहा जाता है क्योंकि यह राष्ट्रीय समाजवादी शासन और युद्ध के कृत्यों का अंत लाया। एडॉल्फ हिटलर ने 30 अप्रैल, 1945 को आत्महत्या कर ली थी। कोनराड एडेनॉयर को 1949 में जर्मनी के संघीय गणराज्य का पहला चांसलर चुना गया था, और बर्लिन की दीवार का निर्माण 1961 तक शुरू नहीं हुआ था। इसलिए, सही उत्तर "a: यूरोप में द्वितीय विश्व युद्ध का अंत" है।"
+      }
+    },
+    "category": "History & Geography",
+    "context": "Am 8. Mai 1945 endete der Zweite Weltkrieg in Europa mit der bedingungslosen Kapitulation der deutschen Wehrmacht vor den Alliierten. Dieser Tag wird häufig als "Tag der Befreiung" bezeichnet, da er das Ende der nationalsozialistischen Herrschaft und Kriegshandlungen brachte. Adolf Hitler beging bereits am 30. April 1945 Selbstmord. Konrad Adenauer wurde 1949 zum ersten Bundeskanzler der Bundesrepublik Deutschland gewählt, und der Bau der Berliner Mauer begann erst 1961. Daher ist die richtige Antwort "a: Ende des Zweiten Weltkriegs in Europa".",
+    "id": "4adcd4d5d6726a5099ee1d0dc75b079efd7af7e54191cc79889acd8e0dbc164f"
   },
   {
-    "id": "q2",
-    "question_text": "Which of these is a German state?",
-    "question_text_de": "Welches davon ist ein deutsches Bundesland?",
-    "options": [
-      {"id": "a", "text": "Alsace", "text_de": "Elsass"},
-      {"id": "b", "text": "Tyrol", "text_de": "Tirol"},
-      {"id": "c", "text": "Bavaria", "text_de": "Bayern"}
-    ],
-    "correct_answer": "c",
-    "state_code": "BY",
-    "explanation": "Bavaria (Bayern) is a state in southeastern Germany."
+    "num": "2",
+    "question": "Was gab es während der Zeit des Nationalsozialismus in Deutschland?",
+    "a": "das Recht zur freien Entfaltung der Persönlichkeit",
+    "b": "den Schutz der Menschenwürde",
+    "c": "das Verbot von Parteien",
+    "d": "Pressefreiheit",
+    "solution": "c",
+    "image": "-",
+    "translation": {
+      "en": {
+        "question": "What happened in Germany during the Nazi era?",
+        "a": "the right to the free development of one's personality",
+        "b": "the protection of human dignity",
+        "c": "the prohibition of political parties",
+        "d": "Freedom of the press",
+        "context": "During the period of National Socialism in Germany (1933-1945), the political situation was characterized by dictatorship and totalitarian regime. Power lay entirely with Adolf Hitler and his party, the NSDAP. Civil rights and democratic freedoms that existed in the Weimar Republic were severely restricted. Freedom of expression, freedom of assembly and party diversity were suppressed. In addition, systematic persecution and discrimination against minorities took place. Human dignity was disregarded, and the press was subject to strict control and censorship. In Germany, there was no democratic freedom of the press or free personal development during this time."
+      },
+      "tr": {
+        "question": "Nazi döneminde Almanya'da ne oldu?",
+        "a": "Kişinin kişiliğinin özgürce gelişmesi hakkı",
+        "b": "İnsan onurunun korunması",
+        "c": "Siyasi partilerin yasaklanması",
+        "d": "Basın özgürlüğü",
+        "context": "Almanya'da Nasyonal Sosyalizm döneminde (1933-1945), siyasi durum diktatörlük ve totaliter rejim ile karakterize edildi. İktidar tamamen Adolf Hitler ve partisi NSDAP'ye aitti. Weimar Cumhuriyeti'nde var olan medeni haklar ve demokratik özgürlükler ciddi şekilde kısıtlandı. İfade özgürlüğü, toplanma özgürlüğü ve parti çeşitliliği bastırıldı. Ayrıca, azınlıklara karşı sistematik zulüm ve ayrımcılık gerçekleşti. İnsan onuru hiçe sayıldı, basın sıkı bir kontrol ve sansüre tabi tutuldu. Almanya'da bu süre zarfında demokratik basın özgürlüğü ya da özgür kişisel gelişim yoktu."
+      },
+      "ru": {
+        "question": "Что происходило в Германии во времена нацизма?",
+        "a": "право на свободное развитие своей личности",
+        "b": "Защита человеческого достоинства",
+        "c": "Запрет политических партий",
+        "d": "Свобода прессы",
+        "context": "В период национал-социализма в Германии (1933-1945 гг.) политическая ситуация характеризовалась диктатурой и тоталитарным режимом. Власть полностью принадлежала Адольфу Гитлеру и его партии, НСДАП. Гражданские права и демократические свободы, существовавшие в Веймарской республике, были сильно ограничены. Свобода выражения мнений, свобода собраний и партийное многообразие подавлялись. Кроме того, имели место систематические преследования и дискриминация меньшинств. Человеческое достоинство игнорировалось, а пресса подвергалась строгому контролю и цензуре. В Германии в то время не существовало демократической свободы прессы и свободного личностного развития."
+      },
+      "fr": {
+        "question": "Que s’est-il passé en Allemagne à l’époque nazie ?",
+        "a": "le droit au libre développement de sa personnalité",
+        "b": "La protection de la dignité humaine",
+        "c": "l’interdiction des partis politiques",
+        "d": "Liberté de la presse",
+        "context": "Pendant la période du national-socialisme en Allemagne (1933-1945), la situation politique était caractérisée par la dictature et le régime totalitaire. Le pouvoir était entièrement entre les mains d’Adolf Hitler et de son parti, le NSDAP. Les droits civils et les libertés démocratiques qui existaient dans la République de Weimar ont été sévèrement restreints. La liberté d’expression, la liberté de réunion et la diversité des partis ont été supprimées. En outre, les minorités faisaient l’objet de persécutions et de discriminations systématiques. La dignité humaine n’est pas respectée et la presse est soumise à un contrôle et à une censure stricts. En Allemagne, il n’y avait pas de liberté démocratique de la presse ni de libre développement personnel à cette époque."
+      },
+      "ar": {
+        "question": "ماذا حدث في ألمانيا خلال الحقبة النازية؟",
+        "a": "الحق في التطور الحر لشخصية الفرد",
+        "b": "حماية كرامة الإنسان",
+        "c": "حظر الأحزاب السياسية",
+        "d": "حرية الصحافة",
+        "context": "خلال فترة الاشتراكية القومية في ألمانيا (1933-1945) ، اتسم الوضع السياسي بالدكتاتورية والنظام الشمولي. تكمن السلطة بالكامل في يد أدولف هتلر وحزبه NSDAP. تم تقييد الحقوق المدنية والحريات الديمقراطية التي كانت موجودة في جمهورية فايمار بشدة. تم قمع حرية التعبير وحرية التجمع والتنوع الحزبي. وبالإضافة إلى ذلك، حدث اضطهاد وتمييز منهجيان ضد الأقليات. تم تجاهل الكرامة الإنسانية ، وتخضع الصحافة لرقابة صارمة ورقابة. في ألمانيا ، لم تكن هناك حرية ديمقراطية للصحافة أو تنمية شخصية حرة خلال هذا الوقت."
+      },
+      "uk": {
+        "question": "Що відбувалося в Німеччині за часів нацизму?",
+        "a": "право на вільний розвиток своєї особистості",
+        "b": "Захист людської гідності",
+        "c": "Заборона політичних партій",
+        "d": "Свобода преси",
+        "context": "У період націонал-соціалізму в Німеччині (1933-1945) політична ситуація характеризувалася диктатурою і тоталітарним режимом. Влада повністю належала Адольфу Гітлеру та його партії – НСДАП. Громадянські права і демократичні свободи, що існували у Веймарській республіці, були сильно обмежені. Свобода вираження поглядів, свобода зборів і партійне розмаїття були придушені. Крім того, мали місце систематичні переслідування та дискримінація меншин. Людська гідність зневажалася, а преса підлягала суворому контролю і цензурі. У Німеччині в цей час не існувало демократичної свободи друку і вільного розвитку особистості."
+      },
+      "hi": {
+        "question": "नाजी युग के दौरान जर्मनी में क्या हुआ था?",
+        "a": "किसी के व्यक्तित्व के मुक्त विकास का अधिकार",
+        "b": "मानव गरिमा की रक्षा",
+        "c": "राजनीतिक दलों का निषेध",
+        "d": "प्रेस की स्वतंत्रता",
+        "context": "जर्मनी में राष्ट्रीय समाजवाद (1933-1945) की अवधि के दौरान, राजनीतिक स्थिति को तानाशाही और अधिनायकवादी शासन की विशेषता थी। सत्ता पूरी तरह से एडॉल्फ हिटलर और उनकी पार्टी, एनएसडीएपी के पास थी। वीमर गणराज्य में मौजूद नागरिक अधिकार और लोकतांत्रिक स्वतंत्रता गंभीर रूप से प्रतिबंधित थे। अभिव्यक्ति की स्वतंत्रता, विधानसभा की स्वतंत्रता और पार्टी विविधता को दबा दिया गया। इसके अलावा, अल्पसंख्यकों के खिलाफ व्यवस्थित उत्पीड़न और भेदभाव हुआ। मानवीय गरिमा की अवहेलना की गई, और प्रेस सख्त नियंत्रण और सेंसरशिप के अधीन था। जर्मनी में, इस समय के दौरान प्रेस की कोई लोकतांत्रिक स्वतंत्रता या स्वतंत्र व्यक्तिगत विकास नहीं था।"
+      }
+    },
+    "category": "Rights & Freedoms",
+    "context": "Während der Zeit des Nationalsozialismus in Deutschland (1933-1945) war die politische Situation von Diktatur und totalitärem Regime geprägt. Die Macht lag vollständig bei Adolf Hitler und seiner Partei, der NSDAP. Bürgerrechte und demokratische Freiheiten, die in der Weimarer Republik vorhanden waren, wurden stark eingeschränkt. Die Meinungsfreiheit, Versammlungsfreiheit und Parteienvielfalt wurden unterdrückt. Außerdem fanden systematische Verfolgung und Diskriminierung von Minderheiten statt. Die Menschenwürde wurde missachtet, und die Presse unterlag strenger Kontrolle und Zensur. In Deutschland gab es keine demokratische Pressefreiheit oder freien Persönlichkeitsentfaltung während dieser Zeit.",
+    "id": "a3adbfb4ff71fc20f89006ef5c0323a8bac1d7153b7a19a9613f92141954c5b8"
   },
   {
-    "id": "q3",
-    "question_text": "The German parliament is called:",
-    "question_text_de": "Das deutsche Parlament heißt:",
-    "options": [
-      {"id": "a", "text": "National Assembly", "text_de": "Nationalversammlung"},
-      {"id": "b", "text": "Bundestag", "text_de": "Bundestag"},
-      {"id": "c", "text": "Senate", "text_de": "Senat"}
-    ],
-    "correct_answer": "b",
-    "state_code": null,
-    "explanation": "The German federal parliament is known as the Bundestag."
+    "num": "3",
+    "question": "Wie hieß der erste Bundeskanzler der Bundesrepublik Deutschland?",
+    "a": "Willy Brandt",
+    "b": "Konrad Adenauer",
+    "c": "Kurt Georg Kiesinger",
+    "d": "Helmut Schmidt",
+    "solution": "b",
+    "image": "-",
+    "translation": {
+      "en": {
+        "question": "What was the name of the first Chancellor of the Federal Republic of Germany?",
+        "a": "Willy Brandt",
+        "b": "Konrad Adenauer",
+        "c": "Kurt Georg Kiesinger",
+        "d": "Helmut Schmidt",
+        "context": "The Federal Republic of Germany was founded in 1949 after the Second World War and has been one of the central political forces in Europe ever since. The first Chancellor played a decisive role in the political and economic stabilization of the country as well as in determining the foreign policy orientation. The question of the first Chancellor aims to understand the historical basis of German post-war democracy and to identify the important figure who set the course for modern Germany."
+      },
+      "tr": {
+        "question": "Federal Almanya Cumhuriyeti'nin ilk Şansölyesi'nin adı neydi?",
+        "a": "Willy Brandt'ın fotoğrafı.",
+        "b": "Konrad Adenauer",
+        "c": "Kurt Georg Kiesinger",
+        "d": "Helmut Schmidt",
+        "context": "Federal Almanya Cumhuriyeti, İkinci Dünya Savaşı'ndan sonra 1949'da kuruldu ve o zamandan beri Avrupa'nın merkezi siyasi güçlerinden biri oldu. İlk Şansölye, ülkenin siyasi ve ekonomik istikrarının sağlanmasında ve dış politika yöneliminin belirlenmesinde belirleyici bir rol oynadı. İlk Şansölye sorunu, savaş sonrası Alman demokrasisinin tarihsel temelini anlamayı ve modern Almanya'nın rotasını belirleyen önemli figürü belirlemeyi amaçlıyor."
+      },
+      "ru": {
+        "question": "Как звали первого канцлера Федеративной Республики Германия?",
+        "a": "Вилли Брандт",
+        "b": "Конрад Аденауэр",
+        "c": "Курт Георг Кизингер",
+        "d": "Гельмут Шмидт",
+        "context": "Федеративная Республика Германия была основана в 1949 году после Второй мировой войны и с тех пор является одной из центральных политических сил в Европе. Первый канцлер сыграл решающую роль в политической и экономической стабилизации страны, а также в определении внешнеполитической ориентации. Вопрос о первом канцлере направлен на то, чтобы понять исторические основы послевоенной демократии в Германии и определить важную фигуру, которая определила курс современной Германии."
+      },
+      "fr": {
+        "question": "Comment s’appelait le premier chancelier de la République fédérale d’Allemagne ?",
+        "a": "Willy Brandt",
+        "b": "Konrad Adenauer",
+        "c": "Kurt Georg Kiesinger",
+        "d": "Helmut Schmidt",
+        "context": "La République fédérale d’Allemagne a été fondée en 1949 après la Seconde Guerre mondiale et est depuis lors l’une des principales forces politiques en Europe. Le premier chancelier a joué un rôle décisif dans la stabilisation politique et économique du pays ainsi que dans la détermination de l’orientation de la politique étrangère. La question du premier chancelier vise à comprendre les bases historiques de la démocratie allemande d’après-guerre et à identifier la figure importante qui a tracé le cap de l’Allemagne moderne."
+      },
+      "ar": {
+        "question": "ماذا كان اسم أول مستشار لجمهورية ألمانيا الاتحادية؟",
+        "a": "ويلي براندت",
+        "b": "كونراد أديناور",
+        "c": "كورت جورج كيسينجر",
+        "d": "هيلموت شميدت",
+        "context": "تأسست جمهورية ألمانيا الاتحادية في عام 1949 بعد الحرب العالمية الثانية وكانت واحدة من القوى السياسية المركزية في أوروبا منذ ذلك الحين. لعبت المستشارة الأولى دورا حاسما في الاستقرار السياسي والاقتصادي للبلاد وكذلك في تحديد توجه السياسة الخارجية. تهدف مسألة المستشار الأول إلى فهم الأساس التاريخي للديمقراطية الألمانية بعد الحرب وتحديد الشخصية المهمة التي حددت مسار ألمانيا الحديثة."
+      },
+      "uk": {
+        "question": "Як звали першого канцлера Федеративної Республіки Німеччина?",
+        "a": "Віллі Брандт",
+        "b": "Конрад Аденауер",
+        "c": "Курт Георг Кізінгер",
+        "d": "Гельмут Шмідт",
+        "context": "Федеративна Республіка Німеччина була заснована в 1949 році після Другої світової війни і з тих пір є однією з центральних політичних сил в Європі. Перший канцлер відіграв вирішальну роль у політичній та економічній стабілізації країни, а також у визначенні зовнішньополітичної орієнтації. Питання про першого канцлера має на меті зрозуміти історичну основу німецької післявоєнної демократії та виявити важливу постать, яка визначила курс для сучасної Німеччини."
+      },
+      "hi": {
+        "question": "जर्मनी के संघीय गणराज्य के पहले चांसलर का नाम क्या था?",
+        "a": "विली ब्रांट",
+        "b": "कोनราड एडेनॉयर",
+        "c": "कर्ट जॉर्ज किसिंगर",
+        "d": "हेल्मुट श्मिट",
+        "context": "जर्मनी के संघीय गणराज्य की स्थापना द्वितीय विश्व युद्ध के बाद 1949 में हुई थी और तब से यह यूरोप में केंद्रीय राजनीतिक ताकतों में से एक है। पहले चांसलर ने देश के राजनीतिक और आर्थिक स्थिरीकरण के साथ-साथ विदेश नीति अभिविन्यास का निर्धारण करने में निर्णायक भूमिका निभाई। पहले चांसलर के प्रश्न का उद्देश्य जर्मन युद्ध के बाद के लोकतंत्र के ऐतिहासिक आधार को समझना और आधुनिक जर्मनी के लिए पाठ्यक्रम निर्धारित करने वाले महत्वपूर्ण व्यक्ति की पहचान करना है।"
+      }
+    },
+    "category": "History & Geography",
+    "context": "Die Bundesrepublik Deutschland wurde 1949 nach dem Zweiten Weltkrieg gegründet und ist seitdem eine der zentralen politischen Kräfte in Europa. Der erste Bundeskanzler spielte eine entscheidende Rolle bei der politischen und wirtschaftlichen Stabilisierung des Landes sowie bei der Festlegung der außenpolitischen Ausrichtung. Die Frage nach dem ersten Bundeskanzler zielt darauf ab, die historische Grundlage der deutschen Nachkriegsdemokratie zu verstehen und die wichtige Figur zu identifizieren, die die Weichen für das moderne Deutschland gestellt hat.",
+    "id": "de60a8856aaf856f789cb2e811e2eacfe53aa2321b09b99563cc3189b98633fd"
   }
 ]
