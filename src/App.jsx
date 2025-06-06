@@ -23,46 +23,52 @@ const HomePage = ({ statesData, onStartPractice, onStartExam, onStartFlashcards 
     return (
         <div className="text-center">
             <h2 className="text-2xl font-semibold mb-6">Welcome! Choose your mode:</h2>
-            <div className="mb-6">
-                <h3 className="text-xl font-medium mb-2">Study & Practice</h3>
-                <button
-                    onClick={() => onStartPractice("")}
-                    className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-2 mb-2 md:mb-0">
-                    Practice All Questions
-                </button>
-                <button
-                    onClick={() => handleNavigation(onStartFlashcards)}
-                    className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
-                    Flashcards (by State)
-                </button>
-            </div>
-            <div className="mb-8 p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50">
-                <label htmlFor="state-select" className="block text-lg font-medium mb-2 text-gray-700">
-                    Select Your State for Specific Content:
-                </label>
-                <select
-                    id="state-select"
-                    value={selectedState}
-                    onChange={handleStateChange}
-                    className="mt-1 block w-full md:w-2/3 mx-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow">
-                    <option value="">Select a State (or practice all questions)</option>
-                    {Object.entries(statesData || {}).sort(([,a],[,b]) => a.localeCompare(b)).map(([code, name]) => (
-                        <option key={code} value={code}>{name}</option>
-                    ))}
-                </select>
-                <button
-                    onClick={() => handleNavigation(onStartPractice, false)}
-                    className="mt-3 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-2">
-                    Practice Selected State Questions
-                </button>
-            </div>
-            <div>
-                <h3 className="text-xl font-medium mb-2">Test Your Knowledge</h3>
-                <button
-                    onClick={() => handleNavigation(onStartExam)}
-                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                    Start Full Exam (by State)
-                </button>
+            <div className="flex flex-col md:flex-row gap-8 mt-4">
+                {/* Left Column: State Selection */}
+                <div className="md:w-1/3 p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50">
+                    <h3 className="text-xl font-semibold mb-3 text-gray-700">1. Select Your State</h3>
+                    <label htmlFor="state-select" className="sr-only">
+                        Select Your State:
+                    </label>
+                    <select
+                        id="state-select"
+                        value={selectedState}
+                        onChange={handleStateChange}
+                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow">
+                        <option value="">Select a State</option>
+                        {Object.entries(statesData || {}).sort(([,a],[,b]) => a.localeCompare(b)).map(([code, name]) => (
+                            <option key={code} value={code}>{name}</option>
+                        ))}
+                    </select>
+                    {!selectedState && (
+                         <p className="text-sm text-gray-500 mt-2">Please select a state to enable activities.</p>
+                    )}
+                </div>
+
+                {/* Right Column: Activity Buttons */}
+                <div className="md:w-2/3 p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50">
+                    <h3 className="text-xl font-semibold mb-4 text-gray-700">2. Choose an Activity</h3>
+                    <div className="space-y-4">
+                        <button
+                            onClick={() => handleNavigation(onStartPractice)}
+                            className="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-4 rounded shadow-md hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={!selectedState}>
+                            Practice
+                        </button>
+                        <button
+                            onClick={() => handleNavigation(onStartExam)}
+                            className="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-3 px-4 rounded shadow-md hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={!selectedState}>
+                            Test
+                        </button>
+                        <button
+                            onClick={() => handleNavigation(onStartFlashcards)}
+                            className="w-full bg-purple-500 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded shadow-md hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={!selectedState}>
+                            Flashcards
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );
@@ -103,6 +109,11 @@ const App = () => {
                         return acc;
                     }, []);
 
+                    let stateCode = null;
+                    if (typeof newQuestion.num === 'string' && newQuestion.num.includes('-')) {
+                        stateCode = newQuestion.num.split('-')[0];
+                    }
+
                     return {
                         id: newQuestion.id,
                         question_text: newQuestion.translation?.en?.question || '',
@@ -110,7 +121,7 @@ const App = () => {
                         options: options,
                         correct_answer: newQuestion.solution,
                         explanation: newQuestion.translation?.en?.context || newQuestion.context || '',
-                        state_code: null // Not available in new structure
+                        state_code: stateCode
                     };
                 });
 
@@ -142,33 +153,65 @@ const App = () => {
 
     const handleStartPractice = useCallback((stateCode) => {
         localStorage.setItem('selectedState', stateCode);
-        let filtered = (stateCode && stateCode !== "") ? allQuestionsData.filter(q => q.state_code === stateCode || !q.state_code || q.state_code === "") : [...allQuestionsData];
-        setPracticeSessionQuestions(shuffleArray(filtered));
+        const generalQuestions = allQuestionsData.filter(q => q.state_code === null);
+        const stateSpecificQuestions = allQuestionsData.filter(q => q.state_code === stateCode);
+
+        const sessionQuestions = [...generalQuestions, ...stateSpecificQuestions];
+        setPracticeSessionQuestions(shuffleArray(sessionQuestions));
         setCurrentView('practice');
     }, [allQuestionsData]);
 
     const handleStartExam = useCallback((stateCode) => {
-        if (!stateCode) { alert("Please select state for exam."); return; }
-        localStorage.setItem('selectedState', stateCode);
-        const generalQ = shuffleArray(allQuestionsData.filter(q => !q.state_code || q.state_code === ""));
-        const stateQ = shuffleArray(allQuestionsData.filter(q => q.state_code === stateCode));
-        let chosenQ = [];
-        chosenQ.push(...stateQ.slice(0, 3));
-        const generalNeeded = 10 - chosenQ.length;
-        if (generalNeeded > 0) { chosenQ.push(...generalQ.slice(0, generalNeeded)); }
-        if (chosenQ.length < 10 && chosenQ.length < stateQ.length) {
-            const needed = 10 - chosenQ.length;
-            const currentIds = new Set(chosenQ.map(q => q.id));
-            chosenQ.push(...stateQ.filter(q => !currentIds.has(q.id)).slice(0, needed));
+        if (!stateCode) {
+            // This case should ideally not be reached if buttons are properly disabled.
+            alert("Please select a state for the exam.");
+            return;
         }
-        setExamSessionQuestions(shuffleArray(chosenQ.slice(0,10)));
+        localStorage.setItem('selectedState', stateCode);
+
+        const EXAM_TOTAL_QUESTIONS = 10;
+        const TARGET_STATE_QUESTIONS_IN_EXAM = 5;
+
+        const generalQuestions = allQuestionsData.filter(q => q.state_code === null);
+        const stateSpecificQuestions = allQuestionsData.filter(q => q.state_code === stateCode);
+
+        let examStateQuestions = shuffleArray(stateSpecificQuestions).slice(0, TARGET_STATE_QUESTIONS_IN_EXAM);
+
+        const remainingNeeded = EXAM_TOTAL_QUESTIONS - examStateQuestions.length;
+        let examGeneralQuestions = [];
+        if (remainingNeeded > 0) {
+            examGeneralQuestions = shuffleArray(generalQuestions).slice(0, remainingNeeded);
+        }
+
+        let combinedExamQuestions = [...examStateQuestions, ...examGeneralQuestions];
+
+        // If not enough questions from both categories, fill with more general or state questions if available
+        if (combinedExamQuestions.length < EXAM_TOTAL_QUESTIONS) {
+            const stillNeeded = EXAM_TOTAL_QUESTIONS - combinedExamQuestions.length;
+            const additionalGeneralIds = new Set(examGeneralQuestions.map(q => q.id));
+            const moreGeneral = shuffleArray(generalQuestions.filter(q => !additionalGeneralIds.has(q.id))).slice(0, stillNeeded);
+            combinedExamQuestions.push(...moreGeneral);
+
+            if (combinedExamQuestions.length < EXAM_TOTAL_QUESTIONS) {
+                 const stillMoreNeeded = EXAM_TOTAL_QUESTIONS - combinedExamQuestions.length;
+                 const additionalStateIds = new Set(examStateQuestions.map(q => q.id));
+                 const moreState = shuffleArray(stateSpecificQuestions.filter(q => !additionalStateIds.has(q.id))).slice(0, stillMoreNeeded);
+                 combinedExamQuestions.push(...moreState);
+            }
+        }
+
+        const finalExamQuestions = shuffleArray(combinedExamQuestions).slice(0, EXAM_TOTAL_QUESTIONS);
+        setExamSessionQuestions(finalExamQuestions);
         setCurrentView('exam');
     }, [allQuestionsData]);
 
     const handleStartFlashcards = useCallback((stateCode) => {
         localStorage.setItem('selectedState', stateCode);
-        let filtered = (stateCode && stateCode !== "") ? allQuestionsData.filter(q => q.state_code === stateCode || !q.state_code || q.state_code === "") : [...allQuestionsData];
-        setFlashcardSessionQuestions(shuffleArray(filtered));
+        const generalQuestions = allQuestionsData.filter(q => q.state_code === null);
+        const stateSpecificQuestions = allQuestionsData.filter(q => q.state_code === stateCode);
+
+        const sessionQuestions = [...generalQuestions, ...stateSpecificQuestions];
+        setFlashcardSessionQuestions(shuffleArray(sessionQuestions));
         setCurrentView('flashcards');
     }, [allQuestionsData]);
 
