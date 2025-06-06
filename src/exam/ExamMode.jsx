@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 // --- ExamMode Component Definition ---
-const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuration = 600 }) => {
+const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuration = 3600, onStartNewTest }) => {
     const [questions, setQuestions] = useState([]);
     const [currentExamQuestionIndex, setCurrentExamQuestionIndex] = useState(0);
     const [examUserAnswers, setExamUserAnswers] = useState({});
@@ -67,6 +67,13 @@ const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuratio
         }
     };
 
+    const handleRetryTest = () => {
+        setCurrentExamQuestionIndex(0);
+        setExamUserAnswers({});
+        setTimeRemaining(examDuration); // Uses the examDuration prop
+        setShowExamResults(false);
+    };
+
     if (!initialExamQuestions || initialExamQuestions.length === 0) {
         return (
             <div className="text-center p-4">
@@ -90,12 +97,28 @@ const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuratio
             <div className={`bg-white p-4 md:p-6 rounded-lg shadow-lg max-w-2xl mx-auto text-center border-t-8 ${isPassed ? 'border-green-500' : 'border-red-500'}`}>
                 <h2 className="text-3xl font-bold mb-4">Exam Results</h2>
                 <p className="text-xl mb-2">Time: {formatTime(examDuration - timeRemaining)}</p>
-                <p className="text-xl mb-2">Correct: <span className="font-bold">{correctAnswersCount}</span>/{questions.length}</p>
+                <p className="text-xl mb-2">Correct: <span className="font-bold">{correctAnswersCount}</span>/33</p>
                 <p className={`text-2xl font-semibold mb-6 ${isPassed ? 'text-green-600' : 'text-red-600'}`}>
                     {isPassed ? `Passed (${score.toFixed(0)}%)` : `Not Passed (${score.toFixed(0)}%)`}
                 </p>
-                <p className="text-sm text-gray-600 mb-4">(Pass mark: {passMark} for {questions.length}Q)</p>
-                <button onClick={onNavigateHome} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded text-lg">Home</button>
+                <p className="text-sm text-gray-600 mb-4">(Pass mark: {passMark} for {questions.length} questions)</p>
+                <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
+                    <button
+                        onClick={handleRetryTest}
+                        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded text-lg min-w-[150px]">
+                        Retry Test
+                    </button>
+                    <button
+                        onClick={onStartNewTest}
+                        className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded text-lg min-w-[150px]">
+                        New Test
+                    </button>
+                    <button
+                        onClick={onNavigateHome}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded text-lg min-w-[150px]">
+                        Home
+                    </button>
+                </div>
             </div>
         );
     }
@@ -112,7 +135,11 @@ const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuratio
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-xl max-w-3xl mx-auto">
             <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
                 <h2 className="text-xl md:text-2xl font-semibold text-blue-700">Exam</h2>
-                <div className="text-2xl font-bold text-red-500" role="timer" aria-live="polite">{formatTime(timeRemaining)}</div>
+                <div className={`text-2xl font-bold ${
+                    timeRemaining >= 30 * 60 ? 'text-green-500' :
+                    timeRemaining >= 10 * 60 ? 'text-yellow-500' :
+                    'text-red-500'
+                }`} role="timer" aria-live="polite">{formatTime(timeRemaining)}</div>
             </div>
             <p className="text-sm text-gray-500 mb-2">Q {currentExamQuestionIndex + 1}/{questions.length}</p>
             <h3 className="text-lg md:text-xl font-medium mb-1">{currentQuestion.question_text}</h3>
@@ -135,16 +162,32 @@ const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuratio
                 ))}
             </div>
             <div className="mt-6 flex justify-between items-center border-t border-gray-200 pt-4">
-                <button onClick={() => handleNavigation(-1)} disabled={currentExamQuestionIndex === 0} className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 transition-opacity">
+                <button
+                    onClick={() => handleNavigation(-1)}
+                    disabled={currentExamQuestionIndex === 0}
+                    className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 transition-opacity">
                     Prev
                 </button>
+
+                {Object.keys(examUserAnswers).length > 0 && (
+                    <button
+                        onClick={() => handleSubmitExam(false)}
+                        className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded transition-colors">
+                        Finish Exam
+                    </button>
+                )}
+
                 {currentExamQuestionIndex < questions.length - 1 ? (
-                    <button onClick={() => handleNavigation(1)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors">
+                    <button
+                        onClick={() => handleNavigation(1)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors">
                         Next
                     </button>
                 ) : (
-                    <button onClick={() => handleSubmitExam(false)} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors">
-                        Submit
+                    <button
+                        onClick={() => handleSubmitExam(false)}
+                        className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors">
+                        Submit Results
                     </button>
                 )}
             </div>

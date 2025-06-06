@@ -169,38 +169,28 @@ const App = () => {
         }
         localStorage.setItem('selectedState', stateCode);
 
-        const EXAM_TOTAL_QUESTIONS = 10;
-        const TARGET_STATE_QUESTIONS_IN_EXAM = 5;
+        const EXAM_TOTAL_QUESTIONS = 33;
+        const TARGET_STATE_QUESTIONS_IN_EXAM = 3;
 
         const generalQuestions = allQuestionsData.filter(q => q.state_code === null);
         const stateSpecificQuestions = allQuestionsData.filter(q => q.state_code === stateCode);
 
         let examStateQuestions = shuffleArray(stateSpecificQuestions).slice(0, TARGET_STATE_QUESTIONS_IN_EXAM);
 
-        const remainingNeeded = EXAM_TOTAL_QUESTIONS - examStateQuestions.length;
+        const generalQuestionsNeeded = EXAM_TOTAL_QUESTIONS - examStateQuestions.length;
         let examGeneralQuestions = [];
-        if (remainingNeeded > 0) {
-            examGeneralQuestions = shuffleArray(generalQuestions).slice(0, remainingNeeded);
+        if (generalQuestionsNeeded > 0) {
+            examGeneralQuestions = shuffleArray(generalQuestions).slice(0, generalQuestionsNeeded);
         }
 
         let combinedExamQuestions = [...examStateQuestions, ...examGeneralQuestions];
 
-        // If not enough questions from both categories, fill with more general or state questions if available
-        if (combinedExamQuestions.length < EXAM_TOTAL_QUESTIONS) {
-            const stillNeeded = EXAM_TOTAL_QUESTIONS - combinedExamQuestions.length;
-            const additionalGeneralIds = new Set(examGeneralQuestions.map(q => q.id));
-            const moreGeneral = shuffleArray(generalQuestions.filter(q => !additionalGeneralIds.has(q.id))).slice(0, stillNeeded);
-            combinedExamQuestions.push(...moreGeneral);
+        // Ensure the total does not exceed EXAM_TOTAL_QUESTIONS, even if sources are smaller than targets
+        // This also handles cases where combined might be less if not enough questions are available overall.
+        const finalExamQuestions = shuffleArray(combinedExamQuestions);
+        // No slice here, as we want all available up to 33, based on selection.
+        // If fewer than 33 questions are available in total from the combined pool, it will use all of them.
 
-            if (combinedExamQuestions.length < EXAM_TOTAL_QUESTIONS) {
-                 const stillMoreNeeded = EXAM_TOTAL_QUESTIONS - combinedExamQuestions.length;
-                 const additionalStateIds = new Set(examStateQuestions.map(q => q.id));
-                 const moreState = shuffleArray(stateSpecificQuestions.filter(q => !additionalStateIds.has(q.id))).slice(0, stillMoreNeeded);
-                 combinedExamQuestions.push(...moreState);
-            }
-        }
-
-        const finalExamQuestions = shuffleArray(combinedExamQuestions).slice(0, EXAM_TOTAL_QUESTIONS);
         setExamSessionQuestions(finalExamQuestions);
         setCurrentView('exam');
     }, [allQuestionsData]);
@@ -217,6 +207,15 @@ const App = () => {
 
     const navigateHome = useCallback(() => setCurrentView('home'), []);
 
+    const handleStartNewExamFromResults = useCallback(() => {
+        const currentSelectedState = localStorage.getItem('selectedState');
+        if (currentSelectedState) {
+            handleStartExam(currentSelectedState);
+        } else {
+            navigateHome();
+        }
+    }, [handleStartExam, navigateHome]);
+
     const renderContent = () => {
         if (isLoading && currentView === 'loading') return <p className="text-center text-gray-500 text-xl py-10">Loading data...</p>;
         if (currentView === 'error') return (
@@ -231,7 +230,12 @@ const App = () => {
         switch (currentView) {
             case 'home': return <HomePage statesData={statesData} onStartPractice={handleStartPractice} onStartExam={handleStartExam} onStartFlashcards={handleStartFlashcards} />;
             case 'practice': return <PracticeMode questions={practiceSessionQuestions} onNavigateHome={navigateHome} />;
-            case 'exam': return <ExamMode questions={examSessionQuestions} onNavigateHome={navigateHome} examDuration={600} />;
+            case 'exam': return <ExamMode
+                                    questions={examSessionQuestions}
+                                    onNavigateHome={navigateHome}
+                                    examDuration={3600}
+                                    onStartNewTest={handleStartNewExamFromResults}
+                                />;
             case 'flashcards': return <FlashcardMode initialQuestions={flashcardSessionQuestions} onNavigateHome={navigateHome} cardDuration={15}/>;
             default: return (
                 <div className="text-center text-red-500 p-6">
