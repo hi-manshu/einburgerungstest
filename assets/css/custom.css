@@ -1,0 +1,81 @@
+/* Custom CSS - For animations or styles not easily achievable with Tailwind utility classes directly */
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Basic fade-in animation for content changes */
+.fade-in {
+    animation: fadeInAnimation 0.5s ease-in-out;
+}
+
+@keyframes fadeInAnimation {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Basic slide-in animation for question transitions */
+.slide-in-next {
+    animation: slideInNextAnimation 0.4s ease-out;
+}
+@keyframes slideInNextAnimation {
+    from { opacity: 0; transform: translateX(50px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.slide-in-prev {
+    animation: slideInPrevAnimation 0.4s ease-out;
+}
+@keyframes slideInPrevAnimation {
+    from { opacity: 0; transform: translateX(-50px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+
+/* Button base styles (complementing Tailwind) - to be applied via classes like btn-primary */
+/* Example: .btn-primary could be defined here if not using @apply, or use @apply for utility composition */
+/* For this exercise, direct Tailwind classes in HTML (as done in the JS) are preferred for buttons. */
+/* We can keep these as examples or remove if Tailwind @apply causes issues in simple CSS files without PostCSS */
+
+/* Styling for selected options to be more prominent - this is a good candidate for custom.css */
+.option-btn.selected-answer-display { /* Applied after an answer is chosen to show correct/incorrect */
+    /* Example: Tailwind's ring utilities are often better applied directly in JS */
+}
+
+
+/* Flashcard flip animation (conceptual) */
+.flashcard.is-flipped .flashcard-inner {
+    transform: rotateY(180deg);
+}
+.flashcard-inner {
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    position: relative; /* Needed for absolute positioning of front/back */
+}
+.flashcard-front, .flashcard-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden; /* Safari */
+    backface-visibility: hidden;
+    /* Basic styling for front/back - can be enhanced */
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    background-color: white;
+}
+.flashcard-back {
+    transform: rotateY(180deg);
+    /* Content for back like answer, explanation */
+}
+
+
+/* Responsive improvements for smaller screens if specific tweaks are needed */
+@media (max-width: 640px) {
+    /* .container class is typically from Tailwind, not to be redefined here unless overriding */
+    /* Example: h1, h2, h3 font sizes can be adjusted */
+    /* h1 { font-size: 1.75rem; } */ /* Tailwind: text-2xl sm:text-3xl */
+}

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Einbürgerungstest App - Unit Tests</title>
+    <link href="../assets/css/custom.css" rel="stylesheet"> <!-- Optional: for console styling -->
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; color: #333; }
+        h1 { text-align: center; color: #333; }
+        #test-results { margin-top: 20px; padding: 15px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        #test-summary { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Einbürgerungstest App - Unit Tests</h1>
+    <p>Open the browser console (F12 or Right-click > Inspect > Console) to see test results.</p>
+    <div id="test-results">
+        <p>Running tests...</p>
+    </div>
+    <div id="test-summary"></div>
+
+    <!-- Load data and app logic (needed for tests) -->
+    <!-- Important: Paths are relative to tests/test-runner.html -->
+    <script src="../assets/js/questions_data.js"></script>
+    <script src="../assets/js/app.js"></script>
+
+    <!-- Load test utilities and specific tests -->
+    <script src="test-utils.js"></script>
+    <script src="app.tests.js"></script>
+
+    <script>
+        // Modify printTestSummary to also update the HTML page
+        const originalPrintTestSummary = printTestSummary;
+        printTestSummary = () => {
+            originalPrintTestSummary(); // Call original console output
+            const summaryDiv = document.getElementById('test-summary');
+            const resultsDiv = document.getElementById('test-results');
+            if (testsPassed === testsRun && testsRun > 0) { // check testsRun > 0 to ensure tests actually ran
+                summaryDiv.innerHTML = `<p style="color: green;">All ${testsRun} tests passed!</p>`;
+                resultsDiv.innerHTML = '<p>All tests passed. Check console for details.</p>';
+            } else if (testsRun === 0) {
+                 summaryDiv.innerHTML = `<p style="color: orange;">No tests were executed. Check console for errors.</p>`;
+                 resultsDiv.innerHTML = '<p>No tests run. This might be due to an error loading test files or data.</p>';
+            }
+            else {
+                summaryDiv.innerHTML = `<p style="color: red;">${testsPassed} out of ${testsRun} tests passed. Check console for errors.</p>`;
+                resultsDiv.innerHTML = '<p>Some tests failed. Check console for details.</p>';
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("Test runner: DOMContentLoaded. Waiting for app data to load...");
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<p>Loading application data for tests...</p>';
+
+            const checkDataLoadedInterval = 200; // ms
+            const maxWaitTime = 10000; // 10 seconds
+            let totalWaitTime = 0;
+
+            const checkDataLoaded = setInterval(() => {
+                totalWaitTime += checkDataLoadedInterval;
+                if (typeof allQuestions !== 'undefined' && allQuestions.length > 0 && typeof statesData !== 'undefined' && Object.keys(statesData).length > 0 && typeof runAllTests === 'function') {
+                    clearInterval(checkDataLoaded);
+                    console.log("Test runner: Data loaded and test functions ready. Running tests...");
+                    resultsDiv.innerHTML = '<p>Data loaded. Running tests... Check console.</p>';
+                    try {
+                        runAllTests();
+                    } catch (e) {
+                        console.error("Error during runAllTests():", e);
+                        resultsDiv.innerHTML = '<p style="color: red;">An error occurred while running tests. Check console.</p>';
+                    }
+                    printTestSummary();
+                } else if (totalWaitTime >= maxWaitTime) {
+                    clearInterval(checkDataLoaded);
+                    console.error("Test runner: Data or test functions did not load in time. Tests cannot run.");
+                    const summaryDiv = document.getElementById('test-summary');
+                    summaryDiv.innerHTML = '<p style="color: red;">Error: Test data or test functions did not load. Cannot run tests. (allQuestions loaded: ' + (typeof allQuestions !== "undefined" && allQuestions.length > 0) + ', statesData loaded: ' + (typeof statesData !== "undefined" && Object.keys(statesData).length > 0) + ', runAllTests defined: ' + (typeof runAllTests === "function")+')</p>';
+                    resultsDiv.innerHTML = '<p style="color: red;">Critical error: Timeout waiting for data/test functions. Check console for loading errors in app.js or questions_data.js.</p>';
+                } else {
+                    // console.log("Test runner: Waiting for data and runAllTests function...");
+                }
+            }, checkDataLoadedInterval);
+        });
+    </script>
+</body>
+</html>
