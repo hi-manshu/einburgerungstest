@@ -1,4 +1,32 @@
-import React, { useState } from 'react'; // Imported useState
+import React, { useState } from 'react';
+
+// Message Categories
+const perfectScoreMessages = [
+    "Perfect Score! You Crushed It!",
+    "Flawless Victory!",
+    "33 Out of 33? You're a Legend!", // This specific one might be better if questions.length is checked
+    "Nailed It! You’re the Gold Standard!",
+    "This Test Didn’t Stand a Chance!",
+    "Zero Mistakes. All Brilliance."
+];
+
+const passedMessages = [
+    "Well Done! You Passed With Style!",
+    "On Point! Keep the Momentum Going!",
+    "Solid Work! You’ve Got This!",
+    "Pass Unlocked—Next Level Awaits!",
+    "Good Job! Just a Few More to Perfection.",
+    "You Did It—And You’re Just Getting Started!"
+];
+
+const failedMessages = [
+    "Keep Practicing, You Can Do It!",
+    "Not This Time—But You’re Closer Than You Think!",
+    "Failure’s Just a Stepping Stone—Let’s Try Again!",
+    "Missed the Mark? Reset and Fire Again!",
+    "Oops! Time to Learn and Level Up!",
+    "Practice Mode: Activated. Powering Up…"
+];
 
 const ExamResultsPage = ({
     questions = [],
@@ -31,6 +59,27 @@ const ExamResultsPage = ({
     // const calculatedScore = questions.length > 0 ? (correctAnswersCount / questions.length) * 100 : 0;
     // const calculatedIsPassed = correctAnswersCount >= passMark;
 
+    // Select random outcome message
+    let outcomeMessage = "";
+    // The prop correctAnswersCount is calculated in App.jsx and passed down, or we use the local one.
+    // Let's ensure we use the local one for consistency if it's always calculated here.
+    // The local `correctAnswersCount` is based on `questions` and `userAnswers` props.
+    const localCorrectAnswersCount = questions.reduce((count, q) => {
+        return userAnswers[q.id] === q.correct_answer ? count + 1 : count;
+    }, 0);
+
+    if (isPassed && localCorrectAnswersCount === questions.length && questions.length > 0) {
+        outcomeMessage = perfectScoreMessages[Math.floor(Math.random() * perfectScoreMessages.length)];
+        // Adjust "33 out of 33" message if it's a perfect score but not 33 questions
+        if (questions.length !== 33 && outcomeMessage === "33 Out of 33? You're a Legend!") {
+            outcomeMessage = `Perfect Score! ${questions.length} out of ${questions.length}! You're a Legend!`;
+        }
+    } else if (isPassed) {
+        outcomeMessage = passedMessages[Math.floor(Math.random() * passedMessages.length)];
+    } else {
+        outcomeMessage = failedMessages[Math.floor(Math.random() * failedMessages.length)];
+    }
+
     // Derive data for the selected question to display
     const questionToDisplay = questions[selectedQuestionIndex];
     const userAnswerDetails = questionToDisplay ? userAnswers[questionToDisplay.id] : undefined;
@@ -50,44 +99,44 @@ const ExamResultsPage = ({
     }
 
     return (
-        <div className={`bg-white p-4 md:p-6 rounded-lg shadow-lg max-w-3xl mx-auto my-8 border-t-8 ${isPassed ? 'border-green-500' : 'border-red-500'}`}>
-            <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Exam Results</h2>
+        <div className={`bg-slate-50 p-6 md:p-8 rounded-lg shadow-lg max-w-3xl mx-auto my-8 border-t-8 ${isPassed ? 'border-green-500' : 'border-red-500'}`}> {/* Overall container */}
+            <h2 className="text-3xl font-bold mb-8 text-center text-indigo-700">Exam Results</h2> {/* Main Title */}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-center md:text-left">
-                <div className="bg-gray-100 p-5 rounded-lg shadow-sm"> {/* Changed p-4 to p-5 */}
+                <div className="bg-white border border-slate-200 p-5 rounded-lg shadow-sm"> {/* Summary Grid Item */}
                     <p className="text-lg text-gray-700">Time Taken:</p>
                     <p className="text-2xl font-semibold text-blue-600">{formatTime(timeTaken)}</p>
                 </div>
-                <div className="bg-gray-100 p-5 rounded-lg shadow-sm"> {/* Changed p-4 to p-5 */}
+                <div className="bg-white border border-slate-200 p-5 rounded-lg shadow-sm"> {/* Summary Grid Item */}
                     <p className="text-lg text-gray-700">Your Score:</p>
                     <p className={`text-2xl font-semibold ${isPassed ? 'text-green-600' : 'text-red-600'}`}>
                         {score.toFixed(0)}% ({correctAnswersCount}/{questions.length})
                     </p>
                 </div>
-                <div className="bg-gray-100 p-5 rounded-lg shadow-sm md:col-span-2"> {/* Changed p-4 to p-5 */}
+                <div className="bg-white border border-slate-200 p-5 rounded-lg shadow-sm md:col-span-2"> {/* Summary Grid Item - Outcome */}
                      <p className="text-lg text-gray-700">Outcome:</p>
                     <p className={`text-2xl font-bold ${isPassed ? 'text-green-600' : 'text-red-600'}`}>
-                        {isPassed ? 'Congratulations, You Passed!' : 'Keep Practicing, You Can Do It!'}
+                        {outcomeMessage}
                     </p>
-                    <p className="text-sm text-gray-500 mt-1">(Pass mark: {passMark} correct answers needed for {questions.length} questions)</p>
+                    <p className="text-sm text-gray-500 mt-1">
+                        (Pass mark: {passMark} correct out of {questions.length} questions)
+                    </p>
                 </div>
             </div>
 
             {/* Placeholder for detailed question list - to be implemented next */}
             <div className="mb-8">
-                <h3 className="text-2xl font-semibold mb-4 text-gray-700">Question Review</h3>
+                <h3 className="text-2xl font-semibold mb-6 text-indigo-600">Question Review</h3> {/* Question Review Title */}
                 {/* Horizontal list of numbered boxes */}
-                <div className="flex overflow-x-auto space-x-2 p-2 mb-4 bg-gray-100 rounded-md shadow-sm"> {/* Added shadow-sm */}
+                <div className="flex overflow-x-auto space-x-2 p-2 mb-4 bg-slate-200 rounded-md shadow-sm"> {/* Numbered Boxes Container */}
                     {questions.map((question, index) => {
                         const userAnswer = userAnswers[question.id];
+                        // An unanswered question is not correct.
                         const isCorrect = userAnswer === question.correct_answer;
-                        const isAnswered = userAnswer !== undefined;
 
-                        let boxColor = 'bg-gray-300 hover:bg-gray-400'; // Default for unanswered
-                        if (isAnswered) {
-                            boxColor = isCorrect ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600';
-                        }
-                        const textColor = isAnswered ? 'text-white' : 'text-gray-700';
+                        // If correct, green. Otherwise (incorrect or unanswered), red.
+                        const boxColor = isCorrect ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600';
+                        const textColor = 'text-white'; // Always white for green or red boxes
 
                         return (
                             <button
@@ -105,7 +154,7 @@ const ExamResultsPage = ({
                 </div>
 
                 {/* Display for selected question details */}
-                <div className="mt-4 p-4 border rounded-lg bg-white shadow min-h-[150px]">
+                <div className="mt-4 p-5 border border-slate-200 rounded-lg bg-white shadow-md min-h-[150px]"> {/* Selected Question Detail View */}
                     {questionToDisplay ? (
                         <>
                             <p className="text-sm text-gray-500 mb-1">
@@ -155,17 +204,17 @@ const ExamResultsPage = ({
             <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
                 <button
                     onClick={onRetryTest}
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded text-lg min-w-[150px] transition-colors duration-150 ease-in-out">
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg min-w-[160px] shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-150 ease-in-out">
                     Retry Test
                 </button>
                 <button
                     onClick={onStartNewTest}
-                    className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded text-lg min-w-[150px] transition-colors duration-150 ease-in-out">
+                    className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg min-w-[160px] shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-150 ease-in-out">
                     New Test
                 </button>
                 <button
                     onClick={onNavigateHome}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded text-lg min-w-[150px] transition-colors duration-150 ease-in-out">
+                    className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-lg text-lg min-w-[160px] shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-150 ease-in-out">
                     Home
                 </button>
             </div>
