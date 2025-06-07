@@ -1,125 +1,85 @@
 import React from 'react';
 
-// --- HomePage Component Definition ---
-// This version expects all state management (selectedState, onStateChange, onResetState)
-// and language props (selectedLanguage, onLanguageChange) to be passed from App.jsx.
-const HomePage = ({
-    statesData,
-    onStartPractice,
-    onStartExam,
-    onStartFlashcards,
-    selectedState,
-    onStateChange,
-    onResetState,
-    selectedLanguage,
-    onLanguageChange
-}) => {
+// Placeholder icons (replace with actual SVGs or an icon library later)
+const PracticeIcon = () => <span className="text-4xl mb-4 text-indigo-500">📝</span>; // Using emoji as placeholder
+const ExamIcon = () => <span className="text-4xl mb-4 text-green-500">⏱️</span>; // Using emoji as placeholder
+const FlashcardIcon = () => <span className="text-4xl mb-4 text-purple-500">🗂️</span>; // Using emoji as placeholder
 
-    const handleNavigation = (navigationFunc, requiresState = true) => {
-        if (requiresState && !selectedState) {
-            // Replaced alert with a simple console log for Canvas environment
-            console.log("Please select a state to proceed with this mode.");
-            return;
-        }
-        navigationFunc(selectedState); // Pass selectedState from props
-    };
+const HomePage = ({ onStartPractice, onStartExam, onStartFlashcards, selectedState }) => {
+    // selectedState is passed from App.jsx. It's implicitly used by the action handlers
+    // which are defined in App.jsx and already have access to selectedState from App's state.
+    // No explicit check for selectedState here is needed as App.jsx handles the onboarding flow
+    // and ensures selectedState is set before rendering HomePage.
 
-    const LANGUAGES = [
-        { code: 'en', name: 'English' },
-        { code: 'tr', name: 'Türkçe' },
-        { code: 'ru', name: 'Русский' },
-        { code: 'fr', name: 'Français' },
-        { code: 'ar', name: 'العربية' },
-        { code: 'uk', name: 'Українська' },
-        { code: 'hi', name: 'हिन्दी' }
+    const cardsData = [
+        {
+            id: 'practice',
+            icon: <PracticeIcon />,
+            title: 'Practice Questions',
+            subtitle: 'Sharpen your knowledge with topic-specific questions. Review answers and explanations.',
+            buttonText: 'Start Practice',
+            action: onStartPractice,
+            colorClass: 'hover:border-indigo-400',
+        },
+        {
+            id: 'exam',
+            icon: <ExamIcon />,
+            title: 'Mock Exam',
+            subtitle: 'Simulate the official test with 33 questions under timed conditions (60 minutes).',
+            buttonText: 'Start Exam',
+            action: onStartExam,
+            colorClass: 'hover:border-green-400',
+        },
+        {
+            id: 'flashcards',
+            icon: <FlashcardIcon />,
+            title: 'Flashcard Mode',
+            subtitle: 'Review key questions and concepts with interactive flashcards for quick learning.',
+            buttonText: 'Start Flashcards',
+            action: onStartFlashcards,
+            colorClass: 'hover:border-purple-400',
+        },
     ];
 
     return (
-        <div className="text-center">
-            <h2 className="text-2xl font-semibold mb-8">Let’s get started — choose how you’d like to learn today!</h2>
+        <div className="text-center py-8 px-4">
+            <h2 className="text-3xl font-bold mb-4 text-gray-800">Choose Your Learning Mode</h2>
+            <p className="text-md text-gray-600 mb-10 max-w-2xl mx-auto">
+                Your preferences for state and language are set. Select an activity below to begin your preparation for the Einbürgerungstest.
+            </p>
 
-            {/* Container for existing two columns and the new language selector row */}
-            <div className="flex flex-col gap-8 items-center"> {/* Centering the content */}
-                {/* Modified two-column layout for State, Language, and Activity selection */}
-                <div className="flex flex-row gap-8 mt-4 items-start w-full max-w-4xl"> {/* Max width for content */}
-
-                    {/* Enhanced Left Column: State Selection and Language Selection */}
-                    <div className="md:w-2/4 flex flex-col gap-8">
-                        {/* State Selection Box */}
-                        <div className="p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 self-start w-full">
-                            <h3 className="text-xl font-semibold mb-3 text-gray-700">1. Select Your State</h3>
-                            <label htmlFor="state-select" className="sr-only">
-                                Select Your State:
-                            </label>
-                            <select
-                                id="state-select"
-                                value={selectedState} // Use selectedState from props
-                                onChange={onStateChange} // Use onStateChange from props
-                                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow">
-                                <option value="">Select a State</option>
-                                {Object.entries(statesData || {}).sort(([,a],[,b]) => a.localeCompare(b)).map(([code, name]) => (
-                                    <option key={code} value={code}>{name}</option>
-                                ))}
-                            </select>
-                            {!selectedState && (
-                                 <p className="text-sm text-gray-500 mt-2">Please select a state to enable activities.</p>
-                            )}
-                            <div className="flex justify-center mt-4">
-                                <button
-                                    onClick={onResetState} // Use onResetState from props
-                                    className="bg-pink-400 hover:bg-black-500 text-white text-sm font-bold py-2 px-3 rounded shadow-md transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
-                                    disabled={!selectedState}
-                                >
-                                    Reset State
-                                </button>
-                            </div>
+            {/* Cards Container */}
+            <div className="flex flex-col md:flex-row justify-center items-stretch gap-6 md:gap-8 max-w-5xl mx-auto">
+                {cardsData.map((card) => (
+                    <div
+                        key={card.id}
+                        className={`group relative bg-white p-6 rounded-xl shadow-lg border border-gray-200
+                                    transition-all duration-300 ease-in-out transform hover:scale-105
+                                    flex flex-col items-center text-center md:w-1/3 ${card.colorClass} cursor-pointer`}
+                        onClick={card.action} // Make the whole card clickable
+                        style={{ minHeight: '300px' }} // Ensure cards have a minimum height, adjusted for content
+                    >
+                        {card.icon}
+                        <h3 className="text-xl font-semibold text-gray-800 mb-2">{card.title}</h3>
+                        <div className="flex-grow flex items-center"> {/* Wrapper for subtitle to center it vertically */}
+                            <p className="text-sm text-gray-600 mb-4">{card.subtitle}</p>
                         </div>
-
-                        {/* Language Selection Box (MOVED AND RESTYLED) */}
-                        <div className="p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 self-start w-full">
-                            <h3 className="text-lg font-semibold mb-2 text-gray-700">Language for Practice Translations</h3>
-                            <p className="text-sm text-gray-600 mb-3">
-                                Choose the language in which you'd like to see translations for questions during practice mode. The primary language will always be German. Exam mode does not show translations.
-                            </p>
-                            <label htmlFor="language-select-home" className="sr-only">Select Translation Language:</label>
-                            <select
-                                id="language-select-home"
-                                value={selectedLanguage}
-                                onChange={(e) => onLanguageChange(e.target.value)}
-                                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow"
+                        <div className="h-16"> {/* Reserved space for the button to prevent layout shift */}
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation(); // Prevent card's onClick if button is clicked directly
+                                    card.action();
+                                }}
+                                className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-indigo-600 text-white
+                                           py-2 px-6 rounded-md shadow-md
+                                           opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out
+                                           transform group-hover:translate-y-0 translate-y-3 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             >
-                                {LANGUAGES.map(lang => (
-                                    <option key={lang.code} value={lang.code}>{lang.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-
-                    {/* Right Column: Activity Buttons (Unchanged structurally relative to its direct parent) */}
-                    <div className="md:w-2/4 p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 self-start">
-                        <h3 className="text-xl font-semibold mb-4 text-gray-700">2. Choose an Activity</h3>
-                        <div className="space-y-4">
-                            <button
-                                onClick={() => handleNavigation(onStartPractice)}
-                                className="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-4 rounded shadow-md hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled={!selectedState}>
-                                Practice
-                            </button>
-                            <button
-                                onClick={() => handleNavigation(onStartExam)}
-                                className="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-3 px-4 rounded shadow-md hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled={!selectedState}>
-                                Test
-                            </button>
-                            <button
-                                onClick={() => handleNavigation(onStartFlashcards)}
-                                className="w-full bg-purple-500 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded shadow-md hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled={!selectedState}>
-                                Flashcards
+                                {card.buttonText}
                             </button>
                         </div>
                     </div>
-                </div>
+                ))}
             </div>
         </div>
     );
