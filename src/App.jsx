@@ -209,6 +209,17 @@ const App = () => {
 
     }, [rawQuestionsData, selectedLanguage]); // Runs when rawQuestionsData or selectedLanguage changes
 
+    // Effect to update practice session questions if language changes while in practice mode
+    useEffect(() => {
+        if (currentView === 'practice' && selectedState && allQuestionsData && allQuestionsData.length > 0) {
+            // console.log(`Re-calculating practice questions for state ${selectedState} due to language change.`);
+            const generalQuestions = allQuestionsData.filter(q => q.state_code === null);
+            const stateSpecificQuestions = allQuestionsData.filter(q => q.state_code === selectedState);
+            const sessionQuestions = [...generalQuestions, ...stateSpecificQuestions];
+            setPracticeSessionQuestions(shuffleArray(sessionQuestions));
+        }
+    }, [allQuestionsData, currentView, selectedState]); // Dependencies
+
     const handleStartPractice = useCallback((stateCode) => {
         setSelectedState(stateCode);
         localStorage.setItem('selectedState', stateCode);
