@@ -27,8 +27,29 @@ const App = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [currentView, setCurrentView] = useState('loading'); // Initial view
 
-    const initialSelectedState = localStorage.getItem('selectedState') || '';
-    const initialSelectedLanguage = localStorage.getItem('selectedLanguage') || AVAILABLE_LANGUAGES[0]?.code || 'en';
+    let initialSelectedState = '';
+    let initialSelectedLanguage = AVAILABLE_LANGUAGES[0]?.code || 'en'; // Default language
+
+    try {
+        const storedState = localStorage.getItem('selectedState');
+        if (storedState) {
+            initialSelectedState = storedState;
+        }
+    } catch (e) {
+        console.warn("Could not access localStorage for selectedState:", e);
+        // initialSelectedState remains ''
+    }
+
+    try {
+        const storedLanguage = localStorage.getItem('selectedLanguage');
+        if (storedLanguage) {
+            initialSelectedLanguage = storedLanguage;
+        }
+        // If not found, it keeps the default from AVAILABLE_LANGUAGES
+    } catch (e) {
+        console.warn("Could not access localStorage for selectedLanguage:", e);
+        // initialSelectedLanguage remains the default
+    }
 
     const [selectedState, setSelectedState] = useState(initialSelectedState);
     const [selectedLanguage, setSelectedLanguage] = useState(initialSelectedLanguage);
@@ -83,20 +104,28 @@ const App = () => {
             const hasQuestionsError = qError || !fetchedQuestions || fetchedQuestions.length === 0;
             const hasStatesError = sError; // Explicitly using sError for clarity on state data failure
 
+            // Determine error states (using names from prompt for clarity, though hasQuestionsError/hasStatesError are equivalent)
+            const questionsFetchFailed = qError || !fetchedQuestions || fetchedQuestions.length === 0;
+            const statesFetchFailed = sError;
+
             let errorMessages = [];
             if (qError) errorMessages.push(qError);
+            if (!fetchedQuestions || fetchedQuestions.length === 0) {
+                // Add "No questions found." if questions are missing.
+                // This ensures the message is present if questions are empty, even if qError (network error) isn't set.
+                // If qError *also* indicates no questions, this might lead to similar messages; however,
+                // qError usually indicates a fetch problem, while this checks the result.
+                // For the purpose of this subtask, we follow the prompt's structure.
+                errorMessages.push("No questions found.");
+            }
             if (sError) errorMessages.push(sError);
-            if (!fetchedQuestions || fetchedQuestions.length === 0) errorMessages.push("No questions found.");
 
             if (errorMessages.length > 0) {
                 setLoadingError(errorMessages.join('; '));
             }
 
             if (isOnboardingComplete) {
-                // For an onboarded user, any data fetching error is problematic.
-                // States data (sError) is critical for displaying state names or other state-dependent features.
-                // Questions data (hasQuestionsError) is critical for core app functionality.
-                if (hasQuestionsError || hasStatesError) {
+                if (questionsFetchFailed || statesFetchFailed) {
                     setCurrentView('error');
                 } else {
                     setCurrentView('home');
