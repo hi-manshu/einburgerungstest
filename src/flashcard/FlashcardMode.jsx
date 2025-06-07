@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import shuffleArray from '../utils/shuffleArray.js';
 
-// --- FlashcardMode Component Definition ---
+
 const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) => {
     const [remainingQuestions, setRemainingQuestions] = useState([]);
     const [currentCard, setCurrentCard] = useState(null);
@@ -42,13 +42,13 @@ const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) 
     const getCorrectAnswerText = (card) => {
         if (!card || !card.options || !card.correct_answer) return "N/A";
         const correctOption = card.options.find(opt => opt.id === card.correct_answer);
-        return correctOption ? `${card.correct_answer.toUpperCase()}. ${correctOption.text_de || correctOption.text}` : "N/A";
+        return correctOption ? `${card.correct_answer.toUpperCase()}. ${correctOption.text_de}` : "N/A";
     };
 
     const handleFlashcardTimeout = () => {
         if (!currentCard) return;
         if (timerIdRef.current) clearTimeout(timerIdRef.current);
-        setFeedback(`Time's up! Correct: ${getCorrectAnswerText(currentCard)}`);
+        setFeedback(`Zeit abgelaufen! Richtig: ${getCorrectAnswerText(currentCard)}`);
         setShowingAnswer(true);
     };
 
@@ -57,12 +57,12 @@ const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) 
         if (timerIdRef.current) clearTimeout(timerIdRef.current);
         const isCorrect = selectedOptionId === currentCard.correct_answer;
         if (isCorrect) {
-            setFeedback("Correct!");
+            setFeedback("Richtig!");
             feedbackTimeoutIdRef.current = setTimeout(() => {
-                 setRemainingQuestions(prev => prev.filter(q => q.id !== currentCard.id));
+                setRemainingQuestions(prev => prev.filter(q => q.id !== currentCard.id));
             }, 1500);
         } else {
-            setFeedback(`Incorrect. Correct: ${getCorrectAnswerText(currentCard)}`);
+            setFeedback(`Falsch. Richtig: ${getCorrectAnswerText(currentCard)}`);
             setShowingAnswer(true);
         }
     };
@@ -79,9 +79,9 @@ const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) 
     if (!initialQuestions || initialQuestions.length === 0) {
         return (
             <div className="text-center p-6">
-                <p className="text-xl text-gray-700 mb-6">No questions available for flashcards in this selection.</p>
+                <p className="text-xl text-gray-700 mb-6">Keine Fragen verfügbar.</p>
                 <button onClick={onNavigateHome} className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded text-lg">
-                    Back to Home
+                    Zurück zur Startseite
                 </button>
             </div>
         );
@@ -90,14 +90,14 @@ const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) 
     if (!currentCard) {
         return (
             <div className="text-center p-6 bg-white rounded-lg shadow-xl max-w-md mx-auto">
-                <h2 className="text-3xl font-bold text-green-600 mb-6">Flashcards Done!</h2>
-                <p className="text-lg text-gray-700 mb-8">You have completed all flashcards for this session.</p>
+                <h2 className="text-3xl font-bold text-green-600 mb-6">Fertig!</h2>
+                <p className="text-lg text-gray-700 mb-8">Du hast alle Karten dieser Sitzung durchgesehen.</p>
                 <div className="space-y-4">
                     <button onClick={handleRestartFlashcards} className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded text-lg transition-colors">
-                        Restart Session
+                        Wiederholen
                     </button>
                     <button onClick={onNavigateHome} className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded text-lg transition-colors">
-                        Back to Home
+                        Zurück zur Startseite
                     </button>
                 </div>
             </div>
@@ -110,8 +110,8 @@ const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) 
                 {!showingAnswer && <div className="text-2xl font-bold text-blue-600" role="timer">{timer}s</div>}
                 {feedback &&
                     <p className={`my-3 p-3 rounded-md text-lg font-medium ${
-                        feedback.startsWith("Correct") ? 'bg-green-100 text-green-700' :
-                        feedback.startsWith("Time") ? 'bg-yellow-100 text-yellow-700' :
+                        feedback.startsWith("Richtig") ? 'bg-green-100 text-green-700' :
+                        feedback.startsWith("Zeit") ? 'bg-yellow-100 text-yellow-700' :
                         'bg-red-100 text-red-700'}`
                     }>
                         {feedback}
@@ -120,8 +120,7 @@ const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) 
             </div>
 
             <div className="bg-gray-50 p-6 rounded-lg shadow-inner min-h-[150px] flex flex-col justify-center items-center mb-6">
-                <h3 className="text-xl md:text-2xl font-semibold text-gray-800">{currentCard.question_text}</h3>
-                <p className="text-lg text-gray-600 italic mt-1">{currentCard.question_text_de}</p>
+                <h3 className="text-xl md:text-2xl font-semibold text-gray-800">{currentCard.question_text_de}</h3>
             </div>
 
             {!showingAnswer ? (
@@ -131,8 +130,7 @@ const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) 
                             key={opt.id}
                             onClick={() => handleOptionSelect(opt.id)}
                             className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50">
-                            {opt.id.toUpperCase()}. {opt.text}
-                            <span className="italic text-sm opacity-90"> ({opt.text_de})</span>
+                            {opt.id.toUpperCase()}. {opt.text_de}
                         </button>
                     ))}
                 </div>
@@ -140,13 +138,13 @@ const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) 
                 <button
                     onClick={handleProceedToNextCard}
                     className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50">
-                    Next Card
+                    Nächste Karte
                 </button>
             )}
             <button
                 onClick={onNavigateHome}
                 className="mt-8 bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 px-5 rounded-lg w-full transition-colors">
-                Finish Session & Go Home
+                Sitzung beenden & zurück
             </button>
         </div>
     );

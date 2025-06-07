@@ -1,20 +1,30 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import PracticeMode from './practice/PracticeMode.jsx';
 import ExamMode from './exam/ExamMode.jsx';
+import Header from './component/header.jsx'
 import FlashcardMode from './flashcard/FlashcardMode.jsx';
 import shuffleArray from './utils/shuffleArray.js';
 
 // --- HomePage Component Definition ---
 const HomePage = ({ statesData, onStartPractice, onStartExam, onStartFlashcards }) => {
     const [selectedState, setSelectedState] = useState(localStorage.getItem('selectedState') || '');
+
     const handleStateChange = (event) => {
         const newState = event.target.value;
         setSelectedState(newState);
         localStorage.setItem('selectedState', newState);
     };
+
+    // Handler to reset the selected state
+    const handleResetState = () => {
+        setSelectedState(''); // Reset selected state to empty
+        localStorage.removeItem('selectedState'); // Clear from local storage
+    };
+
     const handleNavigation = (navigationFunc, requiresState = true) => {
         if (requiresState && !selectedState) {
-            alert("Please select a state to proceed with this mode.");
+            // Replaced alert with a simple console log for Canvas environment
+            console.log("Please select a state to proceed with this mode.");
             return;
         }
         navigationFunc(selectedState);
@@ -22,10 +32,11 @@ const HomePage = ({ statesData, onStartPractice, onStartExam, onStartFlashcards 
 
     return (
         <div className="text-center">
-            <h2 className="text-2xl font-semibold mb-6">Welcome! Choose your mode:</h2>
-            <div className="flex flex-col md:flex-row gap-8 mt-4">
-                {/* Left Column: State Selection */}
-                <div className="md:w-1/3 p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50">
+            <h2 className="text-2xl font-semibold mb-8">Let’s get started — choose how you’d like to learn today!</h2>
+            {/* The flex container for the two columns. items-start aligns them to the top */}
+            <div className="flex flex-row gap-8 mt-4 items-start">
+                {/* Left Column: State Selection - now wraps content with self-start */}
+                <div className="md:w-2/4 p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 self-start">
                     <h3 className="text-xl font-semibold mb-3 text-gray-700">1. Select Your State</h3>
                     <label htmlFor="state-select" className="sr-only">
                         Select Your State:
@@ -43,10 +54,20 @@ const HomePage = ({ statesData, onStartPractice, onStartExam, onStartFlashcards 
                     {!selectedState && (
                          <p className="text-sm text-gray-500 mt-2">Please select a state to enable activities.</p>
                     )}
+                    {/* New Reset State Button */}
+                    <div className="flex justify-center mt-4">
+                        <button
+                            onClick={handleResetState}
+                            className="bg-pink-400 hover:bg-black-500 text-white text-sm font-bold py-2 px-3 rounded shadow-md transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={!selectedState} // Enabled only if a state is selected
+                        >
+                            Reset State
+                        </button>
+                    </div>
                 </div>
 
                 {/* Right Column: Activity Buttons */}
-                <div className="md:w-2/3 p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50">
+                <div className="md:w-2/4 p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50">
                     <h3 className="text-xl font-semibold mb-4 text-gray-700">2. Choose an Activity</h3>
                     <div className="space-y-4">
                         <button
@@ -248,9 +269,7 @@ const App = () => {
 
     return (
         <React.Fragment>
-            <header className="bg-blue-600 text-white p-4 rounded-lg shadow-md mb-6">
-                <h1 className="text-3xl font-bold text-center">Einbürgerungstest Practice - React</h1>
-            </header>
+            <Header />
             <main id="main-content" className="container mx-auto p-4 min-h-[calc(100vh-200px)]">
                 {renderContent()}
             </main>
