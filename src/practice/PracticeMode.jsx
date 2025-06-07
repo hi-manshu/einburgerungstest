@@ -14,11 +14,37 @@ const PracticeMode = ({ questions: initialQuestions, onNavigateHome, selectedLan
     const [showResults, setShowResults] = useState(false);
 
     useEffect(() => {
+        // `questions` is the current state version of the questions list from the previous render.
+        // `initialQuestions` is the incoming prop, potentially with updated translations.
+
+        let shouldResetSession = false;
+
+        if (!questions || questions.length === 0) { // First time loading or coming from empty
+            shouldResetSession = true;
+        } else if (initialQuestions.length !== questions.length) {
+            shouldResetSession = true;
+        } else if (currentQuestionIndex >= initialQuestions.length) {
+            // Current index is out of bounds for new list (e.g., list became shorter unexpectedly)
+            shouldResetSession = true;
+        } else if (questions[currentQuestionIndex]?.id !== initialQuestions[currentQuestionIndex]?.id) {
+            // The question ID at the current viewing index has changed.
+            shouldResetSession = true;
+        }
+        // If none of the above, it's likely an in-place update (e.g., translations), so don't reset.
+
+        // Always update the internal questions state with the new prop data
         setQuestions(initialQuestions);
-        setCurrentQuestionIndex(0);
-        setUserAnswers({});
-        setShowResults(false);
-    }, [initialQuestions]);
+
+        if (shouldResetSession) {
+            setCurrentQuestionIndex(0);
+            setUserAnswers({});
+            setShowResults(false);
+        }
+        // If shouldResetSession is false, user's current index, answers, and results view state are preserved.
+        // The component re-renders because `questions` state was updated.
+        // This will display the new translated text for the `currentQuestion`.
+
+    }, [initialQuestions, questions, currentQuestionIndex]); // Dependencies for comparison and effect re-evaluation.
 
     const currentQuestion = questions && questions.length > 0 ? questions[currentQuestionIndex] : null;
 

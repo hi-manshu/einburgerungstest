@@ -211,14 +211,38 @@ const App = () => {
 
     // Effect to update practice session questions if language changes while in practice mode
     useEffect(() => {
-        if (currentView === 'practice' && selectedState && allQuestionsData && allQuestionsData.length > 0) {
-            // console.log(`Re-calculating practice questions for state ${selectedState} due to language change.`);
-            const generalQuestions = allQuestionsData.filter(q => q.state_code === null);
-            const stateSpecificQuestions = allQuestionsData.filter(q => q.state_code === selectedState);
-            const sessionQuestions = [...generalQuestions, ...stateSpecificQuestions];
-            setPracticeSessionQuestions(shuffleArray(sessionQuestions));
+        if (currentView === 'practice' && selectedState && allQuestionsData && allQuestionsData.length > 0 && practiceSessionQuestions && practiceSessionQuestions.length > 0) {
+            // console.log(`Updating translations for practice questions in state ${selectedState} due to language change.`);
+            const allQuestionsMap = new Map(allQuestionsData.map(q => [q.id, q]));
+
+            const updatedPracticeQuestions = practiceSessionQuestions.map(practiceQ => {
+                const fullQuestionData = allQuestionsMap.get(practiceQ.id);
+                if (!fullQuestionData) {
+                    return practiceQ; // Should not happen if data is consistent
+                }
+
+                const updatedOptions = practiceQ.options.map(opt => {
+                    const fullOptionData = fullQuestionData.options.find(fullOpt => fullOpt.id === opt.id);
+                    return {
+                        ...opt,
+                        text_translation: fullOptionData ? fullOptionData.text_translation : opt.text_translation,
+                    };
+                });
+
+                return {
+                    ...practiceQ,
+                    question_text_translation: fullQuestionData.question_text_translation,
+                    explanation: fullQuestionData.explanation, // Explanation also needs to be updated
+                    options: updatedOptions,
+                };
+            });
+
+            // Only update if the content has actually changed to avoid potential infinite loops
+            if (JSON.stringify(practiceSessionQuestions) !== JSON.stringify(updatedPracticeQuestions)) {
+                setPracticeSessionQuestions(updatedPracticeQuestions);
+            }
         }
-    }, [allQuestionsData, currentView, selectedState]); // Dependencies
+    }, [allQuestionsData, currentView, selectedState, practiceSessionQuestions]); // Added practiceSessionQuestions to dependencies
 
     const handleStartPractice = useCallback((stateCode) => {
         setSelectedState(stateCode);
