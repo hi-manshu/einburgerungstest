@@ -6,9 +6,7 @@ import Header from './component/header.jsx';
 import FlashcardMode from './flashcard/FlashcardMode.jsx';
 import shuffleArray from './utils/shuffleArray.js';
 import HomePage from './component/homePage.jsx';
-import OnboardingDialog from './component/OnboardingDialog.jsx'; // Added import
-
-// --- App Component Definition ---
+import OnboardingDialog from './component/OnboardingDialog.jsx';
 
 const AVAILABLE_LANGUAGES = [
     { code: 'en', name: 'English' },
@@ -23,15 +21,11 @@ const AVAILABLE_LANGUAGES = [
 const App = () => {
     const [rawQuestionsData, setRawQuestionsData] = useState(null);
     const [allQuestionsData, setAllQuestionsData] = useState([]);
-    const [statesData, setStatesData] = useState({}); // For existing logic (e.g., display state name)
-    const [rawStatesData, setRawStatesData] = useState([]); // For OnboardingDialog state list
+    const [statesData, setStatesData] = useState({});
+    const [rawStatesData, setRawStatesData] = useState([]);
     const [loadingError, setLoadingError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [currentView, setCurrentView] = useState('loading'); // Initial view is loading
-    const [practiceSessionQuestions, setPracticeSessionQuestions] = useState([]);
-    const [examQuestionsForMode, setExamQuestionsForMode] = useState([]);
-    const [flashcardSessionQuestions, setFlashcardSessionQuestions] = useState([]);
-    const [examResultsData, setExamResultsData] = useState(null);
+    const [currentView, setCurrentView] = useState('loading'); // Initial view
 
     const initialSelectedState = localStorage.getItem('selectedState') || '';
     const initialSelectedLanguage = localStorage.getItem('selectedLanguage') || AVAILABLE_LANGUAGES[0]?.code || 'en';
@@ -43,89 +37,83 @@ const App = () => {
         !!(initialSelectedState && initialSelectedLanguage)
     );
 
-    // Callback for OnboardingDialog
     const handleSavePreferences = useCallback((state, language) => {
         setSelectedState(state);
         setSelectedLanguage(language);
         localStorage.setItem('selectedState', state);
         localStorage.setItem('selectedLanguage', language);
         setIsOnboardingComplete(true);
-        setCurrentView('home'); // Navigate to home after saving preferences
+        setCurrentView('home');
     }, []);
 
-    // Handler for language change from Header or other places
     const handleLanguageChange = useCallback((newLanguage) => {
         setSelectedLanguage(newLanguage);
         localStorage.setItem('selectedLanguage', newLanguage);
     }, []);
 
-    // Effect for initial data fetching (runs once)
     useEffect(() => {
         const fetchInitialData = async () => {
-            setIsLoading(true);
-            setCurrentView('loading'); // Explicitly set to loading at the start
+            setIsLoading(true); // Ensure loading state is true at the start
+            // setCurrentView('loading'); // Not strictly needed here as it's the initial state and renderContent checks isLoading first
+
             let qError = null, sError = null;
             let fetchedQuestions = null;
-            let fetchedStatesArray = []; // For rawStatesData
-            let fetchedStatesObject = {}; // For statesData
+            let fetchedStatesArray = [];
+            let fetchedStatesObject = {};
 
             try {
                 const qResponse = await fetch('/data/question.json');
                 if (!qResponse.ok) throw new Error(`Questions fetch failed: ${qResponse.status} ${qResponse.statusText}`);
                 fetchedQuestions = await qResponse.json();
-                if (!Array.isArray(fetchedQuestions)) {
-                    throw new Error('Invalid questions format (expected array).');
-                }
-            } catch (e) {
-                qError = e.message;
-                console.error("Error fetching questions:", e);
-            }
+                if (!Array.isArray(fetchedQuestions)) throw new Error('Invalid questions format.');
+            } catch (e) { qError = e.message; console.error("Error fetching questions:", e); }
 
             try {
                 const sResponse = await fetch('/data/states.json');
                 if (!sResponse.ok) throw new Error(`States fetch failed: ${sResponse.status} ${sResponse.statusText}`);
                 fetchedStatesArray = await sResponse.json();
-                if (!Array.isArray(fetchedStatesArray)) {
-                    throw new Error('Invalid states format (expected array).');
-                }
+                if (!Array.isArray(fetchedStatesArray)) throw new Error('Invalid states format.');
                 fetchedStatesObject = fetchedStatesArray.reduce((obj, state) => { obj[state.code] = state.name; return obj; }, {});
-            } catch (e) {
-                sError = e.message;
-                console.error("Error fetching states:", e);
-            }
+            } catch (e) { sError = e.message; console.error("Error fetching states:", e); }
 
             setRawQuestionsData(fetchedQuestions);
-            setStatesData(fetchedStatesObject); // For display purposes if needed elsewhere
-            setRawStatesData(fetchedStatesArray); // For OnboardingDialog
+            setStatesData(fetchedStatesObject);
+            setRawStatesData(fetchedStatesArray);
 
-            if (qError || sError) {
-                const errors = [qError, sError].filter(Boolean).join('; ');
-                setLoadingError(errors);
-                // If onboarding is not complete, renderContent will handle showing Onboarding or its error
-                // If onboarding IS complete, but data failed, then it's an app error.
-                if (isOnboardingComplete) {
-                     setCurrentView('error');
-                }
-            } else if (!fetchedQuestions || fetchedQuestions.length === 0) {
-                setLoadingError('No questions found in the data file.');
-                 if (isOnboardingComplete) {
+            const hasQuestionsError = qError || !fetchedQuestions || fetchedQuestions.length === 0;
+            const hasStatesError = sError; // Explicitly using sError for clarity on state data failure
+
+            let errorMessages = [];
+            if (qError) errorMessages.push(qError);
+            if (sError) errorMessages.push(sError);
+            if (!fetchedQuestions || fetchedQuestions.length === 0) errorMessages.push("No questions found.");
+
+            if (errorMessages.length > 0) {
+                setLoadingError(errorMessages.join('; '));
+            }
+
+            if (isOnboardingComplete) {
+                // For an onboarded user, any data fetching error is problematic.
+                // States data (sError) is critical for displaying state names or other state-dependent features.
+                // Questions data (hasQuestionsError) is critical for core app functionality.
+                if (hasQuestionsError || hasStatesError) {
                     setCurrentView('error');
-                }
-            } else {
-                if (isOnboardingComplete) {
+                } else {
                     setCurrentView('home');
                 }
-                // If onboarding is not complete, renderContent will take over to show the dialog
+            } else { // Needs onboarding
+                // If states data failed (sError), renderContent will show a specific error for onboarding.
+                // Otherwise, OnboardingDialog will be shown.
+                // This view indicates data fetching is done, and we're ready to decide on onboarding UI.
+                setCurrentView('awaiting_onboarding');
             }
             setIsLoading(false);
         };
         fetchInitialData();
-    }, []); // Empty dependency array: runs only once on mount.
+    }, []); // Runs once on mount
 
-    // Effect for transforming questions when rawQuestionsData or selectedLanguage changes
     useEffect(() => {
         if (!rawQuestionsData) return;
-
         const tempQuestions = rawQuestionsData.map(newQuestion => {
             const options = ['a', 'b', 'c', 'd'].reduce((acc, key) => {
                 if (newQuestion.hasOwnProperty(key)) {
@@ -137,12 +125,10 @@ const App = () => {
                 }
                 return acc;
             }, []);
-
             let stateCode = null;
             if (typeof newQuestion.num === 'string' && newQuestion.num.includes('-')) {
                 stateCode = newQuestion.num.split('-')[0];
             }
-
             return {
                 id: newQuestion.id,
                 question_text: newQuestion.question || '',
@@ -156,7 +142,6 @@ const App = () => {
         setAllQuestionsData(tempQuestions);
     }, [rawQuestionsData, selectedLanguage]);
 
-    // Effect to update practice session questions if language changes while in practice mode
     useEffect(() => {
         if (currentView === 'practice' && selectedState && allQuestionsData.length > 0 && practiceSessionQuestions.length > 0) {
             const allQuestionsMap = new Map(allQuestionsData.map(q => [q.id, q]));
@@ -178,51 +163,34 @@ const App = () => {
                 setPracticeSessionQuestions(updatedPracticeQuestions);
             }
         }
-    }, [allQuestionsData, currentView, selectedState, practiceSessionQuestions, selectedLanguage]); // Added selectedLanguage
+    }, [allQuestionsData, currentView, selectedState, practiceSessionQuestions, selectedLanguage]);
 
-    const handleStartPractice = useCallback(() => { // stateCode argument removed
-        if (!selectedState) {
-            // This case should ideally be prevented by UI (e.g. disable button if no state selected)
-            // or handled by ensuring onboarding happens first.
-            alert("Please complete onboarding to select a state first.");
-            return;
-        }
+    const handleStartPractice = useCallback(() => {
+        if (!selectedState) { alert("Please complete onboarding to select a state first."); return; }
         const generalQuestions = allQuestionsData.filter(q => q.state_code === null);
         const stateSpecificQuestions = allQuestionsData.filter(q => q.state_code === selectedState);
-        const sessionQuestions = [...generalQuestions, ...stateSpecificQuestions];
-        setPracticeSessionQuestions(shuffleArray(sessionQuestions));
+        setPracticeSessionQuestions(shuffleArray([...generalQuestions, ...stateSpecificQuestions]));
         setCurrentView('practice');
     }, [allQuestionsData, selectedState]);
 
-    const handleStartExam = useCallback(() => { // stateCodeFromButton argument removed
-        if (!selectedState) {
-            alert("Please complete onboarding to select a state first.");
-            return;
-        }
+    const handleStartExam = useCallback(() => {
+        if (!selectedState) { alert("Please complete onboarding to select a state first."); return; }
         const EXAM_TOTAL_QUESTIONS = 33;
         const TARGET_STATE_QUESTIONS_IN_EXAM = 3;
         const generalQuestions = allQuestionsData.filter(q => q.state_code === null);
         const stateSpecificQuestions = allQuestionsData.filter(q => q.state_code === selectedState);
         let examStateQuestions = shuffleArray(stateSpecificQuestions).slice(0, TARGET_STATE_QUESTIONS_IN_EXAM);
         const generalQuestionsNeeded = EXAM_TOTAL_QUESTIONS - examStateQuestions.length;
-        let examGeneralQuestions = [];
-        if (generalQuestionsNeeded > 0) {
-            examGeneralQuestions = shuffleArray(generalQuestions).slice(0, generalQuestionsNeeded);
-        }
-        const finalExamQuestions = shuffleArray([...examStateQuestions, ...examGeneralQuestions]);
-        setExamQuestionsForMode(finalExamQuestions);
+        let examGeneralQuestions = generalQuestionsNeeded > 0 ? shuffleArray(generalQuestions).slice(0, generalQuestionsNeeded) : [];
+        setExamQuestionsForMode(shuffleArray([...examStateQuestions, ...examGeneralQuestions]));
         setCurrentView('exam');
     }, [allQuestionsData, selectedState]);
 
-    const handleStartFlashcards = useCallback(() => { // stateCodeFromButton argument removed
-        if (!selectedState) {
-            alert("Please complete onboarding to select a state first.");
-            return;
-        }
+    const handleStartFlashcards = useCallback(() => {
+        if (!selectedState) { alert("Please complete onboarding to select a state first."); return; }
         const generalQuestions = allQuestionsData.filter(q => q.state_code === null);
         const stateSpecificQuestions = allQuestionsData.filter(q => q.state_code === selectedState);
-        const sessionQuestions = [...generalQuestions, ...stateSpecificQuestions];
-        setFlashcardSessionQuestions(shuffleArray(sessionQuestions));
+        setFlashcardSessionQuestions(shuffleArray([...generalQuestions, ...stateSpecificQuestions]));
         setCurrentView('flashcards');
     }, [allQuestionsData, selectedState]);
 
@@ -243,19 +211,15 @@ const App = () => {
     }, []);
 
     const handleStartNewTestFromResults = useCallback(() => {
-        if (selectedState && allQuestionsData.length > 0) { // Ensure data is available
+        if (selectedState && allQuestionsData.length > 0) {
             const EXAM_TOTAL_QUESTIONS = 33;
             const TARGET_STATE_QUESTIONS_IN_EXAM = 3;
             const generalQuestions = allQuestionsData.filter(q => q.state_code === null);
             const stateSpecificQuestions = allQuestionsData.filter(q => q.state_code === selectedState);
             let examStateQuestions = shuffleArray(stateSpecificQuestions).slice(0, TARGET_STATE_QUESTIONS_IN_EXAM);
             const generalQuestionsNeeded = EXAM_TOTAL_QUESTIONS - examStateQuestions.length;
-            let examGeneralQuestions = [];
-            if (generalQuestionsNeeded > 0) {
-                examGeneralQuestions = shuffleArray(generalQuestions).slice(0, generalQuestionsNeeded);
-            }
-            const finalExamQuestions = shuffleArray([...examStateQuestions, ...examGeneralQuestions]);
-            setExamQuestionsForMode(finalExamQuestions);
+            let examGeneralQuestions = generalQuestionsNeeded > 0 ? shuffleArray(generalQuestions).slice(0, generalQuestionsNeeded) : [];
+            setExamQuestionsForMode(shuffleArray([...examStateQuestions, ...examGeneralQuestions]));
             setExamResultsData(null);
             setCurrentView('exam');
         } else {
@@ -263,19 +227,21 @@ const App = () => {
         }
     }, [allQuestionsData, selectedState, handleNavigateHome]);
 
-
     const renderContent = () => {
-        if (isLoading || currentView === 'loading') {
+        if (isLoading) {
             return <p className="text-center text-gray-500 text-xl py-10">Loading application data...</p>;
         }
 
         if (!isOnboardingComplete) {
-            if (rawStatesData.length === 0 && !isLoading) { // Check isLoading to avoid showing this during initial data load
+            // currentView would be 'awaiting_onboarding' if states loaded, or possibly still 'loading' if fetchInitialData hasn't finished setting it.
+            // The critical check here is rawStatesData for the OnboardingDialog itself.
+            if (rawStatesData.length === 0) {
                 return (
-                    <div className="text-center text-red-600 p-6 bg-red-50 rounded-lg shadow-md">
+                    <div className="text-center text-red-600 p-6 bg-red-50 rounded-lg shadow-md max-w-lg mx-auto">
                         <h2 className="text-2xl font-bold mb-3">Setup Error</h2>
-                        <p>Could not load state data required for setup. Please check your internet connection or contact support.</p>
-                        <p className="mt-2">Error details: {loadingError || "State data is missing."}</p>
+                        <p className="mb-2">Could not load state data required for initial setup.</p>
+                        <p className="text-sm text-gray-700">Details: {loadingError || "State data is missing or failed to load."}</p>
+                        <p className="mt-3 text-sm text-gray-600">Please try refreshing the page. If the problem persists, contact support.</p>
                     </div>
                 );
             }
@@ -286,67 +252,46 @@ const App = () => {
                     />;
         }
 
+        // Onboarding is complete, and not loading.
         if (currentView === 'error') {
             return (
-                <div className="text-center text-red-600 p-6 bg-red-50 rounded-lg shadow-md">
+                <div className="text-center text-red-600 p-6 bg-red-50 rounded-lg shadow-md max-w-lg mx-auto">
                     <h2 className="text-2xl font-bold mb-3">Application Error</h2>
-                    <p className="mb-2">A problem occurred:</p>
-                    <pre className="text-sm bg-white p-3 rounded border border-red-200 whitespace-pre-wrap">{loadingError || "Unknown error."}</pre>
-                    <button onClick={handleNavigateHome} className="mt-4 bg-indigo-500 text-white py-2 px-3 rounded">Go to Home</button>
+                    <p className="mb-2">A problem occurred after initial setup:</p>
+                    <pre className="text-sm bg-white p-3 rounded border border-red-200 whitespace-pre-wrap">{loadingError || "An unknown error occurred."}</pre>
+                    <button onClick={handleNavigateHome} className="mt-4 bg-indigo-500 text-white py-2 px-3 rounded shadow-md hover:bg-indigo-700">Go to Home</button>
                 </div>
             );
         }
 
         switch (currentView) {
             case 'home':
+            case 'awaiting_onboarding': // If onboarding was completed by another tab/localStorage change while view was this, go home.
+                                        // Or if fetchInitialData set this and onboarding is now complete.
                 return <HomePage
-                            // selectedState and selectedLanguage can be passed if HomePage needs to display them
-                            // For now, HomePage doesn't use them directly for UI elements it controls.
-                            // statesData (object of state codes to names) can be passed if needed for display.
-                            // e.g. selectedStateName={statesData[selectedState]}
                             onStartPractice={handleStartPractice}
                             onStartExam={handleStartExam}
                             onStartFlashcards={handleStartFlashcards}
-                            // Removed: onStateChange, onResetState, selectedState, selectedLanguage, onLanguageChange (from HomePage direct props)
-                            // HomePage will no longer have state/language selectors itself.
                         />;
             case 'practice':
-                return <PracticeMode
-                            questions={practiceSessionQuestions}
-                            onNavigateHome={handleNavigateHome}
-                            selectedLanguageCode={selectedLanguage}
-                        />;
+                return <PracticeMode questions={practiceSessionQuestions} onNavigateHome={handleNavigateHome} selectedLanguageCode={selectedLanguage} />;
             case 'exam':
-                return <ExamMode
-                            questions={examQuestionsForMode}
-                            onNavigateHome={handleNavigateHome}
-                            onShowResultsPage={handleShowResultsPage}
-                            examDuration={3600}
-                            selectedLanguageCode={selectedLanguage}
-                        />;
+                return <ExamMode questions={examQuestionsForMode} onNavigateHome={handleNavigateHome} onShowResultsPage={handleShowResultsPage} examDuration={3600} selectedLanguageCode={selectedLanguage} />;
             case 'results':
                 if (!examResultsData) {
                     setTimeout(() => handleNavigateHome(), 0);
-                    return <p>Loading results or error...</p>;
+                    return <p>Loading results...</p>;
                 }
-                return <ExamResultsPage
-                            {...examResultsData}
-                            onNavigateHome={handleNavigateHome}
-                            onRetryTest={handleRetryTestFromResults}
-                            onStartNewTest={handleStartNewTestFromResults}
-                        />;
+                return <ExamResultsPage {...examResultsData} onNavigateHome={handleNavigateHome} onRetryTest={handleRetryTestFromResults} onStartNewTest={handleStartNewTestFromResults} />;
             case 'flashcards':
-                return <FlashcardMode
-                            initialQuestions={flashcardSessionQuestions}
-                            onNavigateHome={handleNavigateHome}
-                            cardDuration={15}
-                            selectedLanguageCode={selectedLanguage}
-                        />;
-            default:
+                return <FlashcardMode initialQuestions={flashcardSessionQuestions} onNavigateHome={handleNavigateHome} cardDuration={15} selectedLanguageCode={selectedLanguage} />;
+            default: // Fallback for any unexpected view not explicitly handled after loading & onboarding checks
+                console.warn(`Unknown currentView: ${currentView}. Navigating home.`);
+                // Using setTimeout to avoid direct state update during render, though navigation should be safe.
+                setTimeout(() => handleNavigateHome(), 0);
                 return (
-                    <div className="text-center text-red-500 p-6">
-                        <p className="text-xl">Unexpected error or unknown view: {currentView}</p>
-                        <button onClick={handleNavigateHome} className="mt-4 bg-indigo-500 text-white py-2 px-3 rounded">Home</button>
+                    <div className="text-center text-gray-700 p-6">
+                        <p className="text-xl">Redirecting...</p>
                     </div>
                 );
         }
@@ -359,14 +304,12 @@ const App = () => {
                 onLanguageChange={handleLanguageChange}
                 availableLanguages={AVAILABLE_LANGUAGES}
                 showLanguageSelector={isOnboardingComplete && (currentView === 'home' || currentView === 'practice' || currentView === 'flashcards' || currentView === 'exam')}
-                // Potentially add selectedState and statesData if Header needs to display state name
-                // selectedStateName={isOnboardingComplete && selectedState ? statesData[selectedState] : null}
             />
             <main id="main-content" className="container mx-auto p-4 min-h-[calc(100vh-200px)]">
                 {renderContent()}
             </main>
             <footer className="text-center text-gray-500 mt-8 py-4 border-t border-gray-200">
-                <p>&copy; {new Date().getFullYear()} Einbürgerungstest Practice App</p> {/* Updated name */}
+                <p>&copy; {new Date().getFullYear()} Einbürgerungstest Practice App</p>
             </footer>
         </React.Fragment>
     );
