@@ -1,20 +1,22 @@
-import React, { useState, useEffect, useCallback } from 'react'; // Removed useRef as it's not used in App.jsx
+import React, { useState, useEffect, useCallback } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import PracticeMode from './practice/PracticeMode.jsx';
 import ExamMode from './exam/ExamMode.jsx';
-import ExamResultsPage from './exam/ExamResultsPage.jsx'; // Import ExamResultsPage
-import Header from './component/header.jsx'
+import ExamResultsPage from './exam/ExamResultsPage.jsx';
+import Header from './component/header.jsx';
 import FlashcardMode from './flashcard/FlashcardMode.jsx';
 import shuffleArray from './utils/shuffleArray.js';
-import HomePage from './component/homePage.jsx'; // Import HomePage
+import HomePage from './component/homePage.jsx';
 
 // --- App Component Definition ---
 const App = () => {
+    const navigate = useNavigate();
     const [rawQuestionsData, setRawQuestionsData] = useState(null); // Store raw questions
     const [allQuestionsData, setAllQuestionsData] = useState([]);
     const [statesData, setStatesData] = useState({}); // Assuming states.json is simple and doesn't need raw storage or language processing for its own content
     const [loadingError, setLoadingError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [currentView, setCurrentView] = useState('loading');
+    // const [currentView, setCurrentView] = useState('loading'); // Removed currentView
     const [practiceSessionQuestions, setPracticeSessionQuestions] = useState([]);
     const [examQuestionsForMode, setExamQuestionsForMode] = useState([]); // Renamed from examSessionQuestions
     const [flashcardSessionQuestions, setFlashcardSessionQuestions] = useState([]);
@@ -80,12 +82,12 @@ const App = () => {
             if (qError || sError) {
                 const errors = [qError, sError].filter(Boolean).join('; ');
                 setLoadingError(errors);
-                setCurrentView(fetchedQuestions && fetchedQuestions.length > 0 ? 'home' : 'error'); // Still allow home if questions loaded but states failed
+                // setCurrentView(fetchedQuestions && fetchedQuestions.length > 0 ? 'home' : 'error'); // Removed setCurrentView
             } else if (!fetchedQuestions || fetchedQuestions.length === 0) {
                 setLoadingError('No questions found in the data file.');
-                setCurrentView('error');
+                // setCurrentView('error'); // Removed setCurrentView
             } else {
-                setCurrentView('home');
+                // setCurrentView('home'); // Removed setCurrentView
             }
             setIsLoading(false);
         };
@@ -133,10 +135,11 @@ const App = () => {
 
     }, [rawQuestionsData, selectedLanguage]); // Runs when rawQuestionsData or selectedLanguage changes
 
-    // Effect to update practice session questions if language changes while in practice mode
+    // Effect to update practice session questions if language changes (location independent)
     useEffect(() => {
-        if (currentView === 'practice' && selectedState && allQuestionsData && allQuestionsData.length > 0 && practiceSessionQuestions && practiceSessionQuestions.length > 0) {
-            // console.log(`Updating translations for practice questions in state ${selectedState} due to language change.`);
+        // This effect might need to be re-evaluated based on how navigation affects component lifecycle
+        // For now, we assume that if practiceSessionQuestions exist, they might need updating
+        if (selectedState && allQuestionsData && allQuestionsData.length > 0 && practiceSessionQuestions && practiceSessionQuestions.length > 0) {
             const allQuestionsMap = new Map(allQuestionsData.map(q => [q.id, q]));
 
             const updatedPracticeQuestions = practiceSessionQuestions.map(practiceQ => {
@@ -166,7 +169,7 @@ const App = () => {
                 setPracticeSessionQuestions(updatedPracticeQuestions);
             }
         }
-    }, [allQuestionsData, currentView, selectedState, practiceSessionQuestions]); // Added practiceSessionQuestions to dependencies
+    }, [allQuestionsData, selectedState, practiceSessionQuestions]); // Removed currentView from dependencies
 
     const handleStartPractice = useCallback((stateCode) => {
         setSelectedState(stateCode);
@@ -176,21 +179,16 @@ const App = () => {
 
         const sessionQuestions = [...generalQuestions, ...stateSpecificQuestions];
         setPracticeSessionQuestions(shuffleArray(sessionQuestions));
-        // console.log("Practice Mode: Starting with", sessionQuestions.length, "questions for state", stateCode); // Removed console.log
-        setCurrentView('practice');
-    }, [allQuestionsData, setSelectedState]);
+        navigate('/practice');
+    }, [allQuestionsData, setSelectedState, navigate]);
 
     const handleStartExam = useCallback((stateCodeFromButton) => {
-        // stateCodeFromButton is the state selected on HomePage
-        // We use selectedState from App's state, which should be in sync
-        // or directly use stateCodeFromButton if preferred (ensuring it's always passed)
         if (!stateCodeFromButton) {
-             console.log("Please select a state for the exam."); // Or rely on HomePage's button disable
+            console.log("Please select a state for the exam.");
             return;
         }
-        setSelectedState(stateCodeFromButton); // Ensure App's state is also set
+        setSelectedState(stateCodeFromButton);
         localStorage.setItem('selectedState', stateCodeFromButton);
-
 
         const EXAM_TOTAL_QUESTIONS = 33;
         const TARGET_STATE_QUESTIONS_IN_EXAM = 3;
@@ -210,53 +208,41 @@ const App = () => {
         let combinedExamQuestions = [...examStateQuestions, ...examGeneralQuestions];
 
         // Ensure the total does not exceed EXAM_TOTAL_QUESTIONS, even if sources are smaller than targets
-        // This also handles cases where combined might be less if not enough questions are available overall.
         const finalExamQuestions = shuffleArray(combinedExamQuestions);
-        // No slice here, as we want all available up to 33, based on selection.
-        // If fewer than 33 questions are available in total from the combined pool, it will use all of them.
 
-        setExamQuestionsForMode(finalExamQuestions); // Renamed state setter
-        setCurrentView('exam');
-    }, [allQuestionsData, setSelectedState]); // Added setSelectedState to dependencies, as it's called inside
+        setExamQuestionsForMode(finalExamQuestions);
+        navigate('/exam');
+    }, [allQuestionsData, setSelectedState, navigate]);
 
     const handleStartFlashcards = useCallback((stateCodeFromButton) => {
         setSelectedState(stateCodeFromButton);
         localStorage.setItem('selectedState', stateCodeFromButton);
         const generalQuestions = allQuestionsData.filter(q => q.state_code === null);
-        // Corrected: use stateCodeFromButton for filtering
         const stateSpecificQuestions = allQuestionsData.filter(q => q.state_code === stateCodeFromButton);
 
         const sessionQuestions = [...generalQuestions, ...stateSpecificQuestions];
         setFlashcardSessionQuestions(shuffleArray(sessionQuestions));
-        // console.log("Flashcard Mode: Starting with", sessionQuestions.length, "questions for state", stateCodeFromButton); // Removed console.log
-        setCurrentView('flashcards');
-    }, [allQuestionsData, setSelectedState]);
+        navigate('/flashcards');
+    }, [allQuestionsData, setSelectedState, navigate]);
 
     const handleNavigateHome = useCallback(() => {
-        setCurrentView('home');
         setExamResultsData(null);
         setExamQuestionsForMode([]);
-        // selectedState is kept as is, as user might want to start another activity for the same state
-        // If reset is desired:
-        // setSelectedState('');
-        // localStorage.removeItem('selectedState');
-    }, []);
+        navigate('/');
+    }, [navigate]);
 
     const handleShowResultsPage = useCallback((results) => {
         setExamResultsData(results);
-        setCurrentView('results');
-    }, []);
+        navigate('/results');
+    }, [navigate]);
 
     const handleRetryTestFromResults = useCallback(() => {
-        // examQuestionsForMode still holds the questions for the test that was just taken
-        setExamResultsData(null); // Clear previous results
-        setCurrentView('exam'); // Go back to exam mode
-    }, []);
+        setExamResultsData(null);
+        navigate('/exam');
+    }, [navigate]);
 
     const handleStartNewTestFromResults = useCallback(() => {
-        // Uses selectedState from App's state
         if (selectedState) {
-            // Re-run the logic of handleStartExam essentially
             const EXAM_TOTAL_QUESTIONS = 33;
             const TARGET_STATE_QUESTIONS_IN_EXAM = 3;
             const generalQuestions = allQuestionsData.filter(q => q.state_code === null);
@@ -272,87 +258,66 @@ const App = () => {
 
             setExamQuestionsForMode(finalExamQuestions);
             setExamResultsData(null);
-            setCurrentView('exam');
+            navigate('/exam');
         } else {
-            // Fallback if selectedState is somehow lost
             handleNavigateHome();
         }
-    }, [allQuestionsData, selectedState, handleNavigateHome]);
+    }, [allQuestionsData, selectedState, handleNavigateHome, navigate]);
 
+    // Render loading state
+    if (isLoading) return <p className="text-center text-gray-500 text-xl py-10">Loading data...</p>;
 
-    const renderContent = () => {
-        if (isLoading && currentView === 'loading') return <p className="text-center text-gray-500 text-xl py-10">Loading data...</p>;
-        if (currentView === 'error') return (
-            <div className="text-center text-red-600 p-6 bg-red-50 rounded-lg shadow-md">
-                <h2 className="text-2xl font-bold mb-3">App Error</h2>
-                <p className="mb-2">Problem loading data:</p>
-                <pre className="text-sm bg-white p-3 rounded border border-red-200 whitespace-pre-wrap">{loadingError || "Unknown error."}</pre>
-                <p className="mt-4">Try refreshing. Ensure data files are correct and accessible from the /public directory (e.g. /data/question.json).</p>
-            </div>
-        );
-
-        switch (currentView) {
-            case 'home':
-                return <HomePage
-                            statesData={statesData}
-                            onStartPractice={handleStartPractice}
-                            onStartExam={handleStartExam}
-                            onStartFlashcards={handleStartFlashcards}
-                            selectedState={selectedState}
-                            onStateChange={handleStateChange}
-                            onResetState={handleResetState}
-                            selectedLanguage={selectedLanguage}
-                            onLanguageChange={handleLanguageChange}
-                        />;
-            case 'practice':
-                return <PracticeMode
-                            questions={practiceSessionQuestions}
-                            onNavigateHome={handleNavigateHome}
-                            selectedLanguageCode={selectedLanguage}
-                        />;
-            case 'exam':
-                return <ExamMode
-                            questions={examQuestionsForMode} // Renamed prop
-                            onNavigateHome={handleNavigateHome}
-                            onShowResultsPage={handleShowResultsPage} // New prop
-                            examDuration={3600} // Reverted to original value
-                            selectedLanguageCode={selectedLanguage}
-                            // onStartNewTest is removed from ExamMode
-                        />;
-            case 'results': // New case for results page
-                if (!examResultsData) {
-                     // Should not happen if logic is correct, but good fallback
-                    setTimeout(() => handleNavigateHome(), 0); // Navigate home after render to avoid state update in render
-                    return <p>Loading results or error...</p>;
-                }
-                return <ExamResultsPage
-                            {...examResultsData} // Spread all results data
-                            onNavigateHome={handleNavigateHome}
-                            onRetryTest={handleRetryTestFromResults}
-                            onStartNewTest={handleStartNewTestFromResults}
-                        />;
-            case 'flashcards':
-                return <FlashcardMode
-                            initialQuestions={flashcardSessionQuestions}
-                            onNavigateHome={handleNavigateHome}
-                            cardDuration={15}
-                            selectedLanguageCode={selectedLanguage}
-                        />;
-            default:
-                return (
-                    <div className="text-center text-red-500 p-6">
-                        <p className="text-xl">Unexpected error or unknown view.</p>
-                        <button onClick={handleNavigateHome} className="mt-4 bg-indigo-500 text-white py-2 px-3 rounded">Home</button>
-                    </div>
-                );
-        }
-    };
+    // Render error state
+    if (loadingError) return (
+        <div className="text-center text-red-600 p-6 bg-red-50 rounded-lg shadow-md">
+            <h2 className="text-2xl font-bold mb-3">App Error</h2>
+            <p className="mb-2">Problem loading data:</p>
+            <pre className="text-sm bg-white p-3 rounded border border-red-200 whitespace-pre-wrap">{loadingError || "Unknown error."}</pre>
+            <p className="mt-4">Try refreshing. Ensure data files are correct and accessible from the /public directory (e.g. /data/question.json).</p>
+        </div>
+    );
 
     return (
         <React.Fragment>
             <Header />
             <main id="main-content" className="container mx-auto p-4 min-h-[calc(100vh-200px)]">
-                {renderContent()}
+                <Routes>
+                    <Route path="/" element={<HomePage
+                        statesData={statesData}
+                        onStartPractice={handleStartPractice}
+                        onStartExam={handleStartExam}
+                        onStartFlashcards={handleStartFlashcards}
+                        selectedState={selectedState}
+                        onStateChange={handleStateChange}
+                        onResetState={handleResetState}
+                        selectedLanguage={selectedLanguage}
+                        onLanguageChange={handleLanguageChange}
+                    />} />
+                    <Route path="/practice" element={<PracticeMode
+                        questions={practiceSessionQuestions}
+                        onNavigateHome={handleNavigateHome}
+                        selectedLanguageCode={selectedLanguage}
+                    />} />
+                    <Route path="/exam" element={<ExamMode
+                        questions={examQuestionsForMode}
+                        onNavigateHome={handleNavigateHome}
+                        onShowResultsPage={handleShowResultsPage}
+                        examDuration={3600}
+                        selectedLanguageCode={selectedLanguage}
+                    />} />
+                    <Route path="/results" element={examResultsData ? <ExamResultsPage
+                        {...examResultsData}
+                        onNavigateHome={handleNavigateHome}
+                        onRetryTest={handleRetryTestFromResults}
+                        onStartNewTest={handleStartNewTestFromResults}
+                    /> : <HomePage />} /> {/* Redirect to home if no results */}
+                    <Route path="/flashcards" element={<FlashcardMode
+                        initialQuestions={flashcardSessionQuestions}
+                        onNavigateHome={handleNavigateHome}
+                        cardDuration={15}
+                        selectedLanguageCode={selectedLanguage}
+                    />} />
+                </Routes>
             </main>
             <footer className="text-center text-gray-500 mt-8 py-4 border-t border-gray-200">
                 <p>&copy; {new Date().getFullYear()} Einbürgerungstest Practice by Himanshu</p>
