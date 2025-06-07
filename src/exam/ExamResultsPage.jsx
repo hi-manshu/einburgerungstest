@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react'; // Imported useMemo
 
 // Message Categories
 const perfectScoreMessages = [
@@ -59,37 +59,33 @@ const ExamResultsPage = ({
     // const calculatedScore = questions.length > 0 ? (correctAnswersCount / questions.length) * 100 : 0;
     // const calculatedIsPassed = correctAnswersCount >= passMark;
 
-    // Select random outcome message
-    let outcomeMessage = "";
-    // The prop correctAnswersCount is calculated in App.jsx and passed down, or we use the local one.
-    // Let's ensure we use the local one for consistency if it's always calculated here.
-    // The local `correctAnswersCount` is based on `questions` and `userAnswers` props.
-    const localCorrectAnswersCount = questions.reduce((count, q) => {
-        return userAnswers[q.id] === q.correct_answer ? count + 1 : count;
-    }, 0);
+    const outcomeData = useMemo(() => {
+        // Calculate localCorrectAnswersCount inside useMemo as it depends on questions and userAnswers
+        const currentCorrectCount = questions.reduce((count, q) => {
+            return userAnswers[q.id] === q.correct_answer ? count + 1 : count;
+        }, 0);
 
-    let outcomeMessageColor = 'text-gray-700'; // Default color
+        let message = "";
+        let color = 'text-gray-700'; // Default color for outcome message
 
-    if (localCorrectAnswersCount === 33) {
-        outcomeMessage = perfectScoreMessages[Math.floor(Math.random() * perfectScoreMessages.length)];
-        outcomeMessageColor = 'text-green-600'; // Or a specific "perfect" color like text-yellow-500 or text-purple-600
-    } else if (localCorrectAnswersCount >= 17 && localCorrectAnswersCount <= 32) {
-        outcomeMessage = passedMessages[Math.floor(Math.random() * passedMessages.length)];
-        outcomeMessageColor = 'text-green-600';
-    } else if (localCorrectAnswersCount <= 16) {
-        outcomeMessage = failedMessages[Math.floor(Math.random() * failedMessages.length)];
-        outcomeMessageColor = 'text-red-600';
-    } else {
-        // Fallback for unlikely scenarios (e.g. > 33 correct answers if data is flawed)
-        if (failedMessages.length > 0) {
-            outcomeMessage = failedMessages[0]; // Default to a known fail message
-            outcomeMessageColor = 'text-red-600';
+        if (currentCorrectCount === 33) {
+            message = perfectScoreMessages[Math.floor(Math.random() * perfectScoreMessages.length)];
+            color = 'text-green-600';
+        } else if (currentCorrectCount >= 17 && currentCorrectCount <= 32) {
+            message = passedMessages[Math.floor(Math.random() * passedMessages.length)];
+            color = 'text-green-600';
+        } else if (currentCorrectCount <= 16) { // Includes 0
+            message = failedMessages[Math.floor(Math.random() * failedMessages.length)];
+            color = 'text-red-600';
         } else {
-            outcomeMessage = "Your results are being processed."; // Generic fallback
+            // Fallback for unexpected currentCorrectCount values (e.g., > 33 or negative)
+            message = failedMessages.length > 0 ? failedMessages[0] : "Error processing results.";
+            color = 'text-red-600';
         }
-    }
+        return { message, color };
+    }, [questions, userAnswers]); // Dependencies for outcome message and color
 
-    // Derive data for the selected question to display
+    // Derive data for the selected question to display (this part is fine as is, re-runs on index change)
     const questionToDisplay = questions[selectedQuestionIndex];
     const userAnswerDetails = questionToDisplay ? userAnswers[questionToDisplay.id] : undefined;
     const isCorrectDetails = questionToDisplay && userAnswerDetails !== undefined ? userAnswerDetails === questionToDisplay.correct_answer : false;
@@ -124,8 +120,8 @@ const ExamResultsPage = ({
                 </div>
                 <div className="bg-white border border-slate-200 p-5 rounded-lg shadow-sm md:col-span-2"> {/* Summary Grid Item - Outcome */}
                      <p className="text-lg text-gray-700">Outcome:</p>
-                    <p className={`text-2xl font-bold ${outcomeMessageColor}`}> {/* Use new outcomeMessageColor */}
-                        {outcomeMessage}
+                    <p className={`text-2xl font-bold ${outcomeData.color}`}> {/* Use memoized color */}
+                        {outcomeData.message} {/* Use memoized message */}
                     </p>
                     <p className="text-sm text-gray-500 mt-1">
                         (Pass mark: {passMark} correct out of {questions.length} questions)
