@@ -1,0 +1,230 @@
+import React, { useState, useMemo } from 'react'; // Imported useMemo
+
+// Message Categories
+const perfectScoreMessages = [
+    "Perfect Score! You Crushed It!",
+    "Flawless Victory!",
+    "33 Out of 33? You're a Legend!", // This specific one might be better if questions.length is checked
+    "Nailed It! You’re the Gold Standard!",
+    "This Test Didn’t Stand a Chance!",
+    "Zero Mistakes. All Brilliance."
+];
+
+const passedMessages = [
+    "Well Done! You Passed With Style!",
+    "On Point! Keep the Momentum Going!",
+    "Solid Work! You’ve Got This!",
+    "Pass Unlocked—Next Level Awaits!",
+    "Good Job! Just a Few More to Perfection.",
+    "You Did It—And You’re Just Getting Started!"
+];
+
+const failedMessages = [
+    "Keep Practicing, You Can Do It!",
+    "Not This Time—But You’re Closer Than You Think!",
+    "Failure’s Just a Stepping Stone—Let’s Try Again!",
+    "Missed the Mark? Reset and Fire Again!",
+    "Oops! Time to Learn and Level Up!",
+    "Practice Mode: Activated. Powering Up…"
+];
+
+const ExamResultsPage = ({
+    questions = [],
+    userAnswers = {},
+    timeTaken = 0,
+    score = 0,
+    isPassed = false,
+    passMark = 0,
+    onNavigateHome,
+    onRetryTest,
+    onStartNewTest
+}) => {
+    const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0); // Added state for selected question
+
+    const formatTime = (totalSeconds) => {
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    };
+
+    // Calculate correct answers count locally if not passed directly, or prefer passed prop if available
+    let correctAnswersCount = 0;
+    if (questions.length > 0 && Object.keys(userAnswers).length > 0) {
+        questions.forEach(q => {
+            if (userAnswers[q.id] === q.correct_answer) {
+                correctAnswersCount++;
+            }
+        });
+    }
+    // const calculatedScore = questions.length > 0 ? (correctAnswersCount / questions.length) * 100 : 0;
+    // const calculatedIsPassed = correctAnswersCount >= passMark;
+
+    const outcomeData = useMemo(() => {
+        // Calculate localCorrectAnswersCount inside useMemo as it depends on questions and userAnswers
+        const currentCorrectCount = questions.reduce((count, q) => {
+            return userAnswers[q.id] === q.correct_answer ? count + 1 : count;
+        }, 0);
+
+        let message = "";
+        let color = 'text-gray-700'; // Default color for outcome message
+
+        if (currentCorrectCount === 33) {
+            message = perfectScoreMessages[Math.floor(Math.random() * perfectScoreMessages.length)];
+            color = 'text-green-600';
+        } else if (currentCorrectCount >= 17 && currentCorrectCount <= 32) {
+            message = passedMessages[Math.floor(Math.random() * passedMessages.length)];
+            color = 'text-green-600';
+        } else if (currentCorrectCount <= 16) { // Includes 0
+            message = failedMessages[Math.floor(Math.random() * failedMessages.length)];
+            color = 'text-red-600';
+        } else {
+            // Fallback for unexpected currentCorrectCount values (e.g., > 33 or negative)
+            message = failedMessages.length > 0 ? failedMessages[0] : "Error processing results.";
+            color = 'text-red-600';
+        }
+        return { message, color };
+    }, [questions, userAnswers]); // Dependencies for outcome message and color
+
+    // Derive data for the selected question to display (this part is fine as is, re-runs on index change)
+    const questionToDisplay = questions[selectedQuestionIndex];
+    const userAnswerDetails = questionToDisplay ? userAnswers[questionToDisplay.id] : undefined;
+    const isCorrectDetails = questionToDisplay && userAnswerDetails !== undefined ? userAnswerDetails === questionToDisplay.correct_answer : false;
+
+    let correctAnswerTextDetails = '';
+    let userAnswerTextDetails = '';
+
+    if (questionToDisplay) {
+        const correctAnswerOption = questionToDisplay.options.find(opt => opt.id === questionToDisplay.correct_answer);
+        correctAnswerTextDetails = correctAnswerOption ? correctAnswerOption.text : 'N/A';
+
+        if (userAnswerDetails !== undefined) {
+            const userAnswerOption = questionToDisplay.options.find(opt => opt.id === userAnswerDetails);
+            userAnswerTextDetails = userAnswerOption ? userAnswerOption.text : 'N/A';
+        }
+    }
+
+    return (
+        <div className={`bg-slate-50 p-6 md:p-8 rounded-lg shadow-lg max-w-3xl mx-auto my-8 border-t-8 ${isPassed ? 'border-green-500' : 'border-red-500'}`}> {/* Overall container */}
+            <h2 className="text-3xl font-bold mb-8 text-center text-indigo-700">Exam Results</h2> {/* Main Title */}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-center md:text-left">
+                <div className="bg-white border border-slate-200 p-5 rounded-lg shadow-sm"> {/* Summary Grid Item */}
+                    <p className="text-lg text-gray-700">Time Taken:</p>
+                    <p className="text-2xl font-semibold text-blue-600">{formatTime(timeTaken)}</p>
+                </div>
+                <div className="bg-white border border-slate-200 p-5 rounded-lg shadow-sm"> {/* Summary Grid Item */}
+                    <p className="text-lg text-gray-700">Your Score:</p>
+                    <p className={`text-2xl font-semibold ${isPassed ? 'text-green-600' : 'text-red-600'}`}>
+                        {score.toFixed(0)}% ({correctAnswersCount}/{questions.length})
+                    </p>
+                </div>
+                <div className="bg-white border border-slate-200 p-5 rounded-lg shadow-sm md:col-span-2"> {/* Summary Grid Item - Outcome */}
+                     <p className="text-lg text-gray-700">Outcome:</p>
+                    <p className={`text-2xl font-bold ${outcomeData.color}`}> {/* Use memoized color */}
+                        {outcomeData.message} {/* Use memoized message */}
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                        (Pass mark: {passMark} correct out of {questions.length} questions)
+                    </p>
+                </div>
+            </div>
+
+            {/* Placeholder for detailed question list - to be implemented next */}
+            <div className="mb-8">
+                <h3 className="text-2xl font-semibold mb-6 text-indigo-600">Question Review</h3> {/* Question Review Title */}
+                {/* Horizontal list of numbered boxes */}
+                <div className="flex overflow-x-auto space-x-2 p-2 mb-4 bg-slate-200 rounded-md shadow-sm"> {/* Numbered Boxes Container */}
+                    {questions.map((question, index) => {
+                        const userAnswer = userAnswers[question.id];
+                        // An unanswered question is not correct.
+                        const isCorrect = userAnswer === question.correct_answer;
+
+                        // If correct, green. Otherwise (incorrect or unanswered), red.
+                        const boxColor = isCorrect ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600';
+                        const textColor = 'text-white'; // Always white for green or red boxes
+
+                        return (
+                            <button
+                                key={question.id}
+                                onClick={() => setSelectedQuestionIndex(index)}
+                                className={`w-10 h-10 flex-shrink-0 rounded-lg flex items-center justify-center font-semibold transition-colors ${boxColor} ${textColor} ${selectedQuestionIndex === index ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}
+                                aria-pressed={selectedQuestionIndex === index}
+                                aria-label={`Question ${index + 1}`}
+                            >
+                                {index + 1}
+                            </button>
+                        );
+                    })}
+                    {questions.length === 0 && <p className="text-gray-500 p-2">No questions to review.</p>}
+                </div>
+
+                {/* Display for selected question details */}
+                <div className="mt-4 p-5 border border-slate-200 rounded-lg bg-white shadow-md min-h-[150px]"> {/* Selected Question Detail View */}
+                    {questionToDisplay ? (
+                        <>
+                            <p className="text-sm text-gray-500 mb-1">
+                                Question {selectedQuestionIndex + 1} of {questions.length}
+                            </p>
+                            <h4 className="text-lg font-semibold text-gray-800 mb-1">
+                                {questionToDisplay.question_text}
+                            </h4>
+                            <p className="text-md text-gray-600 mb-3 italic">
+                                {questionToDisplay.question_text_de}
+                            </p>
+
+                            {userAnswerDetails !== undefined ? (
+                                <>
+                                    <p className={`text-sm ${isCorrectDetails ? 'text-green-700' : 'text-red-700'}`}>
+                                        Your answer: <span className="font-bold">{String(userAnswerDetails).toUpperCase()}. {userAnswerTextDetails}</span>
+                                        {isCorrectDetails ?
+                                            <span className="font-semibold"> (Correct)</span> :
+                                            <span className="font-semibold"> (Incorrect)</span>}
+                                    </p>
+                                    {!isCorrectDetails && (
+                                        <p className="text-sm text-blue-700 font-medium mt-1">
+                                            Correct answer: <span className="font-bold">{String(questionToDisplay.correct_answer).toUpperCase()}. {correctAnswerTextDetails}</span>
+                                        </p>
+                                    )}
+                                </>
+                            ) : (
+                                <p className="text-sm text-gray-500 font-medium">
+                                    You did not answer this question.
+                                    <br />
+                                     Correct answer: <span className="font-bold">{String(questionToDisplay.correct_answer).toUpperCase()}. {correctAnswerTextDetails}</span>
+                                </p>
+                            )}
+                            {questionToDisplay.explanation && (
+                                <div className="mt-3 pt-3 border-t border-gray-200">
+                                    <h5 className="text-xs font-semibold text-gray-500 mb-1 uppercase">Explanation</h5>
+                                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{questionToDisplay.explanation}</p>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <p className="text-gray-500">Select a question number to see details.</p>
+                    )}
+                </div>
+            </div>
+
+            <div className="mt-8 flex flex-row flex-wrap justify-center items-center gap-4"> {/* Updated classes */}
+                <button
+                    onClick={onRetryTest}
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg min-w-[160px] shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-150 ease-in-out">
+                    Retry Test
+                </button>
+                <button
+                    onClick={onStartNewTest}
+                    className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg min-w-[160px] shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-150 ease-in-out">
+                    New Test
+                </button>
+                <button
+                    onClick={onNavigateHome}
+                    className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-lg text-lg min-w-[160px] shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-150 ease-in-out">
+                    Home
+                </button>
+            </div>
+        </div>
+    );
+};
+
+export default ExamResultsPage;
