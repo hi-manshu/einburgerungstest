@@ -1,52 +1,74 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import ExamTimer from './ExamTimer';
+import QuestionDisplay from './QuestionDisplay';
+import ExamNavigation from './ExamNavigation';
 
 // --- ExamMode Component Definition ---
-const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuration = 3600, onStartNewTest }) => {
+const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuration = 3600, onShowResultsPage }) => {
     const [questions, setQuestions] = useState([]);
     const [currentExamQuestionIndex, setCurrentExamQuestionIndex] = useState(0);
     const [examUserAnswers, setExamUserAnswers] = useState({});
     const [timeRemaining, setTimeRemaining] = useState(examDuration);
-    const [showExamResults, setShowExamResults] = useState(false);
+    const [showSubmitConfirmPopup, setShowSubmitConfirmPopup] = useState(false);
     const examTimerId = useRef(null);
 
-    const formatTime = (totalSeconds) => {
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    };
+    // formatTime function removed, it's now in ExamTimer.jsx
 
     const handleSubmitExam = useCallback((isAutoSubmit = false) => {
-        setShowExamResults(true);
         if (examTimerId.current) {
             clearInterval(examTimerId.current);
             examTimerId.current = null;
         }
-    }, []);
+
+        let correctAnswersCount = 0;
+        questions.forEach(q => {
+            if (examUserAnswers[q.id] === q.correct_answer) {
+                correctAnswersCount++;
+            }
+        });
+
+        const score = questions.length > 0 ? (correctAnswersCount / questions.length) * 100 : 0;
+        const passMark = questions.length > 0 ? Math.ceil(questions.length * (17 / 33)) : 0; // Assuming 17/33 pass mark
+        const isPassed = correctAnswersCount >= passMark;
+        const timeTaken = examDuration - timeRemaining;
+
+        if (onShowResultsPage) {
+            onShowResultsPage({
+                questions,
+                userAnswers: examUserAnswers,
+                timeTaken,
+                score,
+                isPassed,
+                passMark,
+                correctAnswersCount
+            });
+        }
+        // No longer setting showExamResults(true) here
+    }, [questions, examUserAnswers, examDuration, timeRemaining, onShowResultsPage]);
 
     useEffect(() => {
         setQuestions(initialExamQuestions);
         setCurrentExamQuestionIndex(0);
         setExamUserAnswers({});
-        setShowExamResults(false);
+        // setShowExamResults(false); // Removed
         setTimeRemaining(examDuration);
     }, [initialExamQuestions, examDuration]);
 
     useEffect(() => {
-        if (!showExamResults && questions.length > 0) {
+        // Timer runs as long as ExamMode is mounted and not yet submitted.
+        // handleSubmitExam now handles clearing the timer.
+        if (questions.length > 0) {
             examTimerId.current = setInterval(() => {
                 setTimeRemaining(prevTime => {
                     if (prevTime <= 1) {
                         clearInterval(examTimerId.current);
                         examTimerId.current = null;
-                        handleSubmitExam(true);
+                        handleSubmitExam(true); // Auto-submit
                         return 0;
                     }
                     return prevTime - 1;
                 });
             }, 1000);
-        } else if (examTimerId.current) {
-            clearInterval(examTimerId.current);
-            examTimerId.current = null;
         }
         return () => {
             if (examTimerId.current) {
@@ -54,7 +76,7 @@ const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuratio
                 examTimerId.current = null;
             }
         };
-    }, [showExamResults, questions, handleSubmitExam]);
+    }, [questions, handleSubmitExam]); // Removed showExamResults from dependencies
 
     const currentQuestion = questions && questions.length > 0 ? questions[currentExamQuestionIndex] : null;
     const handleExamAnswerSelection = (questionId, selectedOptionId) => {
@@ -67,12 +89,10 @@ const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuratio
         }
     };
 
-    const handleRetryTest = () => {
-        setCurrentExamQuestionIndex(0);
-        setExamUserAnswers({});
-        setTimeRemaining(examDuration); // Uses the examDuration prop
-        setShowExamResults(false);
-    };
+    // handleRetryTest is removed. Relies on App.jsx to reset/re-mount ExamMode.
+    // The useEffect for [initialExamQuestions, examDuration] handles resetting state.
+
+    const unansweredQuestionsCount = questions.length - Object.keys(examUserAnswers).length;
 
     if (!initialExamQuestions || initialExamQuestions.length === 0) {
         return (
@@ -83,45 +103,7 @@ const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuratio
         );
     }
 
-    if (showExamResults) {
-        let correctAnswersCount = 0;
-        questions.forEach(q => {
-            if (examUserAnswers[q.id] === q.correct_answer) {
-                correctAnswersCount++;
-            }
-        });
-        const score = questions.length > 0 ? (correctAnswersCount / questions.length) * 100 : 0;
-        const passMark = questions.length > 0 ? Math.ceil(questions.length * (17/33)) : 0;
-        const isPassed = correctAnswersCount >= passMark;
-        return (
-            <div className={`bg-white p-4 md:p-6 rounded-lg shadow-lg max-w-2xl mx-auto text-center border-t-8 ${isPassed ? 'border-green-500' : 'border-red-500'}`}>
-                <h2 className="text-3xl font-bold mb-4">Exam Results</h2>
-                <p className="text-xl mb-2">Time: {formatTime(examDuration - timeRemaining)}</p>
-                <p className="text-xl mb-2">Correct: <span className="font-bold">{correctAnswersCount}</span>/33</p>
-                <p className={`text-2xl font-semibold mb-6 ${isPassed ? 'text-green-600' : 'text-red-600'}`}>
-                    {isPassed ? `Passed (${score.toFixed(0)}%)` : `Not Passed (${score.toFixed(0)}%)`}
-                </p>
-                <p className="text-sm text-gray-600 mb-4">(Pass mark: {passMark} for {questions.length} questions)</p>
-                <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
-                    <button
-                        onClick={handleRetryTest}
-                        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded text-lg min-w-[150px]">
-                        Retry Test
-                    </button>
-                    <button
-                        onClick={onStartNewTest}
-                        className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded text-lg min-w-[150px]">
-                        New Test
-                    </button>
-                    <button
-                        onClick={onNavigateHome}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded text-lg min-w-[150px]">
-                        Home
-                    </button>
-                </div>
-            </div>
-        );
-    }
+    // Removed the entire 'if (showExamResults) { ... }' block for rendering results here.
 
     if (!currentQuestion) {
         return (
@@ -135,65 +117,66 @@ const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuratio
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-xl max-w-3xl mx-auto">
             <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
                 <h2 className="text-xl md:text-2xl font-semibold text-blue-700">Exam</h2>
-                <div className={`text-2xl font-bold ${
-                    timeRemaining >= 30 * 60 ? 'text-green-500' :
-                    timeRemaining >= 10 * 60 ? 'text-yellow-500' :
-                    'text-red-500'
-                }`} role="timer" aria-live="polite">{formatTime(timeRemaining)}</div>
+                <ExamTimer timeRemaining={timeRemaining} />
             </div>
-            <p className="text-sm text-gray-500 mb-2">Q {currentExamQuestionIndex + 1}/{questions.length}</p>
-            <h3 className="text-lg md:text-xl font-medium mb-1">{currentQuestion.question_text}</h3>
-            <p className="text-md text-gray-600 mb-5 italic">{currentQuestion.question_text_de}</p>
-            <div className="space-y-3 mb-6">
-                {currentQuestion.options.map(opt => (
-                    <label key={opt.id} className={`flex items-center p-3 border rounded-md transition-all cursor-pointer hover:bg-gray-50 ${examUserAnswers[currentQuestion.id] === opt.id ? 'bg-blue-100 border-blue-400 ring-2 ring-blue-300' : 'border-gray-300'}`}>
-                        <input
-                            type="radio"
-                            name={`exam_option_${currentQuestion.id}`}
-                            value={opt.id}
-                            checked={examUserAnswers[currentQuestion.id] === opt.id}
-                            onChange={() => handleExamAnswerSelection(currentQuestion.id, opt.id)}
-                            className="form-radio h-5 w-5 text-blue-600 mr-3 focus:ring-blue-500"
-                        />
-                        <span className="font-medium mr-1">{opt.id.toUpperCase()}.</span>
-                        <span className="text-gray-800">{opt.text}</span>
-                        <span className="italic text-sm text-gray-500 ml-1">({opt.text_de})</span>
-                    </label>
-                ))}
-            </div>
-            <div className="mt-6 flex justify-between items-center border-t border-gray-200 pt-4">
-                <button
-                    onClick={() => handleNavigation(-1)}
-                    disabled={currentExamQuestionIndex === 0}
-                    className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 transition-opacity">
-                    Prev
+
+            <QuestionDisplay
+                currentQuestion={currentQuestion}
+                examUserAnswers={examUserAnswers}
+                handleExamAnswerSelection={handleExamAnswerSelection}
+                currentExamQuestionIndex={currentExamQuestionIndex}
+                totalQuestions={questions.length}
+            />
+
+            <ExamNavigation
+                currentExamQuestionIndex={currentExamQuestionIndex}
+                totalQuestions={questions.length}
+                handleNavigation={handleNavigation}
+                handleSubmitExam={handleSubmitExam}
+                examUserAnswers={examUserAnswers}
+            />
+
+            <div className="mt-8 flex space-x-4">
+                <button onClick={onNavigateHome} className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded">
+                    Cancel & Home
                 </button>
-
-                {Object.keys(examUserAnswers).length > 0 && (
-                    <button
-                        onClick={() => handleSubmitExam(false)}
-                        className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded transition-colors">
-                        Finish Exam
-                    </button>
-                )}
-
-                {currentExamQuestionIndex < questions.length - 1 ? (
-                    <button
-                        onClick={() => handleNavigation(1)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors">
-                        Next
-                    </button>
-                ) : (
-                    <button
-                        onClick={() => handleSubmitExam(false)}
-                        className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors">
-                        Submit Results
-                    </button>
-                )}
+                <button
+                    onClick={() => setShowSubmitConfirmPopup(true)}
+                    disabled={Object.keys(examUserAnswers).length === 0}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 transition-opacity"
+                >
+                    Submit Check
+                </button>
             </div>
-            <button onClick={onNavigateHome} className="mt-8 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded w-full">
-                Cancel & Home
-            </button>
+
+            {/* Modal for Submit Confirmation */}
+            {showSubmitConfirmPopup && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center z-50">
+                    <div className="bg-white p-5 rounded-lg shadow-xl max-w-md w-full mx-4 border-t-4 border-blue-500">
+                        <h3 className="text-lg font-bold mb-4 text-gray-800">Confirm Submission</h3>
+                        <p className="mb-6 text-gray-700">
+                            You have {unansweredQuestionsCount} unanswered question(s). Are you sure you want to submit?
+                        </p>
+                        <div className="flex justify-end space-x-4">
+                            <button
+                                onClick={() => setShowSubmitConfirmPopup(false)}
+                                className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded transition-colors"
+                            >
+                                No
+                            </button>
+                            <button
+                                onClick={() => {
+                                    handleSubmitExam(false);
+                                    setShowSubmitConfirmPopup(false);
+                                }}
+                                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors"
+                            >
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
