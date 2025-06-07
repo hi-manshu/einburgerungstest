@@ -95,6 +95,7 @@ const App = () => {
     const [flashcardSessionQuestions, setFlashcardSessionQuestions] = useState([]);
     const [examResultsData, setExamResultsData] = useState(null); // For results page
     const [selectedState, setSelectedState] = useState(localStorage.getItem('selectedState') || ''); // Lifted selectedState
+    const [selectedLanguage, setSelectedLanguage] = useState(localStorage.getItem('selectedLanguage') || 'en');
 
     // Handler for state change, now in App.jsx
     const handleStateChange = useCallback((event) => {
@@ -107,6 +108,12 @@ const App = () => {
     const handleResetState = useCallback(() => {
         setSelectedState('');
         localStorage.removeItem('selectedState');
+    }, []);
+
+    // Handler for language change
+    const handleLanguageChange = useCallback((newLanguage) => {
+        setSelectedLanguage(newLanguage);
+        localStorage.setItem('selectedLanguage', newLanguage);
     }, []);
 
     useEffect(() => {
@@ -126,8 +133,8 @@ const App = () => {
                         if (newQuestion.hasOwnProperty(key)) {
                             acc.push({
                                 id: key,
-                                text: newQuestion.translation?.en?.[key] || '',
-                                text_de: newQuestion[key] || ''
+                                text: newQuestion[key] || '', // German text
+                                text_translation: newQuestion.translation?.[selectedLanguage]?.[key] || newQuestion.translation?.en?.[key] || '' // Selected language translation
                             });
                         }
                         return acc;
@@ -140,11 +147,11 @@ const App = () => {
 
                     return {
                         id: newQuestion.id,
-                        question_text: newQuestion.translation?.en?.question || '',
-                        question_text_de: newQuestion.question || '',
+                        question_text: newQuestion.question || '', // German question
+                        question_text_translation: newQuestion.translation?.[selectedLanguage]?.question || newQuestion.translation?.en?.question || '', // Selected language translation
                         options: options,
                         correct_answer: newQuestion.solution,
-                        explanation: newQuestion.translation?.en?.context || newQuestion.context || '',
+                        explanation: newQuestion.translation?.[selectedLanguage]?.context || newQuestion.translation?.en?.context || newQuestion.context || '',
                         state_code: stateCode
                     };
                 });
@@ -173,7 +180,7 @@ const App = () => {
             setIsLoading(false);
         };
         loadData();
-    }, []);
+    }, [selectedLanguage]); // Added selectedLanguage to dependency array
 
     const handleStartPractice = useCallback((stateCode) => {
         setSelectedState(stateCode); // Added this
@@ -313,6 +320,7 @@ const App = () => {
                 return <PracticeMode
                             questions={practiceSessionQuestions}
                             onNavigateHome={handleNavigateHome}
+                            selectedLanguageCode={selectedLanguage}
                         />;
             case 'exam':
                 return <ExamMode
@@ -320,6 +328,7 @@ const App = () => {
                             onNavigateHome={handleNavigateHome}
                             onShowResultsPage={handleShowResultsPage} // New prop
                             examDuration={3600} // Reverted to original value
+                            selectedLanguageCode={selectedLanguage}
                             // onStartNewTest is removed from ExamMode
                         />;
             case 'results': // New case for results page
@@ -339,6 +348,7 @@ const App = () => {
                             initialQuestions={flashcardSessionQuestions}
                             onNavigateHome={handleNavigateHome}
                             cardDuration={15}
+                            selectedLanguageCode={selectedLanguage}
                         />;
             default:
                 return (
@@ -352,7 +362,7 @@ const App = () => {
 
     return (
         <React.Fragment>
-            <Header />
+            <Header selectedLanguage={selectedLanguage} onLanguageChange={handleLanguageChange} />
             <main id="main-content" className="container mx-auto p-4 min-h-[calc(100vh-200px)]">
                 {renderContent()}
             </main>

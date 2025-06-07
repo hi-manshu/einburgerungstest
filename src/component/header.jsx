@@ -1,7 +1,17 @@
 import React from 'react';
 
+const LANGUAGES = [
+    { code: 'en', name: 'English' },
+    { code: 'tr', name: 'Türkçe' },
+    { code: 'ru', name: 'Русский' },
+    { code: 'fr', name: 'Français' },
+    { code: 'ar', name: 'العربية' },
+    { code: 'uk', name: 'Українська' },
+    { code: 'hi', name: 'हिन्दी' }
+];
+
 // Header component with app name on the left and GitHub link on the right.
-const Header = () => {
+const Header = ({ selectedLanguage, onLanguageChange }) => {
     return (
         <header className="bg-white border-b border-gray-200 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -14,8 +24,25 @@ const Header = () => {
                         </span>
                     </div>
 
-                    {/* Right Section: GitHub Link */}
-                    <div className="flex items-center">
+                    {/* Right Section: Language Selector and GitHub Link */}
+                    <div className="flex items-center space-x-4">
+                        {/* Language Selector Dropdown */}
+                        <div>
+                            <label htmlFor="language-select" className="sr-only">Select Language</label>
+                            <select
+                                id="language-select"
+                                name="language"
+                                value={selectedLanguage}
+                                onChange={(e) => onLanguageChange(e.target.value)}
+                                className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm"
+                            >
+                                {LANGUAGES.map(lang => (
+                                    <option key={lang.code} value={lang.code}>
+                                        {lang.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                         {/* Link to the GitHub repository */}
                         <a
                             href="https://github.com/hi-manshu/einburgerungstest"

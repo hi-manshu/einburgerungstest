@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 
+// Helper to get language display name (can be moved to a utility or constant if used in more places)
+const getLanguageName = (code) => {
+    const names = { en: "English", tr: "Türkçe", ru: "Русский", fr: "Français", ar: "العربية", uk: "Українська", hi: "हिन्दी" };
+    return names[code] || code;
+};
+
 // --- PracticeMode Component Definition ---
-const PracticeMode = ({ questions: initialQuestions, onNavigateHome }) => {
+const PracticeMode = ({ questions: initialQuestions, onNavigateHome, selectedLanguageCode }) => {
     const [questions, setQuestions] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [userAnswers, setUserAnswers] = useState({});
@@ -91,7 +97,11 @@ const PracticeMode = ({ questions: initialQuestions, onNavigateHome }) => {
                 </button>
             </div>
             <h3 className="text-lg md:text-xl font-semibold mb-1">{currentQuestion.question_text}</h3>
-            <p className="text-md text-gray-700 mb-4 italic">{currentQuestion.question_text_de}</p>
+            {currentQuestion.question_text_translation && (
+                <p className="text-sm text-gray-500 mt-1 mb-4 italic">
+                    {`(${getLanguageName(selectedLanguageCode)}) ${currentQuestion.question_text_translation}`}
+                </p>
+            )}
             <div className="space-y-3">
                 {currentQuestion.options.map(opt => {
                     let btnClass = 'border-gray-300 hover:bg-gray-100 text-gray-800';
@@ -110,8 +120,14 @@ const PracticeMode = ({ questions: initialQuestions, onNavigateHome }) => {
                             onClick={() => handleAnswerSelection(currentQuestion.id, opt.id)}
                             disabled={isAnswered}
                             className={`option-btn block w-full text-left p-3 border rounded-md transition-all ${btnClass}`}>
-                            <span className="font-bold mr-2">{opt.id.toUpperCase()}.</span> {opt.text}
-                            <span className="italic text-sm text-gray-600"> ({opt.text_de})</span>
+                            <div>
+                                <span className="font-bold mr-2">{opt.id.toUpperCase()}.</span> {opt.text}
+                            </div>
+                            {opt.text_translation && (
+                                <div className="italic text-xs text-gray-500 ml-6 mt-1">
+                                    {`(${getLanguageName(selectedLanguageCode)}) ${opt.text_translation}`}
+                                </div>
+                            )}
                         </button>
                     );
                 })}
