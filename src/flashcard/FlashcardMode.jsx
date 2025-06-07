@@ -1,13 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import shuffleArray from '../utils/shuffleArray.js';
 
-// Helper to get language display name
-const getLanguageName = (code) => {
-    const names = { en: "English", tr: "Türkçe", ru: "Русский", fr: "Français", ar: "العربية", uk: "Українська", hi: "हिन्दी" };
-    return names[code] || code;
-};
-
-const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15, selectedLanguageCode }) => {
+const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) => {
     const [remainingQuestions, setRemainingQuestions] = useState([]);
     const [currentCard, setCurrentCard] = useState(null);
     const [showingAnswer, setShowingAnswer] = useState(false);
@@ -49,11 +43,7 @@ const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15, se
         const correctOption = card.options.find(opt => opt.id === card.correct_answer);
         if (!correctOption) return "N/A";
 
-        let text = `${card.correct_answer.toUpperCase()}. ${correctOption.text}`; // German text
-        if (correctOption.text_translation) {
-            text += ` (${getLanguageName(selectedLanguageCode)}: ${correctOption.text_translation})`;
-        }
-        return text;
+        return `${card.correct_answer.toUpperCase()}. ${correctOption.text}`; // German text only
     };
 
     const handleFlashcardTimeout = () => {
@@ -132,11 +122,6 @@ const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15, se
 
             <div className="bg-gray-50 p-6 rounded-lg shadow-inner min-h-[150px] flex flex-col justify-center items-center mb-6">
                 <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-2">{currentCard.question_text}</h3>
-                {currentCard.question_text_translation && (
-                    <p className="text-sm text-gray-500 italic">
-                        {`(${getLanguageName(selectedLanguageCode)}) ${currentCard.question_text_translation}`}
-                    </p>
-                )}
             </div>
 
             {!showingAnswer ? (
@@ -147,11 +132,6 @@ const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15, se
                             onClick={() => handleOptionSelect(opt.id)}
                             className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50">
                             <div className="text-base">{opt.id.toUpperCase()}. {opt.text}</div>
-                            {opt.text_translation && (
-                                <div className="text-xs italic mt-1 opacity-90">
-                                    {`(${getLanguageName(selectedLanguageCode)}) ${opt.text_translation}`}
-                                </div>
-                            )}
                         </button>
                     ))}
                 </div>

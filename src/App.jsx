@@ -85,11 +85,12 @@ const HomePage = ({ statesData, onStartPractice, onStartExam, onStartFlashcards,
 
 // --- App Component Definition ---
 const App = () => {
+    const [rawQuestionsData, setRawQuestionsData] = useState(null); // Store raw questions
     const [allQuestionsData, setAllQuestionsData] = useState([]);
-    const [statesData, setStatesData] = useState({});
+    const [statesData, setStatesData] = useState({}); // Assuming states.json is simple and doesn't need raw storage or language processing for its own content
     const [loadingError, setLoadingError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [currentView, setCurrentView] = useState('loading'); // existing
+    const [currentView, setCurrentView] = useState('loading');
     const [practiceSessionQuestions, setPracticeSessionQuestions] = useState([]);
     const [examQuestionsForMode, setExamQuestionsForMode] = useState([]); // Renamed from examSessionQuestions
     const [flashcardSessionQuestions, setFlashcardSessionQuestions] = useState([]);
@@ -116,74 +117,100 @@ const App = () => {
         localStorage.setItem('selectedLanguage', newLanguage);
     }, []);
 
+    // Effect for initial data fetching (runs once)
     useEffect(() => {
-        const loadData = async () => {
+        const fetchInitialData = async () => {
             setIsLoading(true);
-            let qError = null, sError = null, tempQuestions = [], tempStatesData = {};
+            let qError = null, sError = null;
+            let fetchedQuestions = null;
+            let fetchedStatesData = {};
+
             try {
-                // For Vite, files in public directory are served at root.
                 const qResponse = await fetch('/data/question.json');
                 if (!qResponse.ok) throw new Error(`Questions fetch failed: ${qResponse.status} ${qResponse.statusText}`);
-                const newQuestionsData = await qResponse.json();
-                if (!Array.isArray(newQuestionsData)) { throw new Error('Invalid questions format (expected array).'); }
+                fetchedQuestions = await qResponse.json();
+                if (!Array.isArray(fetchedQuestions)) {
+                    throw new Error('Invalid questions format (expected array).');
+                }
+            } catch (e) {
+                qError = e.message;
+                console.error("Error fetching questions:", e);
+            }
 
-                // Transform new data structure to the old one
-                tempQuestions = newQuestionsData.map(newQuestion => {
-                    const options = ['a', 'b', 'c', 'd'].reduce((acc, key) => {
-                        if (newQuestion.hasOwnProperty(key)) {
-                            acc.push({
-                                id: key,
-                                text: newQuestion[key] || '', // German text
-                                text_translation: newQuestion.translation?.[selectedLanguage]?.[key] || newQuestion.translation?.en?.[key] || '' // Selected language translation
-                            });
-                        }
-                        return acc;
-                    }, []);
-
-                    let stateCode = null;
-                    if (typeof newQuestion.num === 'string' && newQuestion.num.includes('-')) {
-                        stateCode = newQuestion.num.split('-')[0];
-                    }
-
-                    return {
-                        id: newQuestion.id,
-                        question_text: newQuestion.question || '', // German question
-                        question_text_translation: newQuestion.translation?.[selectedLanguage]?.question || newQuestion.translation?.en?.question || '', // Selected language translation
-                        options: options,
-                        correct_answer: newQuestion.solution,
-                        explanation: newQuestion.translation?.[selectedLanguage]?.context || newQuestion.translation?.en?.context || newQuestion.context || '',
-                        state_code: stateCode
-                    };
-                });
-
-            } catch (e) { qError = e.message; }
             try {
                 const sResponse = await fetch('/data/states.json');
                 if (!sResponse.ok) throw new Error(`States fetch failed: ${sResponse.status} ${sResponse.statusText}`);
                 const statesArray = await sResponse.json();
-                if (!Array.isArray(statesArray)) { throw new Error('Invalid states format.'); }
-                tempStatesData = statesArray.reduce((obj, state) => { obj[state.code] = state.name; return obj; }, {});
-            } catch (e) { sError = e.message; }
+                if (!Array.isArray(statesArray)) {
+                    throw new Error('Invalid states format.');
+                }
+                fetchedStatesData = statesArray.reduce((obj, state) => { obj[state.code] = state.name; return obj; }, {});
+            } catch (e) {
+                sError = e.message;
+                console.error("Error fetching states:", e);
+            }
 
-            setAllQuestionsData(tempQuestions);
-            setStatesData(tempStatesData);
+            setRawQuestionsData(fetchedQuestions); // Store raw questions
+            setStatesData(fetchedStatesData);
 
             if (qError || sError) {
-                setLoadingError([qError, sError].filter(Boolean).join('; '));
-                setCurrentView(tempQuestions.length ? 'home' : 'error');
-            } else if (!tempQuestions.length && !sError) { // No questions but states might have loaded
+                const errors = [qError, sError].filter(Boolean).join('; ');
+                setLoadingError(errors);
+                setCurrentView(fetchedQuestions && fetchedQuestions.length > 0 ? 'home' : 'error'); // Still allow home if questions loaded but states failed
+            } else if (!fetchedQuestions || fetchedQuestions.length === 0) {
                 setLoadingError('No questions found in the data file.');
-                setCurrentView('error'); // Or 'home' if states list is useful alone
+                setCurrentView('error');
             } else {
                 setCurrentView('home');
             }
             setIsLoading(false);
         };
-        loadData();
-    }, [selectedLanguage]); // Added selectedLanguage to dependency array
+        fetchInitialData();
+    }, []); // Empty dependency array: runs only once on mount
+
+    // Effect for transforming questions when rawQuestionsData or selectedLanguage changes
+    useEffect(() => {
+        if (!rawQuestionsData) {
+            // console.log("Raw questions data not available yet.");
+            return; // Don't run if raw data isn't fetched yet
+        }
+
+        // console.log(`Transforming data for language: ${selectedLanguage}`);
+        const tempQuestions = rawQuestionsData.map(newQuestion => {
+            const options = ['a', 'b', 'c', 'd'].reduce((acc, key) => {
+                if (newQuestion.hasOwnProperty(key)) {
+                    acc.push({
+                        id: key,
+                        text: newQuestion[key] || '', // German text
+                        text_translation: newQuestion.translation?.[selectedLanguage]?.[key] || newQuestion.translation?.en?.[key] || '' // Selected language translation
+                    });
+                }
+                return acc;
+            }, []);
+
+            let stateCode = null;
+            if (typeof newQuestion.num === 'string' && newQuestion.num.includes('-')) {
+                stateCode = newQuestion.num.split('-')[0];
+            }
+
+            return {
+                id: newQuestion.id,
+                question_text: newQuestion.question || '', // German question
+                question_text_translation: newQuestion.translation?.[selectedLanguage]?.question || newQuestion.translation?.en?.question || '', // Selected language translation
+                options: options,
+                correct_answer: newQuestion.solution,
+                explanation: newQuestion.translation?.[selectedLanguage]?.context || newQuestion.translation?.en?.context || newQuestion.context || '',
+                state_code: stateCode
+            };
+        });
+        setAllQuestionsData(tempQuestions);
+        // DO NOT setCurrentView here
+        // console.log("Transformed questions set for allQuestionsData.");
+
+    }, [rawQuestionsData, selectedLanguage]); // Runs when rawQuestionsData or selectedLanguage changes
 
     const handleStartPractice = useCallback((stateCode) => {
-        setSelectedState(stateCode); // Added this
+        setSelectedState(stateCode);
         localStorage.setItem('selectedState', stateCode);
         const generalQuestions = allQuestionsData.filter(q => q.state_code === null);
         const stateSpecificQuestions = allQuestionsData.filter(q => q.state_code === stateCode);
