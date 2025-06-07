@@ -40,39 +40,62 @@ const HomePage = ({
 
             {/* Container for existing two columns and the new language selector row */}
             <div className="flex flex-col gap-8 items-center"> {/* Centering the content */}
-                {/* Existing two-column layout for State and Activity selection */}
+                {/* Modified two-column layout for State, Language, and Activity selection */}
                 <div className="flex flex-row gap-8 mt-4 items-start w-full max-w-4xl"> {/* Max width for content */}
-                    {/* Left Column: State Selection */}
-                    <div className="md:w-2/4 p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 self-start">
-                        <h3 className="text-xl font-semibold mb-3 text-gray-700">1. Select Your State</h3>
-                        <label htmlFor="state-select" className="sr-only">
-                            Select Your State:
-                        </label>
-                        <select
-                            id="state-select"
-                            value={selectedState} // Use selectedState from props
-                            onChange={onStateChange} // Use onStateChange from props
-                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow">
-                            <option value="">Select a State</option>
-                            {Object.entries(statesData || {}).sort(([,a],[,b]) => a.localeCompare(b)).map(([code, name]) => (
-                                <option key={code} value={code}>{name}</option>
-                            ))}
-                        </select>
-                        {!selectedState && (
-                             <p className="text-sm text-gray-500 mt-2">Please select a state to enable activities.</p>
-                        )}
-                        <div className="flex justify-center mt-4">
-                            <button
-                                onClick={onResetState} // Use onResetState from props
-                                className="bg-pink-400 hover:bg-black-500 text-white text-sm font-bold py-2 px-3 rounded shadow-md transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled={!selectedState}
+
+                    {/* Enhanced Left Column: State Selection and Language Selection */}
+                    <div className="md:w-2/4 flex flex-col gap-8">
+                        {/* State Selection Box */}
+                        <div className="p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 self-start w-full">
+                            <h3 className="text-xl font-semibold mb-3 text-gray-700">1. Select Your State</h3>
+                            <label htmlFor="state-select" className="sr-only">
+                                Select Your State:
+                            </label>
+                            <select
+                                id="state-select"
+                                value={selectedState} // Use selectedState from props
+                                onChange={onStateChange} // Use onStateChange from props
+                                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow">
+                                <option value="">Select a State</option>
+                                {Object.entries(statesData || {}).sort(([,a],[,b]) => a.localeCompare(b)).map(([code, name]) => (
+                                    <option key={code} value={code}>{name}</option>
+                                ))}
+                            </select>
+                            {!selectedState && (
+                                 <p className="text-sm text-gray-500 mt-2">Please select a state to enable activities.</p>
+                            )}
+                            <div className="flex justify-center mt-4">
+                                <button
+                                    onClick={onResetState} // Use onResetState from props
+                                    className="bg-pink-400 hover:bg-black-500 text-white text-sm font-bold py-2 px-3 rounded shadow-md transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled={!selectedState}
+                                >
+                                    Reset State
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Language Selection Box (MOVED AND RESTYLED) */}
+                        <div className="p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 self-start w-full">
+                            <h3 className="text-lg font-semibold mb-2 text-gray-700">Language for Practice Translations</h3>
+                            <p className="text-sm text-gray-600 mb-3">
+                                Choose the language in which you'd like to see translations for questions during practice mode. The primary language will always be German. Exam mode does not show translations.
+                            </p>
+                            <label htmlFor="language-select-home" className="sr-only">Select Translation Language:</label>
+                            <select
+                                id="language-select-home"
+                                value={selectedLanguage}
+                                onChange={(e) => onLanguageChange(e.target.value)}
+                                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow"
                             >
-                                Reset State
-                            </button>
+                                {LANGUAGES.map(lang => (
+                                    <option key={lang.code} value={lang.code}>{lang.name}</option>
+                                ))}
+                            </select>
                         </div>
                     </div>
 
-                    {/* Right Column: Activity Buttons */}
+                    {/* Right Column: Activity Buttons (Unchanged structurally relative to its direct parent) */}
                     <div className="md:w-2/4 p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 self-start">
                         <h3 className="text-xl font-semibold mb-4 text-gray-700">2. Choose an Activity</h3>
                         <div className="space-y-4">
@@ -96,25 +119,6 @@ const HomePage = ({
                             </button>
                         </div>
                     </div>
-                </div>
-
-                {/* New Row/Section for Language Selection */}
-                <div className="mt-6 p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 self-stretch w-full max-w-4xl"> {/* Max width and stretch */}
-                    <h3 className="text-lg font-semibold mb-2 text-gray-700">Language for Practice Translations</h3>
-                    <p className="text-sm text-gray-600 mb-3">
-                        Choose the language in which you'd like to see translations for questions during practice mode. The primary language will always be German. Exam mode does not show translations.
-                    </p>
-                    <label htmlFor="language-select-home" className="sr-only">Select Translation Language:</label>
-                    <select
-                        id="language-select-home"
-                        value={selectedLanguage}
-                        onChange={(e) => onLanguageChange(e.target.value)}
-                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow"
-                    >
-                        {LANGUAGES.map(lang => (
-                            <option key={lang.code} value={lang.code}>{lang.name}</option>
-                        ))}
-                    </select>
                 </div>
             </div>
         </div>
