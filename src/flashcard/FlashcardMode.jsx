@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import shuffleArray from '../utils/shuffleArray.js';
 
-
 const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) => {
     const [remainingQuestions, setRemainingQuestions] = useState([]);
     const [currentCard, setCurrentCard] = useState(null);
@@ -37,12 +36,14 @@ const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) 
             handleFlashcardTimeout();
         }
         return () => clearTimeout(timerIdRef.current);
-    }, [currentCard, showingAnswer, timer]);
+    }, [currentCard, showingAnswer, timer, cardDuration]); // Added cardDuration here as it's used in reset
 
     const getCorrectAnswerText = (card) => {
         if (!card || !card.options || !card.correct_answer) return "N/A";
         const correctOption = card.options.find(opt => opt.id === card.correct_answer);
-        return correctOption ? `${card.correct_answer.toUpperCase()}. ${correctOption.text_de}` : "N/A";
+        if (!correctOption) return "N/A";
+
+        return `${card.correct_answer.toUpperCase()}. ${correctOption.text}`; // German text only
     };
 
     const handleFlashcardTimeout = () => {
@@ -120,7 +121,7 @@ const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) 
             </div>
 
             <div className="bg-gray-50 p-6 rounded-lg shadow-inner min-h-[150px] flex flex-col justify-center items-center mb-6">
-                <h3 className="text-xl md:text-2xl font-semibold text-gray-800">{currentCard.question_text_de}</h3>
+                <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-2">{currentCard.question_text}</h3>
             </div>
 
             {!showingAnswer ? (
@@ -130,7 +131,7 @@ const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) 
                             key={opt.id}
                             onClick={() => handleOptionSelect(opt.id)}
                             className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50">
-                            {opt.id.toUpperCase()}. {opt.text_de}
+                            <div className="text-base">{opt.id.toUpperCase()}. {opt.text}</div>
                         </button>
                     ))}
                 </div>

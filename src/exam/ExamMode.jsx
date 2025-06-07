@@ -4,7 +4,7 @@ import QuestionDisplay from './QuestionDisplay';
 import ExamNavigation from './ExamNavigation';
 
 // --- ExamMode Component Definition ---
-const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuration = 3600, onShowResultsPage }) => {
+const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuration = 3600, onShowResultsPage, selectedLanguageCode }) => {
     const [questions, setQuestions] = useState([]);
     const [currentExamQuestionIndex, setCurrentExamQuestionIndex] = useState(0);
     const [examUserAnswers, setExamUserAnswers] = useState({});
@@ -152,6 +152,8 @@ const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuratio
                 handleExamAnswerSelection={handleExamAnswerSelection}
                 currentExamQuestionIndex={currentExamQuestionIndex}
                 totalQuestions={questions.length}
+                isExamMode={true}
+                selectedLanguageCode={selectedLanguageCode}
             />
 
             <ExamNavigation

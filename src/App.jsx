@@ -5,96 +5,22 @@ import ExamResultsPage from './exam/ExamResultsPage.jsx'; // Import ExamResultsP
 import Header from './component/header.jsx'
 import FlashcardMode from './flashcard/FlashcardMode.jsx';
 import shuffleArray from './utils/shuffleArray.js';
-
-// --- HomePage Component Definition ---
-// selectedState and its handler are now passed as props
-const HomePage = ({ statesData, onStartPractice, onStartExam, onStartFlashcards, selectedState, onStateChange, onResetState }) => {
-
-    const handleNavigation = (navigationFunc, requiresState = true) => {
-        if (requiresState && !selectedState) {
-            console.log("Please select a state to proceed with this mode.");
-            return;
-        }
-        navigationFunc(selectedState); // Pass selectedState from props
-    };
-
-    return (
-        <div className="text-center">
-            <h2 className="text-2xl font-semibold mb-8">Let’s get started — choose how you’d like to learn today!</h2>
-            {/* The flex container for the two columns. items-start aligns them to the top */}
-            <div className="flex flex-row gap-8 mt-4 items-start">
-                {/* Left Column: State Selection - now wraps content with self-start */}
-                <div className="md:w-2/4 p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 self-start">
-                    <h3 className="text-xl font-semibold mb-3 text-gray-700">1. Select Your State</h3>
-                    <label htmlFor="state-select" className="sr-only">
-                        Select Your State:
-                    </label>
-                    <select
-                        id="state-select"
-                        value={selectedState} // Use selectedState from props
-                        onChange={onStateChange} // Use onStateChange from props
-                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow">
-                        <option value="">Select a State</option>
-                        {Object.entries(statesData || {}).sort(([,a],[,b]) => a.localeCompare(b)).map(([code, name]) => (
-                            <option key={code} value={code}>{name}</option>
-                        ))}
-                    </select>
-                    {!selectedState && (
-                         <p className="text-sm text-gray-500 mt-2">Please select a state to enable activities.</p>
-                    )}
-                    {/* New Reset State Button */}
-                    <div className="flex justify-center mt-4">
-                        <button
-                            onClick={onResetState} // Use onResetState from props
-                            className="bg-pink-400 hover:bg-black-500 text-white text-sm font-bold py-2 px-3 rounded shadow-md transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={!selectedState}
-                        >
-                            Reset State
-                        </button>
-                    </div>
-                </div>
-
-                {/* Right Column: Activity Buttons */}
-                <div className="md:w-2/4 p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50">
-                    <h3 className="text-xl font-semibold mb-4 text-gray-700">2. Choose an Activity</h3>
-                    <div className="space-y-4">
-                        <button
-                            onClick={() => handleNavigation(onStartPractice)}
-                            className="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-4 rounded shadow-md hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={!selectedState}>
-                            Practice
-                        </button>
-                        <button
-                            onClick={() => handleNavigation(onStartExam)}
-                            className="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-3 px-4 rounded shadow-md hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={!selectedState}>
-                            Test
-                        </button>
-                        <button
-                            onClick={() => handleNavigation(onStartFlashcards)}
-                            className="w-full bg-purple-500 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded shadow-md hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={!selectedState}>
-                            Flashcards
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-};
+import HomePage from './component/homePage.jsx'; // Import HomePage
 
 // --- App Component Definition ---
 const App = () => {
+    const [rawQuestionsData, setRawQuestionsData] = useState(null); // Store raw questions
     const [allQuestionsData, setAllQuestionsData] = useState([]);
-    const [statesData, setStatesData] = useState({});
+    const [statesData, setStatesData] = useState({}); // Assuming states.json is simple and doesn't need raw storage or language processing for its own content
     const [loadingError, setLoadingError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [currentView, setCurrentView] = useState('loading'); // existing
+    const [currentView, setCurrentView] = useState('loading');
     const [practiceSessionQuestions, setPracticeSessionQuestions] = useState([]);
     const [examQuestionsForMode, setExamQuestionsForMode] = useState([]); // Renamed from examSessionQuestions
     const [flashcardSessionQuestions, setFlashcardSessionQuestions] = useState([]);
     const [examResultsData, setExamResultsData] = useState(null); // For results page
     const [selectedState, setSelectedState] = useState(localStorage.getItem('selectedState') || ''); // Lifted selectedState
+    const [selectedLanguage, setSelectedLanguage] = useState(localStorage.getItem('selectedLanguage') || 'en');
 
     // Handler for state change, now in App.jsx
     const handleStateChange = useCallback((event) => {
@@ -109,74 +35,141 @@ const App = () => {
         localStorage.removeItem('selectedState');
     }, []);
 
+    // Handler for language change
+    const handleLanguageChange = useCallback((newLanguage) => {
+        setSelectedLanguage(newLanguage);
+        localStorage.setItem('selectedLanguage', newLanguage);
+    }, []);
+
+    // Effect for initial data fetching (runs once)
     useEffect(() => {
-        const loadData = async () => {
+        const fetchInitialData = async () => {
             setIsLoading(true);
-            let qError = null, sError = null, tempQuestions = [], tempStatesData = {};
+            let qError = null, sError = null;
+            let fetchedQuestions = null;
+            let fetchedStatesData = {};
+
             try {
-                // For Vite, files in public directory are served at root.
                 const qResponse = await fetch('/data/question.json');
                 if (!qResponse.ok) throw new Error(`Questions fetch failed: ${qResponse.status} ${qResponse.statusText}`);
-                const newQuestionsData = await qResponse.json();
-                if (!Array.isArray(newQuestionsData)) { throw new Error('Invalid questions format (expected array).'); }
+                fetchedQuestions = await qResponse.json();
+                if (!Array.isArray(fetchedQuestions)) {
+                    throw new Error('Invalid questions format (expected array).');
+                }
+            } catch (e) {
+                qError = e.message;
+                console.error("Error fetching questions:", e);
+            }
 
-                // Transform new data structure to the old one
-                tempQuestions = newQuestionsData.map(newQuestion => {
-                    const options = ['a', 'b', 'c', 'd'].reduce((acc, key) => {
-                        if (newQuestion.hasOwnProperty(key)) {
-                            acc.push({
-                                id: key,
-                                text: newQuestion.translation?.en?.[key] || '',
-                                text_de: newQuestion[key] || ''
-                            });
-                        }
-                        return acc;
-                    }, []);
-
-                    let stateCode = null;
-                    if (typeof newQuestion.num === 'string' && newQuestion.num.includes('-')) {
-                        stateCode = newQuestion.num.split('-')[0];
-                    }
-
-                    return {
-                        id: newQuestion.id,
-                        question_text: newQuestion.translation?.en?.question || '',
-                        question_text_de: newQuestion.question || '',
-                        options: options,
-                        correct_answer: newQuestion.solution,
-                        explanation: newQuestion.translation?.en?.context || newQuestion.context || '',
-                        state_code: stateCode
-                    };
-                });
-
-            } catch (e) { qError = e.message; }
             try {
                 const sResponse = await fetch('/data/states.json');
                 if (!sResponse.ok) throw new Error(`States fetch failed: ${sResponse.status} ${sResponse.statusText}`);
                 const statesArray = await sResponse.json();
-                if (!Array.isArray(statesArray)) { throw new Error('Invalid states format.'); }
-                tempStatesData = statesArray.reduce((obj, state) => { obj[state.code] = state.name; return obj; }, {});
-            } catch (e) { sError = e.message; }
+                if (!Array.isArray(statesArray)) {
+                    throw new Error('Invalid states format.');
+                }
+                fetchedStatesData = statesArray.reduce((obj, state) => { obj[state.code] = state.name; return obj; }, {});
+            } catch (e) {
+                sError = e.message;
+                console.error("Error fetching states:", e);
+            }
 
-            setAllQuestionsData(tempQuestions);
-            setStatesData(tempStatesData);
+            setRawQuestionsData(fetchedQuestions); // Store raw questions
+            setStatesData(fetchedStatesData);
 
             if (qError || sError) {
-                setLoadingError([qError, sError].filter(Boolean).join('; '));
-                setCurrentView(tempQuestions.length ? 'home' : 'error');
-            } else if (!tempQuestions.length && !sError) { // No questions but states might have loaded
+                const errors = [qError, sError].filter(Boolean).join('; ');
+                setLoadingError(errors);
+                setCurrentView(fetchedQuestions && fetchedQuestions.length > 0 ? 'home' : 'error'); // Still allow home if questions loaded but states failed
+            } else if (!fetchedQuestions || fetchedQuestions.length === 0) {
                 setLoadingError('No questions found in the data file.');
-                setCurrentView('error'); // Or 'home' if states list is useful alone
+                setCurrentView('error');
             } else {
                 setCurrentView('home');
             }
             setIsLoading(false);
         };
-        loadData();
-    }, []);
+        fetchInitialData();
+    }, []); // Empty dependency array: runs only once on mount
+
+    // Effect for transforming questions when rawQuestionsData or selectedLanguage changes
+    useEffect(() => {
+        if (!rawQuestionsData) {
+            // console.log("Raw questions data not available yet.");
+            return; // Don't run if raw data isn't fetched yet
+        }
+
+        // console.log(`Transforming data for language: ${selectedLanguage}`);
+        const tempQuestions = rawQuestionsData.map(newQuestion => {
+            const options = ['a', 'b', 'c', 'd'].reduce((acc, key) => {
+                if (newQuestion.hasOwnProperty(key)) {
+                    acc.push({
+                        id: key,
+                        text: newQuestion[key] || '', // German text
+                        text_translation: newQuestion.translation?.[selectedLanguage]?.[key] || newQuestion.translation?.en?.[key] || '' // Selected language translation
+                    });
+                }
+                return acc;
+            }, []);
+
+            let stateCode = null;
+            if (typeof newQuestion.num === 'string' && newQuestion.num.includes('-')) {
+                stateCode = newQuestion.num.split('-')[0];
+            }
+
+            return {
+                id: newQuestion.id,
+                question_text: newQuestion.question || '', // German question
+                question_text_translation: newQuestion.translation?.[selectedLanguage]?.question || newQuestion.translation?.en?.question || '', // Selected language translation
+                options: options,
+                correct_answer: newQuestion.solution,
+                explanation: newQuestion.translation?.[selectedLanguage]?.context || newQuestion.translation?.en?.context || newQuestion.context || '',
+                state_code: stateCode
+            };
+        });
+        setAllQuestionsData(tempQuestions);
+        // DO NOT setCurrentView here
+        // console.log("Transformed questions set for allQuestionsData.");
+
+    }, [rawQuestionsData, selectedLanguage]); // Runs when rawQuestionsData or selectedLanguage changes
+
+    // Effect to update practice session questions if language changes while in practice mode
+    useEffect(() => {
+        if (currentView === 'practice' && selectedState && allQuestionsData && allQuestionsData.length > 0 && practiceSessionQuestions && practiceSessionQuestions.length > 0) {
+            // console.log(`Updating translations for practice questions in state ${selectedState} due to language change.`);
+            const allQuestionsMap = new Map(allQuestionsData.map(q => [q.id, q]));
+
+            const updatedPracticeQuestions = practiceSessionQuestions.map(practiceQ => {
+                const fullQuestionData = allQuestionsMap.get(practiceQ.id);
+                if (!fullQuestionData) {
+                    return practiceQ; // Should not happen if data is consistent
+                }
+
+                const updatedOptions = practiceQ.options.map(opt => {
+                    const fullOptionData = fullQuestionData.options.find(fullOpt => fullOpt.id === opt.id);
+                    return {
+                        ...opt,
+                        text_translation: fullOptionData ? fullOptionData.text_translation : opt.text_translation,
+                    };
+                });
+
+                return {
+                    ...practiceQ,
+                    question_text_translation: fullQuestionData.question_text_translation,
+                    explanation: fullQuestionData.explanation, // Explanation also needs to be updated
+                    options: updatedOptions,
+                };
+            });
+
+            // Only update if the content has actually changed to avoid potential infinite loops
+            if (JSON.stringify(practiceSessionQuestions) !== JSON.stringify(updatedPracticeQuestions)) {
+                setPracticeSessionQuestions(updatedPracticeQuestions);
+            }
+        }
+    }, [allQuestionsData, currentView, selectedState, practiceSessionQuestions]); // Added practiceSessionQuestions to dependencies
 
     const handleStartPractice = useCallback((stateCode) => {
-        setSelectedState(stateCode); // Added this
+        setSelectedState(stateCode);
         localStorage.setItem('selectedState', stateCode);
         const generalQuestions = allQuestionsData.filter(q => q.state_code === null);
         const stateSpecificQuestions = allQuestionsData.filter(q => q.state_code === stateCode);
@@ -308,11 +301,14 @@ const App = () => {
                             selectedState={selectedState}
                             onStateChange={handleStateChange}
                             onResetState={handleResetState}
+                            selectedLanguage={selectedLanguage}
+                            onLanguageChange={handleLanguageChange}
                         />;
             case 'practice':
                 return <PracticeMode
                             questions={practiceSessionQuestions}
                             onNavigateHome={handleNavigateHome}
+                            selectedLanguageCode={selectedLanguage}
                         />;
             case 'exam':
                 return <ExamMode
@@ -320,6 +316,7 @@ const App = () => {
                             onNavigateHome={handleNavigateHome}
                             onShowResultsPage={handleShowResultsPage} // New prop
                             examDuration={3600} // Reverted to original value
+                            selectedLanguageCode={selectedLanguage}
                             // onStartNewTest is removed from ExamMode
                         />;
             case 'results': // New case for results page
@@ -339,6 +336,7 @@ const App = () => {
                             initialQuestions={flashcardSessionQuestions}
                             onNavigateHome={handleNavigateHome}
                             cardDuration={15}
+                            selectedLanguageCode={selectedLanguage}
                         />;
             default:
                 return (
