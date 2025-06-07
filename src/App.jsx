@@ -176,14 +176,16 @@ const App = () => {
     }, []);
 
     const handleStartPractice = useCallback((stateCode) => {
+        setSelectedState(stateCode); // Added this
         localStorage.setItem('selectedState', stateCode);
         const generalQuestions = allQuestionsData.filter(q => q.state_code === null);
         const stateSpecificQuestions = allQuestionsData.filter(q => q.state_code === stateCode);
 
         const sessionQuestions = [...generalQuestions, ...stateSpecificQuestions];
         setPracticeSessionQuestions(shuffleArray(sessionQuestions));
+        // console.log("Practice Mode: Starting with", sessionQuestions.length, "questions for state", stateCode); // Removed console.log
         setCurrentView('practice');
-    }, [allQuestionsData]);
+    }, [allQuestionsData, setSelectedState]);
 
     const handleStartExam = useCallback((stateCodeFromButton) => {
         // stateCodeFromButton is the state selected on HomePage
@@ -201,7 +203,8 @@ const App = () => {
         const TARGET_STATE_QUESTIONS_IN_EXAM = 3;
 
         const generalQuestions = allQuestionsData.filter(q => q.state_code === null);
-        const stateSpecificQuestions = allQuestionsData.filter(q => q.state_code === stateCode);
+        // Corrected: use stateCodeFromButton for filtering
+        const stateSpecificQuestions = allQuestionsData.filter(q => q.state_code === stateCodeFromButton);
 
         let examStateQuestions = shuffleArray(stateSpecificQuestions).slice(0, TARGET_STATE_QUESTIONS_IN_EXAM);
 
@@ -221,18 +224,20 @@ const App = () => {
 
         setExamQuestionsForMode(finalExamQuestions); // Renamed state setter
         setCurrentView('exam');
-    }, [allQuestionsData]); // Removed setSelectedState from here, it's set above or assumed to be set by HomePage interaction
+    }, [allQuestionsData, setSelectedState]); // Added setSelectedState to dependencies, as it's called inside
 
     const handleStartFlashcards = useCallback((stateCodeFromButton) => {
-        setSelectedState(stateCodeFromButton); // Ensure App's state is also set
+        setSelectedState(stateCodeFromButton);
         localStorage.setItem('selectedState', stateCodeFromButton);
         const generalQuestions = allQuestionsData.filter(q => q.state_code === null);
-        const stateSpecificQuestions = allQuestionsData.filter(q => q.state_code === stateCode);
+        // Corrected: use stateCodeFromButton for filtering
+        const stateSpecificQuestions = allQuestionsData.filter(q => q.state_code === stateCodeFromButton);
 
         const sessionQuestions = [...generalQuestions, ...stateSpecificQuestions];
         setFlashcardSessionQuestions(shuffleArray(sessionQuestions));
+        // console.log("Flashcard Mode: Starting with", sessionQuestions.length, "questions for state", stateCodeFromButton); // Removed console.log
         setCurrentView('flashcards');
-    }, [allQuestionsData]);
+    }, [allQuestionsData, setSelectedState]);
 
     const handleNavigateHome = useCallback(() => {
         setCurrentView('home');
