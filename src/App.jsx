@@ -357,7 +357,7 @@ const App = () => {
                 {renderContent()}
             </main>
             <footer className="text-center text-gray-500 mt-8 py-4 border-t border-gray-200">
-                <p>&copy; {new Date().getFullYear()} Einbürgerungstest Practice (React Version)</p>
+                <p>&copy; {new Date().getFullYear()} Einbürgerungstest Practice by Himanshu</p>
             </footer>
         </React.Fragment>
     );

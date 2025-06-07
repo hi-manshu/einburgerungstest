@@ -146,8 +146,6 @@ const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuratio
                 ></div>
             </div>
 
-            <p className="text-sm text-gray-500 mb-2">Q {currentExamQuestionIndex + 1}/{questions.length}</p> {/* Question count now after progress bar */}
-
             <QuestionDisplay
                 currentQuestion={currentQuestion}
                 examUserAnswers={examUserAnswers}
@@ -165,15 +163,15 @@ const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuratio
             />
 
             <div className="mt-8 flex space-x-4">
-                <button onClick={onNavigateHome} className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded">
-                    Cancel & Home
+                <button onClick={onNavigateHome} className="md:w-2/4 border border-indigo-500 text-indigo-500 font-bold py-2 px-4 rounded hover:bg-indigo-100 transition-colors">
+                    Cancel Exam
                 </button>
                 <button
                     onClick={() => setShowSubmitConfirmPopup(true)}
                     disabled={Object.keys(examUserAnswers).length === 0}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 transition-opacity"
+                    className="md:w-2/4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 transition-opacity"
                 >
-                    Submit Check
+                    Submit Exam
                 </button>
             </div>
 
