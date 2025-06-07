@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react'; // Imported useState
 
 const ExamResultsPage = ({
     questions = [],
@@ -11,6 +11,7 @@ const ExamResultsPage = ({
     onRetryTest,
     onStartNewTest
 }) => {
+    const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0); // Added state for selected question
 
     const formatTime = (totalSeconds) => {
         const minutes = Math.floor(totalSeconds / 60);
@@ -30,6 +31,23 @@ const ExamResultsPage = ({
     // const calculatedScore = questions.length > 0 ? (correctAnswersCount / questions.length) * 100 : 0;
     // const calculatedIsPassed = correctAnswersCount >= passMark;
 
+    // Derive data for the selected question to display
+    const questionToDisplay = questions[selectedQuestionIndex];
+    const userAnswerDetails = questionToDisplay ? userAnswers[questionToDisplay.id] : undefined;
+    const isCorrectDetails = questionToDisplay && userAnswerDetails !== undefined ? userAnswerDetails === questionToDisplay.correct_answer : false;
+
+    let correctAnswerTextDetails = '';
+    let userAnswerTextDetails = '';
+
+    if (questionToDisplay) {
+        const correctAnswerOption = questionToDisplay.options.find(opt => opt.id === questionToDisplay.correct_answer);
+        correctAnswerTextDetails = correctAnswerOption ? correctAnswerOption.text : 'N/A';
+
+        if (userAnswerDetails !== undefined) {
+            const userAnswerOption = questionToDisplay.options.find(opt => opt.id === userAnswerDetails);
+            userAnswerTextDetails = userAnswerOption ? userAnswerOption.text : 'N/A';
+        }
+    }
 
     return (
         <div className={`bg-white p-4 md:p-6 rounded-lg shadow-lg max-w-3xl mx-auto my-8 border-t-8 ${isPassed ? 'border-green-500' : 'border-red-500'}`}>
@@ -58,26 +76,80 @@ const ExamResultsPage = ({
             {/* Placeholder for detailed question list - to be implemented next */}
             <div className="mb-8">
                 <h3 className="text-2xl font-semibold mb-4 text-gray-700">Question Review</h3>
-                {questions.map((question, index) => {
-                    const userAnswer = userAnswers[question.id];
-                    const isCorrect = userAnswer === question.correct_answer;
-                    const correctAnswerText = question.options.find(opt => opt.id === question.correct_answer)?.text;
-                    const userAnswerText = question.options.find(opt => opt.id === userAnswer)?.text;
+                {/* Horizontal list of numbered boxes */}
+                <div className="flex overflow-x-auto space-x-2 p-2 mb-4 bg-gray-100 rounded-md shadow-sm"> {/* Added shadow-sm */}
+                    {questions.map((question, index) => {
+                        const userAnswer = userAnswers[question.id];
+                        const isCorrect = userAnswer === question.correct_answer;
+                        const isAnswered = userAnswer !== undefined;
 
-                    return (
-                        <div key={question.id} className={`p-4 mb-3 rounded-lg border ${isCorrect ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'}`}>
-                            <p className="font-semibold text-gray-800">Q{index + 1}: {question.question_text}</p>
-                            <p className={`text-sm ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
-                                Your answer: {userAnswer ? `${userAnswer.toUpperCase()}. ${userAnswerText}` : 'Not answered'}
-                                {isCorrect ? <span className="font-bold"> (Correct)</span> : <span className="font-bold"> (Incorrect)</span>}
+                        let boxColor = 'bg-gray-300 hover:bg-gray-400'; // Default for unanswered
+                        if (isAnswered) {
+                            boxColor = isCorrect ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600';
+                        }
+                        const textColor = isAnswered ? 'text-white' : 'text-gray-700';
+
+                        return (
+                            <button
+                                key={question.id}
+                                onClick={() => setSelectedQuestionIndex(index)}
+                                className={`w-10 h-10 flex-shrink-0 rounded-lg flex items-center justify-center font-semibold transition-colors ${boxColor} ${textColor} ${selectedQuestionIndex === index ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}
+                                aria-pressed={selectedQuestionIndex === index}
+                                aria-label={`Question ${index + 1}`}
+                            >
+                                {index + 1}
+                            </button>
+                        );
+                    })}
+                    {questions.length === 0 && <p className="text-gray-500 p-2">No questions to review.</p>}
+                </div>
+
+                {/* Display for selected question details */}
+                <div className="mt-4 p-4 border rounded-lg bg-white shadow min-h-[150px]">
+                    {questionToDisplay ? (
+                        <>
+                            <p className="text-sm text-gray-500 mb-1">
+                                Question {selectedQuestionIndex + 1} of {questions.length}
                             </p>
-                            {!isCorrect && (
-                                <p className="text-sm text-blue-700 font-medium">Correct answer: {question.correct_answer.toUpperCase()}. {correctAnswerText}</p>
+                            <h4 className="text-lg font-semibold text-gray-800 mb-1">
+                                {questionToDisplay.question_text}
+                            </h4>
+                            <p className="text-md text-gray-600 mb-3 italic">
+                                {questionToDisplay.question_text_de}
+                            </p>
+
+                            {userAnswerDetails !== undefined ? (
+                                <>
+                                    <p className={`text-sm ${isCorrectDetails ? 'text-green-700' : 'text-red-700'}`}>
+                                        Your answer: <span className="font-bold">{String(userAnswerDetails).toUpperCase()}. {userAnswerTextDetails}</span>
+                                        {isCorrectDetails ?
+                                            <span className="font-semibold"> (Correct)</span> :
+                                            <span className="font-semibold"> (Incorrect)</span>}
+                                    </p>
+                                    {!isCorrectDetails && (
+                                        <p className="text-sm text-blue-700 font-medium mt-1">
+                                            Correct answer: <span className="font-bold">{String(questionToDisplay.correct_answer).toUpperCase()}. {correctAnswerTextDetails}</span>
+                                        </p>
+                                    )}
+                                </>
+                            ) : (
+                                <p className="text-sm text-gray-500 font-medium">
+                                    You did not answer this question.
+                                    <br />
+                                     Correct answer: <span className="font-bold">{String(questionToDisplay.correct_answer).toUpperCase()}. {correctAnswerTextDetails}</span>
+                                </p>
                             )}
-                        </div>
-                    );
-                })}
-                {questions.length === 0 && <p className="text-gray-500">No questions to review.</p>}
+                            {questionToDisplay.explanation && (
+                                <div className="mt-3 pt-3 border-t border-gray-200">
+                                    <h5 className="text-xs font-semibold text-gray-500 mb-1 uppercase">Explanation</h5>
+                                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{questionToDisplay.explanation}</p>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <p className="text-gray-500">Select a question number to see details.</p>
+                    )}
+                </div>
             </div>
 
             <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
