@@ -136,18 +136,22 @@ const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuratio
                 examUserAnswers={examUserAnswers}
             />
 
-            <div className="mt-8 flex space-x-4">
-                <button onClick={onNavigateHome} className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded">
-                    Cancel & Home
-                </button>
-                <button
-                    onClick={() => setShowSubmitConfirmPopup(true)}
-                    disabled={Object.keys(examUserAnswers).length === 0}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 transition-opacity"
-                >
-                    Submit Check
-                </button>
-            </div>
+<div className="mt-12 flex space-x-4">
+  <button
+    onClick={onNavigateHome}
+    className="border border-indigo-500 text-indigo-500 font-bold py-2 px-4 md:w-2/4 rounded hover:bg-indigo-100 transition-colors"
+  >
+    Cancel Exam
+  </button>
+  <button
+    onClick={() => setShowSubmitConfirmPopup(true)}
+    disabled={Object.keys(examUserAnswers).length === 0}
+    className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 md:w-2/4 rounded disabled:opacity-50 transition-opacity"
+  >
+    Submit Exam
+  </button>
+</div>
+
 
             {/* Modal for Submit Confirmation */}
             {showSubmitConfirmPopup && (
