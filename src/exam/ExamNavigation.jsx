@@ -9,7 +9,7 @@ const ExamNavigation = ({ currentExamQuestionIndex, totalQuestions, handleNaviga
                 onClick={() => handleNavigation(-1)}
                 disabled={currentExamQuestionIndex === 0}
                 className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 transition-opacity">
-                Previous
+                Prev
             </button>
 
             {/* This button only appears if there are answers AND it's NOT the last question */}

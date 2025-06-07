@@ -319,7 +319,7 @@ const App = () => {
                             questions={examQuestionsForMode} // Renamed prop
                             onNavigateHome={handleNavigateHome}
                             onShowResultsPage={handleShowResultsPage} // New prop
-                            examDuration={3600}
+                            examDuration={3600} // Reverted to original value
                             // onStartNewTest is removed from ExamMode
                         />;
             case 'results': // New case for results page

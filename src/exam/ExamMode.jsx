@@ -94,6 +94,19 @@ const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuratio
 
     const unansweredQuestionsCount = questions.length - Object.keys(examUserAnswers).length;
 
+    // Calculate progress for the timer bar
+    const progressPercentage = examDuration > 0 ? (timeRemaining / examDuration) * 100 : 0;
+    let progressBarColorClass;
+    const percentageRemainingForColor = examDuration > 0 ? (timeRemaining / examDuration) * 100 : (timeRemaining > 0 ? 100 : 0);
+
+    if (percentageRemainingForColor >= 50) {
+        progressBarColorClass = 'bg-green-500';
+    } else if (percentageRemainingForColor >= (10/60)*100) { // Approx 16.67%
+        progressBarColorClass = 'bg-yellow-500';
+    } else {
+        progressBarColorClass = 'bg-red-500';
+    }
+
     if (!initialExamQuestions || initialExamQuestions.length === 0) {
         return (
             <div className="text-center p-4">
@@ -115,10 +128,25 @@ const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuratio
 
     return (
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-xl max-w-3xl mx-auto">
-            <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
+            <div className="flex justify-between items-center mb-2 pb-3"> {/* Reduced mb */}
                 <h2 className="text-xl md:text-2xl font-semibold text-blue-700">Exam</h2>
-                <ExamTimer timeRemaining={timeRemaining} />
+                <ExamTimer timeRemaining={timeRemaining} examDuration={examDuration} /> {/* Added examDuration prop */}
             </div>
+
+            {/* Progress Bar Container */}
+            <div className="h-4 w-full bg-gray-200 rounded-full mb-4 border border-gray-300">
+                <div
+                    className={`h-full rounded-full ${progressBarColorClass} transition-[width] duration-1000 ease-linear`}
+                    style={{ width: `${progressPercentage}%` }}
+                    role="progressbar"
+                    aria-valuenow={timeRemaining}
+                    aria-valuemin="0"
+                    aria-valuemax={examDuration}
+                    aria-label="Time remaining"
+                ></div>
+            </div>
+
+            <p className="text-sm text-gray-500 mb-2">Q {currentExamQuestionIndex + 1}/{questions.length}</p> {/* Question count now after progress bar */}
 
             <QuestionDisplay
                 currentQuestion={currentQuestion}
@@ -136,22 +164,18 @@ const ExamMode = ({ questions: initialExamQuestions, onNavigateHome, examDuratio
                 examUserAnswers={examUserAnswers}
             />
 
-<div className="mt-12 flex space-x-4">
-  <button
-    onClick={onNavigateHome}
-    className="border border-indigo-500 text-indigo-500 font-bold py-2 px-4 md:w-2/4 rounded hover:bg-indigo-100 transition-colors"
-  >
-    Cancel Exam
-  </button>
-  <button
-    onClick={() => setShowSubmitConfirmPopup(true)}
-    disabled={Object.keys(examUserAnswers).length === 0}
-    className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 md:w-2/4 rounded disabled:opacity-50 transition-opacity"
-  >
-    Submit Exam
-  </button>
-</div>
-
+            <div className="mt-8 flex space-x-4">
+                <button onClick={onNavigateHome} className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded">
+                    Cancel & Home
+                </button>
+                <button
+                    onClick={() => setShowSubmitConfirmPopup(true)}
+                    disabled={Object.keys(examUserAnswers).length === 0}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 transition-opacity"
+                >
+                    Submit Check
+                </button>
+            </div>
 
             {/* Modal for Submit Confirmation */}
             {showSubmitConfirmPopup && (
