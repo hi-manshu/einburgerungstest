@@ -68,16 +68,25 @@ const ExamResultsPage = ({
         return userAnswers[q.id] === q.correct_answer ? count + 1 : count;
     }, 0);
 
-    if (isPassed && localCorrectAnswersCount === questions.length && questions.length > 0) {
+    let outcomeMessageColor = 'text-gray-700'; // Default color
+
+    if (localCorrectAnswersCount === 33) {
         outcomeMessage = perfectScoreMessages[Math.floor(Math.random() * perfectScoreMessages.length)];
-        // Adjust "33 out of 33" message if it's a perfect score but not 33 questions
-        if (questions.length !== 33 && outcomeMessage === "33 Out of 33? You're a Legend!") {
-            outcomeMessage = `Perfect Score! ${questions.length} out of ${questions.length}! You're a Legend!`;
-        }
-    } else if (isPassed) {
+        outcomeMessageColor = 'text-green-600'; // Or a specific "perfect" color like text-yellow-500 or text-purple-600
+    } else if (localCorrectAnswersCount >= 17 && localCorrectAnswersCount <= 32) {
         outcomeMessage = passedMessages[Math.floor(Math.random() * passedMessages.length)];
-    } else {
+        outcomeMessageColor = 'text-green-600';
+    } else if (localCorrectAnswersCount <= 16) {
         outcomeMessage = failedMessages[Math.floor(Math.random() * failedMessages.length)];
+        outcomeMessageColor = 'text-red-600';
+    } else {
+        // Fallback for unlikely scenarios (e.g. > 33 correct answers if data is flawed)
+        if (failedMessages.length > 0) {
+            outcomeMessage = failedMessages[0]; // Default to a known fail message
+            outcomeMessageColor = 'text-red-600';
+        } else {
+            outcomeMessage = "Your results are being processed."; // Generic fallback
+        }
     }
 
     // Derive data for the selected question to display
@@ -115,7 +124,7 @@ const ExamResultsPage = ({
                 </div>
                 <div className="bg-white border border-slate-200 p-5 rounded-lg shadow-sm md:col-span-2"> {/* Summary Grid Item - Outcome */}
                      <p className="text-lg text-gray-700">Outcome:</p>
-                    <p className={`text-2xl font-bold ${isPassed ? 'text-green-600' : 'text-red-600'}`}>
+                    <p className={`text-2xl font-bold ${outcomeMessageColor}`}> {/* Use new outcomeMessageColor */}
                         {outcomeMessage}
                     </p>
                     <p className="text-sm text-gray-500 mt-1">
@@ -201,7 +210,7 @@ const ExamResultsPage = ({
                 </div>
             </div>
 
-            <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
+            <div className="mt-8 flex flex-row flex-wrap justify-center items-center gap-4"> {/* Updated classes */}
                 <button
                     onClick={onRetryTest}
                     className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg min-w-[160px] shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-150 ease-in-out">
