@@ -39,6 +39,7 @@ const App: React.FC = () => {
     const [showOnboardingDialog, setShowOnboardingDialog] = useState<boolean>(
         !localStorage.getItem('selectedState') || !localStorage.getItem('selectedLanguage')
     );
+    const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false);
 
     const handleStateChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
         const newState = event.target.value;
@@ -66,6 +67,10 @@ const App: React.FC = () => {
         // Therefore, we can directly proceed to hide the dialog.
         setShowOnboardingDialog(false);
     }, [setShowOnboardingDialog]); // setShowOnboardingDialog is stable and correctly listed as a dependency.
+
+    const handleToggleSettingsModal = useCallback(() => {
+        setShowSettingsModal(prevShow => !prevShow);
+    }, []); // setShowSettingsModal is stable
 
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -286,7 +291,8 @@ const App: React.FC = () => {
     );
 
     return (
-        <MainLayout>
+        <MainLayout onSettingsClick={handleToggleSettingsModal}> {/* Prop for MainLayout */}
+            {/* Existing Onboarding Dialog for first-time users */}
             {showOnboardingDialog && (
                 <OnboardingDialog
                     statesData={statesData}
@@ -294,10 +300,31 @@ const App: React.FC = () => {
                     onStateChange={handleStateChange}
                     selectedLanguage={selectedLanguage}
                     onLanguageChange={handleLanguageChange}
-                    onSavePreferences={handleSavePreferences}
-                    availableLanguages={LANGUAGES} // Pass the LANGUAGES array
+                    onSavePreferences={handleSavePreferences} // This closes the onboarding dialog
+                    availableLanguages={LANGUAGES}
+                    // title and introText will use defaults for onboarding
                 />
             )}
+
+            {/* New Settings Dialog/Modal */}
+            {showSettingsModal && (
+                <OnboardingDialog
+                    statesData={statesData}
+                    selectedState={selectedState} // Show current selection
+                    onStateChange={handleStateChange} // Allow changes
+                    selectedLanguage={selectedLanguage} // Show current selection
+                    onLanguageChange={handleLanguageChange} // Allow changes
+                    onSavePreferences={() => {
+                        // Preferences are already saved by onStateChange/onLanguageChange via localStorage.
+                        // We just need to close this settings modal.
+                        setShowSettingsModal(false);
+                    }}
+                    availableLanguages={LANGUAGES}
+                    title="Settings" // Custom title
+                    introText={null} // No intro text, or specific settings intro
+                />
+            )}
+
             <AppRoutes
                 statesData={statesData}
                 onStartPractice={handleStartPractice}

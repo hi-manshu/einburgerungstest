@@ -3,12 +3,13 @@ import Header from './header'; // Assuming Header is in the same directory
 
 interface MainLayoutProps {
     children: ReactNode;
+    onSettingsClick: () => void; // Function to call when settings icon is clicked
 }
 
-const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+const MainLayout: React.FC<MainLayoutProps> = ({ children, onSettingsClick }) => {
     return (
         <React.Fragment>
-            <Header />
+            <Header onSettingsClick={onSettingsClick} />
             <main id="main-content" className="container mx-auto p-4 min-h-[calc(100vh-200px)]">
                 {children}
             </main>

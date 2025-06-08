@@ -17,6 +17,8 @@ interface OnboardingDialogProps {
     onLanguageChange: (newLanguage: string) => void;
     onSavePreferences: () => void; // Function to call when preferences are saved
     availableLanguages: Language[]; // Pass the languages array as a prop
+    title?: string;
+    introText?: string | null; // null to explicitly hide, undefined for default
 }
 
 const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
@@ -26,7 +28,9 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
     selectedLanguage,
     onLanguageChange,
     onSavePreferences,
-    availableLanguages
+    availableLanguages,
+    title,
+    introText,
 }) => {
     const handleSave = () => {
         if (!selectedState || !selectedLanguage) {
@@ -40,8 +44,14 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
     return (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
             <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
-                <h2 className="text-2xl font-semibold mb-6 text-center">Welcome!</h2>
-                <p className="text-gray-600 mb-6 text-center">Please select your state and preferred language to get started.</p>
+                <h2 className="text-2xl font-semibold mb-6 text-center">{title || 'Welcome!'}</h2>
+                {introText === undefined && (
+                    <p className="text-gray-600 mb-6 text-center">Please select your state and preferred language to get started.</p>
+                )}
+                {introText && ( // Handles non-empty string for introText
+                    <p className="text-gray-600 mb-6 text-center">{introText}</p>
+                )}
+                {/* If introText is null, neither of the above conditions match, so no intro paragraph is rendered. */}
 
                 <div className="space-y-6">
                     <StateSelector
