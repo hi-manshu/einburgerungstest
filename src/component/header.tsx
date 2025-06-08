@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { logAnalyticsEvent } from "../analytics/analytics";
-import icon from "../assets/icon.svg";
+import icon from "../../public/icon.svg";
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
