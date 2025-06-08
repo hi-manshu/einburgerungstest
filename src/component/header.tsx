@@ -24,7 +24,10 @@ const Header: React.FC = () => {
               href="/settings"
               className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text cursor-pointer"
             >
-              Einbürgerungstest Practice
+              <img
+                className="h-100 w-100 object-scale-down"
+                src="src/assets/icon.svg"
+              />
             </a>
           </div>
 
