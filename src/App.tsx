@@ -36,10 +36,18 @@ const App: React.FC = () => {
     const [examResultsData, setExamResultsData] = useState<ExamResultsData | null>(null); // Use ExamResultsData
     const [selectedState, setSelectedState] = useState<string>(localStorage.getItem('selectedState') || '');
     const [selectedLanguage, setSelectedLanguage] = useState<string>(localStorage.getItem('selectedLanguage') || 'en');
-    const [showOnboardingDialog, setShowOnboardingDialog] = useState<boolean>(
-        !localStorage.getItem('selectedState') || !localStorage.getItem('selectedLanguage')
-    );
-    const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false);
+
+    // New logic for determining if onboarding should be shown:
+    const storedSelectedState = localStorage.getItem('selectedState');
+    const storedSelectedLanguage = localStorage.getItem('selectedLanguage'); // Will use 'en' if not found due to state init, but raw check is better here.
+
+    const shouldShowOnboarding =
+        !storedSelectedState || storedSelectedState.trim() === '' || // Show if state is null, undefined, empty, or only whitespace
+        !storedSelectedLanguage; // Show if language is null or undefined (it defaults to 'en' in state, but direct check is safer)
+                                 // Assuming language, if set, won't be an empty string due to LanguageSelector design
+
+    const [showOnboardingDialog, setShowOnboardingDialog] = useState<boolean>(shouldShowOnboarding);
+    // const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false); // REMOVE THIS LINE
 
     const handleStateChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
         const newState = event.target.value;
@@ -68,9 +76,9 @@ const App: React.FC = () => {
         setShowOnboardingDialog(false);
     }, [setShowOnboardingDialog]); // setShowOnboardingDialog is stable and correctly listed as a dependency.
 
-    const handleToggleSettingsModal = useCallback(() => {
-        setShowSettingsModal(prevShow => !prevShow);
-    }, []); // setShowSettingsModal is stable
+    // const handleToggleSettingsModal = useCallback(() => { // REMOVE THIS FUNCTION
+    //     setShowSettingsModal(prevShow => !prevShow);
+    // }, []); // setShowSettingsModal is stable
 
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -291,7 +299,7 @@ const App: React.FC = () => {
     );
 
     return (
-        <MainLayout onSettingsClick={handleToggleSettingsModal}> {/* Prop for MainLayout */}
+        <MainLayout> {/* Prop for MainLayout */}
             {/* Existing Onboarding Dialog for first-time users */}
             {showOnboardingDialog && (
                 <OnboardingDialog
@@ -307,6 +315,7 @@ const App: React.FC = () => {
             )}
 
             {/* New Settings Dialog/Modal */}
+            {/* REMOVE THIS BLOCK
             {showSettingsModal && (
                 <OnboardingDialog
                     statesData={statesData}
@@ -324,7 +333,7 @@ const App: React.FC = () => {
                     introText={null} // No intro text, or specific settings intro
                 />
             )}
-
+            */}
             <AppRoutes
                 statesData={statesData}
                 onStartPractice={handleStartPractice}
@@ -335,6 +344,7 @@ const App: React.FC = () => {
                 onResetState={handleResetState}
                 selectedLanguage={selectedLanguage}
                 onLanguageChange={handleLanguageChange}
+                availableLanguages={LANGUAGES} // Add this prop
                 practiceSessionQuestions={practiceSessionQuestions}
                 examQuestionsForMode={examQuestionsForMode}
                 onShowResultsPage={handleShowResultsPage}

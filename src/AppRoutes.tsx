@@ -5,19 +5,23 @@ import ExamMode from './exam/ExamMode';
 import ExamResultsPage from './exam/ExamResultsPage';
 import FlashcardMode from './flashcard/FlashcardMode';
 import HomePage from './component/homePage';
-import { Question, StatesData, ExamResultsData } from './types'; // Assuming these are the primary data types needed
+import SettingsPage from './component/SettingsPage'; // Import SettingsPage
+import { Question, StatesData, ExamResultsData, Language } from './types';
 
 interface AppRoutesProps {
-    // Props for HomePage
-    statesData: StatesData;
+    // Props for HomePage (already reduced)
     onStartPractice: (stateCode: string) => void;
     onStartExam: (stateCode: string) => void;
     onStartFlashcards: (stateCode: string) => void;
+
+    // Common props for state/language management passed to various pages
+    statesData: StatesData;
     selectedState: string;
     onStateChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
-    onResetState: () => void;
+    onResetState: () => void; // Kept if other pages might use it
     selectedLanguage: string;
     onLanguageChange: (newLanguage: string) => void;
+    availableLanguages: Language[]; // Add availableLanguages
 
     // Props for PracticeMode
     practiceSessionQuestions: Question[];
@@ -39,7 +43,8 @@ interface AppRoutesProps {
 }
 
 const AppRoutes: React.FC<AppRoutesProps> = ({
-    statesData, onStartPractice, onStartExam, onStartFlashcards, selectedState, onStateChange, onResetState, selectedLanguage, onLanguageChange,
+    onStartPractice, onStartExam, onStartFlashcards,
+    statesData, selectedState, onStateChange, onResetState, selectedLanguage, onLanguageChange, availableLanguages, // Destructure availableLanguages
     practiceSessionQuestions,
     examQuestionsForMode, onShowResultsPage,
     examResultsData, onRetryTest, onStartNewTest,
@@ -84,6 +89,15 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
                 onNavigateHome={onNavigateHome}
                 cardDuration={15} // This could also be a prop
                 selectedLanguageCode={selectedLanguage} // Pass selectedLanguage
+            />} />
+            {/* Add new Settings Route */}
+            <Route path="/settings" element={<SettingsPage
+                statesData={statesData}
+                selectedState={selectedState}
+                onStateChange={onStateChange}
+                selectedLanguage={selectedLanguage}
+                onLanguageChange={onLanguageChange}
+                availableLanguages={availableLanguages}
             />} />
         </Routes>
     );

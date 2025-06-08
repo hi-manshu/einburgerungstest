@@ -19,6 +19,7 @@ interface OnboardingDialogProps {
     availableLanguages: Language[]; // Pass the languages array as a prop
     title?: string;
     introText?: string | null; // null to explicitly hide, undefined for default
+    saveButtonText?: string;
 }
 
 const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
@@ -31,6 +32,7 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
     availableLanguages,
     title,
     introText,
+    saveButtonText,
 }) => {
     const handleSave = () => {
         if (!selectedState || !selectedLanguage) {
@@ -75,7 +77,7 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
                     className="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-150 ease-in-out disabled:opacity-50"
                     disabled={!selectedState || !selectedLanguage} // Disable button if either is not selected
                 >
-                    Save Preferences & Get Started
+                    {saveButtonText || 'Save Preferences & Get Started'}
                 </button>
             </div>
         </div>
