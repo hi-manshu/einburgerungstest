@@ -1,17 +1,16 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { logAnalyticsEvent } from "../../utils/analytics";
-
-
-
+import { logAnalyticsEvent } from "../utils/analytics";
 
 const Header: React.FC = () => {
-
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleSettingsClick = () => {
-    logAnalyticsEvent('select_content', { content_type: 'icon', item_id: 'header_settings_icon' });
+    logAnalyticsEvent("select_content", {
+      content_type: "icon",
+      item_id: "header_settings_icon",
+    });
     navigate("/settings");
   };
 
@@ -19,11 +18,13 @@ const Header: React.FC = () => {
     <header className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-
           <div className="flex-shrink-0">
             <a
               onClick={() => {
-                logAnalyticsEvent('select_content', { content_type: 'icon', item_id: 'header_home_icon' });
+                logAnalyticsEvent("select_content", {
+                  content_type: "icon",
+                  item_id: "header_home_icon",
+                });
                 navigate("/");
               }}
               className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text cursor-pointer"
@@ -35,13 +36,14 @@ const Header: React.FC = () => {
             </a>
           </div>
 
-
           <div className="flex items-center">
-
             {location.pathname !== "/" && (
               <button
                 onClick={() => {
-                  logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'header_home_button' });
+                  logAnalyticsEvent("select_content", {
+                    content_type: "button",
+                    item_id: "header_home_button",
+                  });
                   navigate("/");
                 }}
                 aria-label="Home"
@@ -51,13 +53,11 @@ const Header: React.FC = () => {
               </button>
             )}
 
-
             <button
               onClick={handleSettingsClick}
               aria-label="Settings"
               className="p-2 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors mr-4"
             >
-
               <svg
                 className="h-6 w-6"
                 fill="none"
@@ -79,10 +79,12 @@ const Header: React.FC = () => {
               </svg>
             </button>
 
-
             <a
               onClick={() => {
-                logAnalyticsEvent('select_content', { content_type: 'link', item_id: 'header_github_link' });
+                logAnalyticsEvent("select_content", {
+                  content_type: "link",
+                  item_id: "header_github_link",
+                });
               }}
               href="https://github.com/hi-manshu/einburgerungstest"
               target="_blank"
