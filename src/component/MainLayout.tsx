@@ -1,13 +1,13 @@
 import React, { ReactNode } from "react";
-import Header from "./Header"; // Assuming Header is in the same directory
+import Header from "./Header";
 
 interface MainLayoutProps {
   children: ReactNode;
-  // onSettingsClick: () => void; // REMOVE THIS LINE
+
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-  // REMOVE onSettingsClick
+
   return (
     <React.Fragment>
       <Header />

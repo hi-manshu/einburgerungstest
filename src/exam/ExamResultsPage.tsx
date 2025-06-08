@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Question, ExamUserAnswers, ExamResultsPageProps } from '../types'; // Import correct props type
+import { Question, ExamUserAnswers, ExamResultsPageProps } from '../types';
 
-// Message Categories (can remain local or be moved to a constants file if desired)
+
 const perfectScoreMessages: string[] = [
     "Perfect Score! You Crushed It!", "Flawless Victory!", "33 Out of 33? You're a Legend!",
     "Nailed It! You’re the Gold Standard!", "This Test Didn’t Stand a Chance!", "Zero Mistakes. All Brilliance."
@@ -21,12 +21,12 @@ const ExamResultsPage: React.FC<ExamResultsPageProps> = ({
     timeTaken = 0,
     score = 0,
     isPassed = false,
-    passMark = 0, // Expecting percentage
-    correctAnswersCount = 0, // Use passed prop
+    passMark = 0,
+    correctAnswersCount = 0,
     onNavigateHome,
     onRetryTest,
     onStartNewTest,
-    selectedLanguageCode // Added to props
+    selectedLanguageCode
 }) => {
     const [selectedQuestionIndex, setSelectedQuestionIndex] = useState<number>(0);
 
@@ -46,8 +46,8 @@ const ExamResultsPage: React.FC<ExamResultsPageProps> = ({
         let messageArray: string[];
         let color: string;
 
-        // Using correctAnswersCount directly from props as source of truth for result category
-        if (correctAnswersCount === questions.length && questions.length > 0) { // Perfect score condition
+
+        if (correctAnswersCount === questions.length && questions.length > 0) {
              messageArray = perfectScoreMessages;
              color = 'text-green-600';
         } else if (isPassed) {
@@ -59,7 +59,7 @@ const ExamResultsPage: React.FC<ExamResultsPageProps> = ({
         }
         const message = messageArray.length > 0 ? messageArray[Math.floor(Math.random() * messageArray.length)] : "Results processed.";
         return { message, color };
-    }, [isPassed, correctAnswersCount, questions.length]); // Dependencies reflect props used
+    }, [isPassed, correctAnswersCount, questions.length]);
 
     const questionToDisplay: Question | undefined = questions[selectedQuestionIndex];
     const userAnswerDetails: string | undefined = questionToDisplay ? userAnswers[questionToDisplay.id] : undefined;
@@ -78,8 +78,8 @@ const ExamResultsPage: React.FC<ExamResultsPageProps> = ({
         }
     }
 
-    // Determine the number of correct answers needed based on the passMark percentage and total questions
-    // This is for display purposes, as `isPassed` prop determines the actual outcome.
+
+
     const passMarkAbsolute = Math.ceil((passMark / 100) * questions.length);
 
 
@@ -142,13 +142,13 @@ const ExamResultsPage: React.FC<ExamResultsPageProps> = ({
                             <h4 className="text-lg font-semibold text-gray-800 mb-1">
                                 {questionToDisplay.question_text}
                             </h4>
-                            {/* Display translated question text if available and language is not German (assuming 'de' is the base) */}
+
                             {selectedLanguageCode !== 'de' && questionToDisplay.question_text_translation && (
                                 <p className="text-md text-gray-600 mb-3 italic">
                                     ({getLanguageName(selectedLanguageCode)}) {questionToDisplay.question_text_translation}
                                 </p>
                             )}
-                             {/* Display German question text if primary is translation and German text exists */}
+
                              {selectedLanguageCode === 'de' && questionToDisplay.question_text_de && (
                                 <p className="text-md text-gray-600 mb-3 italic">
                                      {questionToDisplay.question_text_de}
@@ -180,7 +180,7 @@ const ExamResultsPage: React.FC<ExamResultsPageProps> = ({
                             {questionToDisplay.explanation && (
                                 <div className="mt-3 pt-3 border-t border-gray-200">
                                     <h5 className="text-xs font-semibold text-gray-500 mb-1 uppercase">Explanation</h5>
-                                    {/* Check for selected language specific explanation first, then fallback */}
+
                                     <p className="text-sm text-gray-700 whitespace-pre-wrap">
                                         {selectedLanguageCode !== 'de' && (questionToDisplay as any).translation?.[selectedLanguageCode]?.context
                                             ? (questionToDisplay as any).translation[selectedLanguageCode].context

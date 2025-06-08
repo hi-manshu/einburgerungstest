@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { logAnalyticsEvent } from '../utils/analytics';
-import { Question, Option } from '../types'; // Import shared types
+import { Question, Option } from '../types';
 
-// --- TypeScript Interface Definitions ---
+
 interface UserAnswer {
     answer: string | null;
     correct: boolean | null;
@@ -33,7 +33,7 @@ const getLanguageName = (code: string): string => {
     return languageMap[code] || code;
 };
 
-// --- PracticeMode Component Definition ---
+
 const PracticeMode: React.FC<PracticeModeProps> = ({ questions: initialQuestions, onNavigateHome, selectedLanguageCode }) => {
     const [questions, setQuestions] = useState<Question[]>(initialQuestions);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
@@ -82,7 +82,7 @@ const PracticeMode: React.FC<PracticeModeProps> = ({ questions: initialQuestions
     const currentQuestion: Question | null = questions && questions.length > 0 ? questions[currentQuestionIndex] : null;
 
     const handleAnswerSelection = (questionId: string, selectedOptionId: string) => {
-        if (userAnswers[questionId]?.answer) return; // Already answered
+        if (userAnswers[questionId]?.answer) return;
         const question = questions.find(q => q.id === questionId);
         if (!question) return;
         const isCorrect = selectedOptionId === question.correct_answer;

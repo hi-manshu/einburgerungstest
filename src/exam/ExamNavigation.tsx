@@ -2,7 +2,7 @@ import React from 'react';
 import { logAnalyticsEvent } from '../utils/analytics';
 
 interface ExamUserAnswers {
-    [key: string]: string; // Assuming questionId: selectedOptionId
+    [key: string]: string;
 }
 
 interface ExamNavigationProps {
@@ -34,11 +34,11 @@ const ExamNavigation: React.FC<ExamNavigationProps> = ({
                 Prev
             </button>
 
-            {/* This button only appears if there are answers AND it's NOT the last question */}
+
             {hasAnswers && currentExamQuestionIndex < totalQuestions - 1 && (
                 <button
                     onClick={() => {
-                        // This button acts as an early submit. The ExamMode's submit_exam_attempt will be logged.
+
                         handleSubmitExam(false);
                     }}
                     className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded transition-colors">
@@ -58,10 +58,10 @@ const ExamNavigation: React.FC<ExamNavigationProps> = ({
             ) : (
                 <button
                     onClick={() => {
-                        // This button is the final submit. The ExamMode's submit_exam_attempt will be logged.
+
                         handleSubmitExam(false);
-                    }} // isTimeUp is false for manual submit
-                    disabled={!hasAnswers} // Disabled if no answers on the last question
+                    }}
+                    disabled={!hasAnswers}
                     className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors disabled:opacity-50">
                     Submit Results
                 </button>
