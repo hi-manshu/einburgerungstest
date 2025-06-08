@@ -62,7 +62,7 @@ const App: React.FC = () => {
 
         // Show dialog if state is effectively empty (never validly chosen)
         // OR if language was originally missing/empty from localStorage (user hasn't confirmed 'en' default)
-        const needsOnboarding = !currentSelectedState || !storedLangVal || storedLangVal.trim() === '';
+        const needsOnboarding = false;
 
         setShowOnboardingDialog(needsOnboarding);
         setPreferencesLoaded(true);

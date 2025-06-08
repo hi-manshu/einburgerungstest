@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom'; // Import useNavigate and useLocation
+import { useNavigate, useLocation, Link } from 'react-router-dom'; // Import Link
 
 // HeaderProps is no longer needed if onSettingsClick is the only prop.
 // If there were other props, they would remain. For now, assuming it becomes an empty interface or removed.
@@ -19,9 +19,9 @@ const Header: React.FC = () => { // No props needed now for this specific change
                 <div className="flex justify-between items-center h-16">
                     {/* Left Section: App Name */}
                     <div className="flex-shrink-0">
-                        <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
+                        <Link to="/home" className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
                             Einbürgerungstest Practice
-                        </span>
+                        </Link>
                     </div>
 
                     {/* Right Section: Settings Icon and GitHub Link */}
@@ -29,7 +29,7 @@ const Header: React.FC = () => { // No props needed now for this specific change
                         {/* Home Button */}
                         {location.pathname === '/practice' && (
                             <button
-                                onClick={() => navigate('/')}
+                                onClick={() => navigate('/home')} // Updated to navigate to /home
                                 aria-label="Home"
                                 className="p-2 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors mr-2"
                             >
