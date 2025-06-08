@@ -87,9 +87,11 @@ const HomePage: React.FC<HomePageProps> = ({
 
   return (
     <div className="text-center px-4 py-8">
-      <h2 className="text-3xl font-bold mb-4 text-gray-800">Welcome Back!</h2>
+      <h2 className="text-3xl font-bold mb-4 text-gray-800">
+        Hey there! It's your prep day—let’s get things rolling!
+      </h2>
       <p className="text-xl text-gray-600 mb-12">
-        Choose how you’d like to prepare today.
+        "Ready to get started? Choose your preferred way to prepare."
       </p>
 
       <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
