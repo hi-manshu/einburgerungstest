@@ -1,6 +1,32 @@
 import React from 'react';
+import { Question, Option, ExamUserAnswers } from '../types'; // Import shared types
 
-const QuestionDisplay = ({
+interface QuestionDisplayProps {
+    currentQuestion: Question | null;
+    examUserAnswers: ExamUserAnswers;
+    handleExamAnswerSelection: (questionId: string, selectedOptionId: string) => void;
+    currentExamQuestionIndex: number;
+    totalQuestions: number;
+    isExamMode: boolean;
+    selectedLanguageCode: string;
+}
+
+const languageMap: { [key: string]: string } = {
+    en: "English",
+    tr: "Türkçe",
+    ru: "Русский",
+    fr: "Français",
+    ar: "العربية",
+    uk: "Українська",
+    hi: "हिन्दी"
+};
+
+const getLanguageName = (code: string): string => {
+    return languageMap[code] || code;
+};
+
+
+const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
     currentQuestion,
     examUserAnswers,
     handleExamAnswerSelection,
@@ -13,13 +39,6 @@ const QuestionDisplay = ({
         return <p className="text-xl text-gray-700 p-4 text-center">Loading question...</p>;
     }
 
-    // Helper to get language display name (can be expanded)
-    const getLanguageName = (code) => {
-        // Simple mapping for now, can be moved to a utility or constant
-        const names = { en: "English", tr: "Türkçe", ru: "Русский", fr: "Français", ar: "العربية", uk: "Українська", hi: "हिन्दी" };
-        return names[code] || code;
-    };
-
     return (
         <>
             <p className="text-sm text-gray-500 mb-2">Q {currentExamQuestionIndex + 1}/{totalQuestions}</p>
@@ -30,15 +49,15 @@ const QuestionDisplay = ({
                 </p>
             )}
             <div className="space-y-3 mb-6">
-                {currentQuestion.options.map(opt => (
-                    <label key={opt.id} className={`flex flex-col items-start p-3 border rounded-md transition-all cursor-pointer hover:bg-gray-50 ${examUserAnswers[currentQuestion.id] === opt.id ? 'bg-blue-100 border-blue-400 ring-2 ring-blue-300' : 'border-gray-300'}`}>
+                {currentQuestion.options.map((opt: Option) => (
+                    <label key={opt.id} className={`flex flex-col items-start p-3 border rounded-md transition-all cursor-pointer hover:bg-gray-50 ${examUserAnswers[currentQuestion!.id] === opt.id ? 'bg-blue-100 border-blue-400 ring-2 ring-blue-300' : 'border-gray-300'}`}>
                         <div className="flex items-center w-full">
                             <input
                                 type="radio"
-                                name={`exam_option_${currentQuestion.id}`}
+                                name={`exam_option_${currentQuestion!.id}`}
                                 value={opt.id}
-                                checked={examUserAnswers[currentQuestion.id] === opt.id}
-                                onChange={() => handleExamAnswerSelection(currentQuestion.id, opt.id)}
+                                checked={examUserAnswers[currentQuestion!.id] === opt.id}
+                                onChange={() => handleExamAnswerSelection(currentQuestion!.id, opt.id)}
                                 className="form-radio h-5 w-5 text-blue-600 mr-3 focus:ring-blue-500 flex-shrink-0"
                             />
                             <span className="font-medium mr-1">{opt.id.toUpperCase()}.</span>

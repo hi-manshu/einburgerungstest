@@ -1,17 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
-import shuffleArray from '../utils/shuffleArray.js';
+import shuffleArray from '../utils/shuffleArray';
+import { Question, Option } from '../types'; // Import shared types
 
-const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) => {
-    const [remainingQuestions, setRemainingQuestions] = useState([]);
-    const [currentCard, setCurrentCard] = useState(null);
-    const [showingAnswer, setShowingAnswer] = useState(false);
-    const [feedback, setFeedback] = useState("");
-    const [timer, setTimer] = useState(cardDuration);
-    const timerIdRef = useRef(null);
-    const feedbackTimeoutIdRef = useRef(null);
+interface FlashcardModeProps {
+    initialQuestions: Question[];
+    onNavigateHome: () => void;
+    cardDuration?: number;
+    selectedLanguageCode: string;
+}
+
+const FlashcardMode: React.FC<FlashcardModeProps> = ({ initialQuestions, onNavigateHome, cardDuration = 15, selectedLanguageCode }) => {
+    const [remainingQuestions, setRemainingQuestions] = useState<Question[]>([]);
+    const [currentCard, setCurrentCard] = useState<Question | null>(null);
+    const [showingAnswer, setShowingAnswer] = useState<boolean>(false);
+    const [feedback, setFeedback] = useState<string>("");
+    const [timer, setTimer] = useState<number>(cardDuration);
+    const timerIdRef = useRef<NodeJS.Timeout | null>(null);
+    const feedbackTimeoutIdRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
-        setRemainingQuestions(shuffleArray(initialQuestions || []));
+        setRemainingQuestions(shuffleArray(initialQuestions || []) as Question[]);
     }, [initialQuestions]);
 
     useEffect(() => {
@@ -35,15 +43,16 @@ const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) 
         } else if (timer === 0 && !showingAnswer && currentCard) {
             handleFlashcardTimeout();
         }
-        return () => clearTimeout(timerIdRef.current);
-    }, [currentCard, showingAnswer, timer, cardDuration]); // Added cardDuration here as it's used in reset
+        return () => {
+            if (timerIdRef.current) clearTimeout(timerIdRef.current);
+        };
+    }, [currentCard, showingAnswer, timer, cardDuration]);
 
-    const getCorrectAnswerText = (card) => {
+    const getCorrectAnswerText = (card: Question | null): string => {
         if (!card || !card.options || !card.correct_answer) return "N/A";
         const correctOption = card.options.find(opt => opt.id === card.correct_answer);
         if (!correctOption) return "N/A";
-
-        return `${card.correct_answer.toUpperCase()}. ${correctOption.text}`; // German text only
+        return `${card.correct_answer.toUpperCase()}. ${correctOption.text}`;
     };
 
     const handleFlashcardTimeout = () => {
@@ -53,14 +62,14 @@ const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) 
         setShowingAnswer(true);
     };
 
-    const handleOptionSelect = (selectedOptionId) => {
+    const handleOptionSelect = (selectedOptionId: string) => {
         if (showingAnswer || !currentCard) return;
         if (timerIdRef.current) clearTimeout(timerIdRef.current);
         const isCorrect = selectedOptionId === currentCard.correct_answer;
         if (isCorrect) {
             setFeedback("Richtig!");
             feedbackTimeoutIdRef.current = setTimeout(() => {
-                setRemainingQuestions(prev => prev.filter(q => q.id !== currentCard.id));
+                setRemainingQuestions(prev => prev.filter(q => q.id !== currentCard!.id));
             }, 1500);
         } else {
             setFeedback(`Falsch. Richtig: ${getCorrectAnswerText(currentCard)}`);
@@ -70,12 +79,15 @@ const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) 
 
     const handleProceedToNextCard = () => {
         if (!currentCard) return;
-        setRemainingQuestions(prev => prev.filter(q => q.id !== currentCard.id));
+        setRemainingQuestions(prev => prev.filter(q => q.id !== currentCard!.id));
     };
 
     const handleRestartFlashcards = () => {
-        setRemainingQuestions(shuffleArray(initialQuestions || []));
+        setRemainingQuestions(shuffleArray(initialQuestions || []) as Question[]);
     };
+
+    // Note: selectedLanguageCode is passed but not directly used in this component's rendering logic for now.
+    // It might be used if translations were to be displayed on flashcards.
 
     if (!initialQuestions || initialQuestions.length === 0) {
         return (
@@ -126,7 +138,7 @@ const FlashcardMode = ({ initialQuestions, onNavigateHome, cardDuration = 15 }) 
 
             {!showingAnswer ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {currentCard.options.map(opt => (
+                    {currentCard.options.map((opt: Option) => (
                         <button
                             key={opt.id}
                             onClick={() => handleOptionSelect(opt.id)}
