@@ -12,12 +12,12 @@ const ExamTimer: React.FC<ExamTimerProps> = ({ timeRemaining, examDuration }) =>
         return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     };
 
-    let timerColorClass = 'text-red-500'; // Default red
+    let timerColorClass = 'text-red-500';
     if (examDuration > 0) {
         const percentageRemaining = (timeRemaining / examDuration) * 100;
         if (percentageRemaining >= 50) {
             timerColorClass = 'text-green-500';
-        } else if (percentageRemaining >= (10/60)*100) { // Approx 10 minutes of 60 minutes total (16.67%)
+        } else if (percentageRemaining >= (10/60)*100) {
             timerColorClass = 'text-yellow-500';
         }
     } else if (timeRemaining > 0) {

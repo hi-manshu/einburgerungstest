@@ -1,21 +1,19 @@
-// src/types.ts
-
 export interface Option {
     id: string;
     text: string;
-    text_translation?: string; // Made optional to be consistent
+    text_translation?: string;
 }
 
 export interface Question {
     id: string;
     question_text: string;
-    question_text_de?: string; // German text specifically for results page if needed
-    question_text_translation?: string; // Optional
+    question_text_de?: string;
+    question_text_translation?: string;
     options: Option[];
     correct_answer: string;
-    explanation?: string; // Optional
+    explanation?: string;
     state_code: string | null;
-    // Raw data properties that might be accessed during transformation or display
+
     num?: string;
     translation?: {
         [languageCode: string]: {
@@ -28,38 +26,38 @@ export interface Question {
             [key: string]: string | undefined;
         };
     };
-    [key: string]: any; // For other potential properties from raw JSON
+    [key: string]: any;
 }
 
 export interface ExamUserAnswers {
-    [questionId: string]: string; // questionId: selectedOptionId
+    [questionId: string]: string;
 }
 
-// Data structure for exam results
+
 export interface ExamResultsData {
     questions: Question[];
     userAnswers: ExamUserAnswers;
     timeTaken: number;
-    score: number; // Percentage
+    score: number;
     isPassed: boolean;
-    passMark: number; // Percentage, e.g., 51.51 for (17/33)*100
+    passMark: number;
     correctAnswersCount: number;
     selectedLanguageCode: string;
 }
 
-// Props for the ExamResultsPage component
+
 export interface ExamResultsPageProps extends ExamResultsData {
     onNavigateHome: () => void;
     onRetryTest: () => void;
     onStartNewTest: () => void;
 }
 
-// For states data in App.tsx and HomePage.tsx
+
 export interface StatesData {
-    [key: string]: string; // e.g., { "BW": "Baden-Württemberg", ... }
+    [key: string]: string;
 }
 
-// RawQuestion structure from initial fetch in App.tsx
+
 export interface RawQuestion {
     id: string;
     num?: string;

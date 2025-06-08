@@ -5,41 +5,41 @@ import ExamMode from "./exam/ExamMode";
 import ExamResultsPage from "./exam/ExamResultsPage";
 import FlashcardMode from "./flashcard/FlashcardMode";
 import HomePage from "./component/HomePage";
-import SettingsPage from "./component/SettingsPage"; // Import SettingsPage
-import BummerPage from "./component/BummerPage"; // Import BummerPage
+import SettingsPage from "./component/SettingsPage";
+import BummerPage from "./component/BummerPage";
 import { Question, StatesData, ExamResultsData, Language } from "./types";
 
 interface AppRoutesProps {
-  // Props for HomePage (already reduced)
+
   onStartPractice: (stateCode: string) => void;
   onStartExam: (stateCode: string) => void;
   onStartFlashcards: (stateCode: string) => void;
 
-  // Common props for state/language management passed to various pages
+
   statesData: StatesData;
   selectedState: string;
   onStateChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
-  onResetState: () => void; // Kept if other pages might use it
+  onResetState: () => void;
   selectedLanguage: string;
   onLanguageChange: (newLanguage: string) => void;
-  availableLanguages: Language[]; // Add availableLanguages
+  availableLanguages: Language[];
 
-  // Props for PracticeMode
+
   practiceSessionQuestions: Question[];
 
-  // Props for ExamMode
+
   examQuestionsForMode: Question[];
   onShowResultsPage: (results: ExamResultsData) => void;
 
-  // Props for ExamResultsPage
+
   examResultsData: ExamResultsData | null;
   onRetryTest: () => void;
   onStartNewTest: () => void;
 
-  // Props for FlashcardMode
+
   flashcardSessionQuestions: Question[];
 
-  // Common props
+
   onNavigateHome: () => void;
 }
 
@@ -53,7 +53,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
   onResetState,
   selectedLanguage,
   onLanguageChange,
-  availableLanguages, // Destructure availableLanguages
+  availableLanguages,
   practiceSessionQuestions,
   examQuestionsForMode,
   onShowResultsPage,
@@ -83,7 +83,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
           <PracticeMode
             questions={practiceSessionQuestions}
             onNavigateHome={onNavigateHome}
-            selectedLanguageCode={selectedLanguage} // Pass selectedLanguage as selectedLanguageCode
+            selectedLanguageCode={selectedLanguage}
           />
         }
       />
@@ -94,8 +94,8 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
             questions={examQuestionsForMode}
             onNavigateHome={onNavigateHome}
             onShowResultsPage={onShowResultsPage}
-            examDuration={3600} // This could also be a prop if it needs to be dynamic
-            selectedLanguageCode={selectedLanguage} // Pass selectedLanguage
+            examDuration={3600}
+            selectedLanguageCode={selectedLanguage}
           />
         }
       />
@@ -127,12 +127,12 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
           <FlashcardMode
             initialQuestions={flashcardSessionQuestions}
             onNavigateHome={onNavigateHome}
-            cardDuration={15} // This could also be a prop
-            selectedLanguageCode={selectedLanguage} // Pass selectedLanguage
+            cardDuration={15}
+            selectedLanguageCode={selectedLanguage}
           />
         }
       />
-      {/* Add new Settings Route */}
+
       <Route
         path="/settings"
         element={

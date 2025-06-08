@@ -1,13 +1,11 @@
 import React, { ChangeEvent } from "react";
-import { StatesData, Language } from "../../types"; // Assuming types.ts is at src/types.ts
+import { StatesData, Language } from "../../types";
 import StateSelector from "./StateSelector";
 import LanguageSelector from "./LanguageSelector";
 
-// Defined locally for now, might need to be moved if used elsewhere
-// interface Language {
-//     code: string;
-//     name: string;
-// }
+
+
+
 
 interface OnboardingDialogProps {
   statesData: StatesData;
@@ -15,10 +13,10 @@ interface OnboardingDialogProps {
   onStateChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   selectedLanguage: string;
   onLanguageChange: (newLanguage: string) => void;
-  onSavePreferences: () => void; // Function to call when preferences are saved
-  availableLanguages: Language[]; // Pass the languages array as a prop
+  onSavePreferences: () => void;
+  availableLanguages: Language[];
   title?: string;
-  introText?: string | null; // null to explicitly hide, undefined for default
+  introText?: string | null;
   saveButtonText?: string;
 }
 
@@ -36,7 +34,7 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
 }) => {
   const handleSave = () => {
     if (!selectedState || !selectedLanguage) {
-      // Optionally, show an inline message to select both state and language
+
       alert("Please select both a state and a language.");
       return;
     }
@@ -54,10 +52,10 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
             Please select your state and preferred language to get started.
           </p>
         )}
-        {introText && ( // Handles non-empty string for introText
+        {introText && (
           <p className="text-gray-600 mb-6 text-center">{introText}</p>
         )}
-        {/* If introText is null, neither of the above conditions match, so no intro paragraph is rendered. */}
+
 
         <div className="space-y-6">
           <StateSelector
@@ -77,7 +75,7 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
         <button
           onClick={handleSave}
           className="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-150 ease-in-out disabled:opacity-50"
-          disabled={!selectedState || !selectedLanguage} // Disable button if either is not selected
+          disabled={!selectedState || !selectedLanguage}
         >
           {saveButtonText || "Save Preferences & Get Started"}
         </button>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Question, Option, ExamUserAnswers } from '../types'; // Import shared types
+import { Question, Option, ExamUserAnswers } from '../types';
 
 interface QuestionDisplayProps {
     currentQuestion: Question | null;

@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { logAnalyticsEvent } from '../utils/analytics';
 import ExamTimer from './ExamTimer';
 import QuestionDisplay from './QuestionDisplay';
 import ExamNavigation from './ExamNavigation';
-import SubmitConfirmPopup from './components/SubmitConfirmPopup'; // Import the new component
-import { Question, ExamUserAnswers, ExamResultsData } from '../types'; // Removed Option as it's not directly used in ExamMode props/state
+import SubmitConfirmPopup from './components/SubmitConfirmPopup';
+import { Question, ExamUserAnswers, ExamResultsData } from '../types';
 
 interface ExamModeProps {
     questions: Question[];
@@ -13,7 +14,7 @@ interface ExamModeProps {
     selectedLanguageCode: string;
 }
 
-// --- ExamMode Component Definition ---
+
 const ExamMode: React.FC<ExamModeProps> = ({ questions: initialExamQuestions, onNavigateHome, examDuration = 3600, onShowResultsPage, selectedLanguageCode }) => {
     const [questions, setQuestions] = useState<Question[]>(initialExamQuestions);
     const [currentExamQuestionIndex, setCurrentExamQuestionIndex] = useState<number>(0);
@@ -21,6 +22,12 @@ const ExamMode: React.FC<ExamModeProps> = ({ questions: initialExamQuestions, on
     const [timeRemaining, setTimeRemaining] = useState<number>(examDuration);
     const [showSubmitConfirmPopup, setShowSubmitConfirmPopup] = useState<boolean>(false);
     const examTimerId = useRef<NodeJS.Timeout | null>(null);
+    const entryTimeRef = useRef<number | null>(null);
+
+    const handleCancelExam = () => {
+        logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'cancel_exam' });
+        onNavigateHome();
+    };
 
     const handleSubmitExam = useCallback((isAutoSubmit: boolean = false) => {
         if (examTimerId.current) {
@@ -36,8 +43,8 @@ const ExamMode: React.FC<ExamModeProps> = ({ questions: initialExamQuestions, on
         });
 
         const score = questions.length > 0 ? (correctAnswersCount / questions.length) * 100 : 0;
-        // Assuming 17 correct answers needed out of 33 total standard questions for passing.
-        // This calculation might need adjustment if total questions can vary significantly.
+
+
         const passMarkPercentage = (17 / 33) * 100;
         const isPassed = score >= passMarkPercentage;
         const timeTaken = examDuration - timeRemaining;
@@ -51,7 +58,7 @@ const ExamMode: React.FC<ExamModeProps> = ({ questions: initialExamQuestions, on
                 isPassed,
                 passMark: passMarkPercentage,
                 correctAnswersCount,
-                selectedLanguageCode // Make sure this is passed
+                selectedLanguageCode
             });
         }
     }, [questions, examUserAnswers, examDuration, timeRemaining, onShowResultsPage, selectedLanguageCode]);
@@ -64,13 +71,15 @@ const ExamMode: React.FC<ExamModeProps> = ({ questions: initialExamQuestions, on
     }, [initialExamQuestions, examDuration]);
 
     useEffect(() => {
-        if (questions.length > 0) { // Only start timer if there are questions
+        entryTimeRef.current = Date.now();
+
+        if (questions.length > 0) {
             examTimerId.current = setInterval(() => {
                 setTimeRemaining(prevTime => {
                     if (prevTime <= 1) {
                         if(examTimerId.current) clearInterval(examTimerId.current);
                         examTimerId.current = null;
-                        handleSubmitExam(true); // Auto-submit when time is up
+                        handleSubmitExam(true);
                         return 0;
                     }
                     return prevTime - 1;
@@ -82,8 +91,19 @@ const ExamMode: React.FC<ExamModeProps> = ({ questions: initialExamQuestions, on
                 clearInterval(examTimerId.current);
                 examTimerId.current = null;
             }
+
+            if (entryTimeRef.current) {
+                const duration = Date.now() - entryTimeRef.current;
+                logAnalyticsEvent('timing_complete', {
+                    name: 'exam_mode',
+                    value: duration,
+                    event_category: 'engagement',
+                    event_label: 'time_spent_on_exam'
+                });
+                entryTimeRef.current = null;
+            }
         };
-    }, [questions, handleSubmitExam]); // Added questions to dependency array
+    }, [questions, handleSubmitExam]);
 
     const currentQuestion: Question | null = questions && questions.length > 0 ? questions[currentExamQuestionIndex] : null;
 
@@ -96,19 +116,19 @@ const ExamMode: React.FC<ExamModeProps> = ({ questions: initialExamQuestions, on
         if (newIndex >= 0 && newIndex < questions.length) {
             setCurrentExamQuestionIndex(newIndex);
         }
-        // Navigation beyond the last question or before the first is handled by disabling buttons
+
     };
 
     const unansweredQuestionsCount = questions.length - Object.keys(examUserAnswers).length;
 
-    // Calculate progress for the timer bar
+
     const progressPercentage = examDuration > 0 ? (timeRemaining / examDuration) * 100 : 0;
     let progressBarColorClass;
     const percentageRemainingForColor = examDuration > 0 ? (timeRemaining / examDuration) * 100 : (timeRemaining > 0 ? 100 : 0);
 
     if (percentageRemainingForColor >= 50) {
         progressBarColorClass = 'bg-green-500';
-    } else if (percentageRemainingForColor >= (10/60)*100) { // Approx 16.67%
+    } else if (percentageRemainingForColor >= (10/60)*100) {
         progressBarColorClass = 'bg-yellow-500';
     } else {
         progressBarColorClass = 'bg-red-500';
@@ -123,7 +143,7 @@ const ExamMode: React.FC<ExamModeProps> = ({ questions: initialExamQuestions, on
         );
     }
 
-    // Removed the entire 'if (showExamResults) { ... }' block for rendering results here.
+
 
     if (!currentQuestion) {
         return (
@@ -135,12 +155,12 @@ const ExamMode: React.FC<ExamModeProps> = ({ questions: initialExamQuestions, on
 
     return (
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-xl max-w-3xl mx-auto">
-            <div className="flex justify-between items-center mb-2 pb-3"> {/* Reduced mb */}
+            <div className="flex justify-between items-center mb-2 pb-3">
                 <h2 className="text-xl md:text-2xl font-semibold text-blue-700">Exam</h2>
-                <ExamTimer timeRemaining={timeRemaining} examDuration={examDuration} /> {/* Added examDuration prop */}
+                <ExamTimer timeRemaining={timeRemaining} examDuration={examDuration} />
             </div>
 
-            {/* Progress Bar Container */}
+
             <div className="h-4 w-full bg-gray-200 rounded-full mb-4 border border-gray-300">
                 <div
                     className={`h-full rounded-full ${progressBarColorClass} transition-[width] duration-1000 ease-linear`}
@@ -172,11 +192,14 @@ const ExamMode: React.FC<ExamModeProps> = ({ questions: initialExamQuestions, on
             />
 
             <div className="mt-8 flex space-x-4">
-                <button onClick={onNavigateHome} className="md:w-2/4 border border-indigo-500 text-indigo-500 font-bold py-2 px-4 rounded hover:bg-indigo-100 transition-colors">
+                <button onClick={handleCancelExam} className="md:w-2/4 border border-indigo-500 text-indigo-500 font-bold py-2 px-4 rounded hover:bg-indigo-100 transition-colors">
                     Cancel Exam
                 </button>
                 <button
-                    onClick={() => setShowSubmitConfirmPopup(true)}
+                    onClick={() => {
+                        logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'submit_exam_attempt' });
+                        setShowSubmitConfirmPopup(true);
+                    }}
                     disabled={Object.keys(examUserAnswers).length === 0}
                     className="md:w-2/4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 transition-opacity"
                 >
@@ -188,6 +211,7 @@ const ExamMode: React.FC<ExamModeProps> = ({ questions: initialExamQuestions, on
                 isOpen={showSubmitConfirmPopup}
                 onClose={() => setShowSubmitConfirmPopup(false)}
                 onConfirm={() => {
+                    logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'submit_exam_confirm', unanswered_questions: unansweredQuestionsCount });
                     handleSubmitExam(false);
                     setShowSubmitConfirmPopup(false);
                 }}

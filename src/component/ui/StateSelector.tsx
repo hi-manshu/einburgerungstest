@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from "react";
-import { StatesData } from "../../types"; // Assuming StatesData is in types.ts
+import { StatesData } from "../../types";
 
 interface StateSelectorProps {
   selectedState: string;

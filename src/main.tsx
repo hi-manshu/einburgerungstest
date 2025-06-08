@@ -13,8 +13,8 @@ if (rootElement) {
     <React.StrictMode>
       <BrowserRouter>
         <App />
-        console.log("Firebase Analytics initialized:", analytics);
-        console.log("Firebase App initialized:", app);
+        {/* console.log("Firebase Analytics initialized:", analytics); */}
+        {/* console.log("Firebase App initialized:", app); */}
       </BrowserRouter>
     </React.StrictMode>
   );

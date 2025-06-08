@@ -1,7 +1,8 @@
 import React from 'react';
+import { logAnalyticsEvent } from '../utils/analytics';
 
 interface ExamUserAnswers {
-    [key: string]: string; // Assuming questionId: selectedOptionId
+    [key: string]: string;
 }
 
 interface ExamNavigationProps {
@@ -24,16 +25,22 @@ const ExamNavigation: React.FC<ExamNavigationProps> = ({
     return (
         <div className="mt-6 flex justify-between items-center border-t border-gray-200 pt-4">
             <button
-                onClick={() => handleNavigation(-1)}
+                onClick={() => {
+                    logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'exam_nav_previous', current_question_index: currentExamQuestionIndex });
+                    handleNavigation(-1);
+                }}
                 disabled={currentExamQuestionIndex === 0}
                 className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 transition-opacity">
                 Prev
             </button>
 
-            {/* This button only appears if there are answers AND it's NOT the last question */}
+
             {hasAnswers && currentExamQuestionIndex < totalQuestions - 1 && (
                 <button
-                    onClick={() => handleSubmitExam(false)}
+                    onClick={() => {
+
+                        handleSubmitExam(false);
+                    }}
                     className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded transition-colors">
                     Finish Exam
                 </button>
@@ -41,14 +48,20 @@ const ExamNavigation: React.FC<ExamNavigationProps> = ({
 
             {currentExamQuestionIndex < totalQuestions - 1 ? (
                 <button
-                    onClick={() => handleNavigation(1)}
+                    onClick={() => {
+                        logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'exam_nav_next', current_question_index: currentExamQuestionIndex });
+                        handleNavigation(1);
+                    }}
                     className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors">
                     Next
                 </button>
             ) : (
                 <button
-                    onClick={() => handleSubmitExam(false)} // isTimeUp is false for manual submit
-                    disabled={!hasAnswers} // Disabled if no answers on the last question
+                    onClick={() => {
+
+                        handleSubmitExam(false);
+                    }}
+                    disabled={!hasAnswers}
                     className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors disabled:opacity-50">
                     Submit Results
                 </button>

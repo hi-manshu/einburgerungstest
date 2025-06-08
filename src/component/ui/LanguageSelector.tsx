@@ -9,14 +9,14 @@ interface LanguageSelectorProps {
     selectedLanguage: string;
     onLanguageChange: (newLanguage: string) => void;
     languages: Language[];
-    id?: string; // Optional ID for the select element for specific labeling
+    id?: string;
 }
 
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({
     selectedLanguage,
     onLanguageChange,
     languages,
-    id = "language-select" // Default ID
+    id = "language-select"
 }) => {
     return (
         <div className="p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 self-start w-full">

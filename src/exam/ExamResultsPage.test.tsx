@@ -2,9 +2,9 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import ExamResultsPage from './ExamResultsPage';
 import '@testing-library/jest-dom';
-import { Question, Option, ExamUserAnswers, ExamResultsPageProps } from '../types'; // Import types
+import { Question, Option, ExamUserAnswers, ExamResultsPageProps } from '../types';
 
-// Message Arrays (as defined in the component)
+
 const perfectScoreMessages: string[] = [
     "Perfect Score! You Crushed It!", "Flawless Victory!",
     "33 Out of 33? You're a Legend!", "Nailed It! You’re the Gold Standard!",
@@ -21,7 +21,7 @@ const failedMessages = [
     "Oops! Time to Learn and Level Up!", "Practice Mode: Activated. Powering Up…"
 ];
 
-// Mock callback functions
+
 const mockNavigateHome: jest.Mock<void, []> = jest.fn();
 const mockRetryTest: jest.Mock<void, []> = jest.fn();
 const mockStartNewTest: jest.Mock<void, []> = jest.fn();
@@ -32,19 +32,19 @@ const baseQuestions: Question[] = [
     { id: 'q3', question_text: 'Question 3 Text?', question_text_de: 'Frage 3 Text?', options: [{id: 'e', text: 'Opt E3'}, {id: 'f', text: 'Opt F3'}], correct_answer: 'e', explanation: 'Expl Q3', state_code: null },
 ];
 
-// Helper to create props for tests, making overrides easy
+
 const getTestProps = (overrides: Partial<ExamResultsPageProps>): ExamResultsPageProps => ({
     questions: baseQuestions,
     userAnswers: { q1: 'a', q2: 'c' },
     timeTaken: 120,
-    score: 33.33, // (1/3 * 100)
-    passMark: 51.51, // Example: (17/33 * 100)
+    score: 33.33,
+    passMark: 51.51,
     correctAnswersCount: 1,
     isPassed: false,
     onNavigateHome: mockNavigateHome,
     onRetryTest: mockRetryTest,
     onStartNewTest: mockStartNewTest,
-    selectedLanguageCode: 'en', // Default language for tests
+    selectedLanguageCode: 'en',
     ...overrides,
 });
 
@@ -56,11 +56,11 @@ describe('ExamResultsPage - Fixed Outcome Categories & Messages', () => {
     });
 
     test('renders general info (title, score) correctly', () => {
-        // Using default props from getTestProps where correctAnswersCount = 1, questions.length = 3, score = 33.33
+
         const props = getTestProps({});
         render(<ExamResultsPage {...props} />);
         expect(screen.getByText('Exam Results')).toBeInTheDocument();
-        expect(screen.getByText("33% (1/3)")).toBeInTheDocument(); // score.toFixed(0)%
+        expect(screen.getByText("33% (1/3)")).toBeInTheDocument();
     });
 
     test('displays a FAILED message and red text for correctAnswersCount = 0', () => {
@@ -72,8 +72,8 @@ describe('ExamResultsPage - Fixed Outcome Categories & Messages', () => {
     });
 
     test('displays a FAILED message and red text for correctAnswersCount = 16', () => {
-        // We'd need to mock userAnswers and questions to make correctAnswersCount=16 meaningful for local calculation
-        // For this test, we trust the passed correctAnswersCount prop drives the message.
+
+
         const props = getTestProps({ correctAnswersCount: 16, isPassed: false });
         render(<ExamResultsPage {...props} />);
         const outcomeElement = screen.getByText(content => failedMessages.includes(content));
@@ -83,17 +83,17 @@ describe('ExamResultsPage - Fixed Outcome Categories & Messages', () => {
 
     test('displays a FAILED message (red text) even if isPassed is true but correctAnswersCount <= 16', () => {
         const props = getTestProps({
-            questions: baseQuestions.slice(0,1), // 1 question test
+            questions: baseQuestions.slice(0,1),
             correctAnswersCount: 1,
             userAnswers: { q1: 'a' },
             passMark: 1,
-            isPassed: true, // User passed this specific short test according to its passMark
+            isPassed: true,
             score: 100
         });
         render(<ExamResultsPage {...props} />);
         const outcomeElement = screen.getByText(content => failedMessages.includes(content));
         expect(outcomeElement).toBeInTheDocument();
-        expect(outcomeElement).toHaveClass('text-red-600'); // Message color by fixed threshold
+        expect(outcomeElement).toHaveClass('text-red-600');
     });
 
     test('displays a PASSED message and green text for correctAnswersCount = 17', () => {
@@ -125,12 +125,12 @@ describe('ExamResultsPage - Fixed Outcome Categories & Messages', () => {
             correctAnswersCount: 33,
             score: 100,
             isPassed: true,
-            passMark: 51.51, // (17/33 * 100)
+            passMark: 51.51,
         });
         render(<ExamResultsPage {...props} />);
 
-        // The component logic for "33 out of 33..." message does NOT transform it anymore.
-        // So we check against the original perfectScoreMessages.
+
+
         const outcomeElement = screen.getByText(content => perfectScoreMessages.includes(content));
         expect(outcomeElement).toBeInTheDocument();
         expect(outcomeElement).toHaveClass('text-green-600');
@@ -142,30 +142,30 @@ describe('ExamResultsPage - Fixed Outcome Categories & Messages', () => {
             correctAnswersCount: 1,
             userAnswers: { q1: 'a'},
             passMark: 1,
-            isPassed: true, // Page border should be green
+            isPassed: true,
             score: 100
         });
-        // Expecting a "Failed" category message (red text) because correctAnswersCount is 1 (<=16)
-        const { container } = render(<ExamResultsPage {...props} />);
-        expect(container.firstChild).toHaveClass('border-green-500'); // isPassed is true
 
-        const propsFail = getTestProps({ correctAnswersCount: 18, isPassed: false, score: 50 }); // e.g. passMark was higher for this test
-         // Expecting a "Passed" category message (green text) because correctAnswersCount is 18 (>=17)
+        const { container } = render(<ExamResultsPage {...props} />);
+        expect(container.firstChild).toHaveClass('border-green-500');
+
+        const propsFail = getTestProps({ correctAnswersCount: 18, isPassed: false, score: 50 });
+
         const { container: containerFail } = render(<ExamResultsPage {...propsFail} />);
-        expect(containerFail.firstChild).toHaveClass('border-red-500'); // isPassed is false
+        expect(containerFail.firstChild).toHaveClass('border-red-500');
     });
 
-    // --- Tests for question navigation and display (should remain mostly the same) ---
+
     test('renders numbered boxes correctly (unanswered is red)', () => {
-        // Props: q1 correct, q2 incorrect, q3 unanswered. correctAnswersCount = 1.
+
         const props = getTestProps({});
         render(<ExamResultsPage {...props} />);
         const questionNumberButtons = screen.getAllByRole('button', { name: /Question \d+/ });
         expect(questionNumberButtons).toHaveLength(props.questions.length);
 
-        expect(questionNumberButtons[0]).toHaveClass('bg-green-500'); // Q1 correct
-        expect(questionNumberButtons[1]).toHaveClass('bg-red-500');   // Q2 incorrect
-        expect(questionNumberButtons[2]).toHaveClass('bg-red-500');   // Q3 unanswered (now red)
+        expect(questionNumberButtons[0]).toHaveClass('bg-green-500');
+        expect(questionNumberButtons[1]).toHaveClass('bg-red-500');
+        expect(questionNumberButtons[2]).toHaveClass('bg-red-500');
     });
 
     test('displays details for the first question by default', () => {
@@ -190,7 +190,7 @@ describe('ExamResultsPage - Fixed Outcome Categories & Messages', () => {
     });
 
     test('displays details for an unanswered question correctly', () => {
-        const props = getTestProps({}); // q3 is unanswered in default getTestProps
+        const props = getTestProps({});
         render(<ExamResultsPage {...props} />);
         const q3Button = screen.getByRole('button', { name: 'Question 3' });
         fireEvent.click(q3Button);
