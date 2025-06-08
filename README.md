@@ -1,6 +1,14 @@
 # Einbürgerungstest Practice Application
 
-This application helps users prepare for the German citizenship test ("Einbürgerungstest") by providing various modes to practice the official catalog of questions. It features practice sessions, timed exams, and flashcard reviews to support a comprehensive learning experience.
+## Einbürgerungstest – German Naturalization Test
+Einbürgerungstest is the official naturalization (citizenship) test in Germany. It consists of 33 multiple-choice questions covering German history, politics, society, and values. To pass, you must answer at least 17 questions correctly within a set time limit.
+
+## Why this is useful
+This project is helpful for:
+
+*   Preparing for German citizenship: It helps applicants practice and get familiar with the actual test format.
+*   Learning about Germany: Even if you're not applying for citizenship, it’s a great way to learn about the country’s culture, laws, and democratic system.
+*   Improving German skills: Since the test is in German, practicing it can also improve your language comprehension.
 
 ## ✨ TypeScript Migration
 

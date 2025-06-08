@@ -110,7 +110,7 @@ const HomePage: React.FC<HomePageProps> = ({
             key={card.id}
             className="group bg-white rounded-xl shadow-lg p-6 flex flex-col items-center justify-between hover:shadow-2xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1"
           >
-            <div>
+            <div className="flex flex-col items-center">
 
               {card.icon}
               <h3 className="text-xl font-semibold text-gray-700 mb-2">
