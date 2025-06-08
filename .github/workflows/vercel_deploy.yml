@@ -38,7 +38,9 @@ jobs:
           FB_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
           FB_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
           FB_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
-        run: bash scripts/generate_firebase_config.sh
+        run: |
+          chmod +x scripts/generate_firebase_config.sh
+          ./scripts/generate_firebase_config.sh
 
       - name: Build Project
         run: npm run build # Or your project's build command
