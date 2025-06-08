@@ -49,15 +49,10 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
     return (
         <Routes>
             <Route path="/" element={<HomePage
-                statesData={statesData}
                 onStartPractice={onStartPractice}
                 onStartExam={onStartExam}
                 onStartFlashcards={onStartFlashcards}
                 selectedState={selectedState}
-                onStateChange={onStateChange}
-                onResetState={onResetState}
-                selectedLanguage={selectedLanguage}
-                onLanguageChange={onLanguageChange}
             />} />
             <Route path="/practice" element={<PracticeMode
                 questions={practiceSessionQuestions}

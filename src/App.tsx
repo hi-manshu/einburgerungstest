@@ -1,9 +1,26 @@
 import React, { useState, useEffect, useCallback, ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import shuffleArray from './utils/shuffleArray';
-import { Option, Question, RawQuestion, StatesData, ExamResultsData } from './types'; // Added Option back
+import { Option, Question, RawQuestion, StatesData, ExamResultsData, Language } from './types'; // Added Option back
 import MainLayout from './component/MainLayout';
 import AppRoutes from './AppRoutes';
+import OnboardingDialog from './component/ui/OnboardingDialog';
+
+// Define above the App component
+// interface Language {
+//     code: string;
+//     name: string;
+// }
+
+const LANGUAGES: Language[] = [
+    { code: 'en', name: 'English' },
+    { code: 'tr', name: 'Türkçe' },
+    { code: 'ru', name: 'Русский' },
+    { code: 'fr', name: 'Français' },
+    { code: 'ar', name: 'العربية' },
+    { code: 'uk', name: 'Українська' },
+    { code: 'hi', name: 'हिन्दी' }
+];
 
 // --- App Component Definition ---
 const App: React.FC = () => {
@@ -19,6 +36,9 @@ const App: React.FC = () => {
     const [examResultsData, setExamResultsData] = useState<ExamResultsData | null>(null); // Use ExamResultsData
     const [selectedState, setSelectedState] = useState<string>(localStorage.getItem('selectedState') || '');
     const [selectedLanguage, setSelectedLanguage] = useState<string>(localStorage.getItem('selectedLanguage') || 'en');
+    const [showOnboardingDialog, setShowOnboardingDialog] = useState<boolean>(
+        !localStorage.getItem('selectedState') || !localStorage.getItem('selectedLanguage')
+    );
 
     const handleStateChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
         const newState = event.target.value;
@@ -34,6 +54,20 @@ const App: React.FC = () => {
     const handleLanguageChange = useCallback((newLanguage: string) => {
         setSelectedLanguage(newLanguage);
         localStorage.setItem('selectedLanguage', newLanguage);
+    }, []);
+
+    const handleSavePreferences = useCallback(() => {
+        // State and language are already updated by onStateChange and onLanguageChange
+        // which are passed to the dialog.
+        // We just need to ensure they are saved to localStorage, which those handlers already do.
+        // Then, hide the dialog.
+        if (localStorage.getItem('selectedState') && localStorage.getItem('selectedLanguage')) {
+            setShowOnboardingDialog(false);
+        } else {
+            // This case should ideally be prevented by the dialog's own save button logic
+            console.warn("Attempted to save preferences without state or language selected.");
+            // Optionally, provide feedback to the user here if this state is reachable.
+        }
     }, []);
 
     useEffect(() => {
@@ -256,6 +290,17 @@ const App: React.FC = () => {
 
     return (
         <MainLayout>
+            {showOnboardingDialog && (
+                <OnboardingDialog
+                    statesData={statesData}
+                    selectedState={selectedState}
+                    onStateChange={handleStateChange}
+                    selectedLanguage={selectedLanguage}
+                    onLanguageChange={handleLanguageChange}
+                    onSavePreferences={handleSavePreferences}
+                    availableLanguages={LANGUAGES} // Pass the LANGUAGES array
+                />
+            )}
             <AppRoutes
                 statesData={statesData}
                 onStartPractice={handleStartPractice}
