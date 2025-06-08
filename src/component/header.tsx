@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate, useLocation } from 'react-router-dom'; // Import useNavigate and useLocation
 
 // HeaderProps is no longer needed if onSettingsClick is the only prop.
 // If there were other props, they would remain. For now, assuming it becomes an empty interface or removed.
@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const Header: React.FC = () => { // No props needed now for this specific change
     const navigate = useNavigate(); // Initialize navigate
+    const location = useLocation(); // Initialize useLocation
 
     const handleSettingsClick = () => {
         navigate('/settings'); // Navigate to /settings route
@@ -26,13 +27,15 @@ const Header: React.FC = () => { // No props needed now for this specific change
                     {/* Right Section: Settings Icon and GitHub Link */}
                     <div className="flex items-center">
                         {/* Home Button */}
-                        <button
-                            onClick={() => navigate('/')}
-                            aria-label="Home"
-                            className="p-2 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors mr-2" // Adjusted margin to mr-2
-                        >
-                            Home
-                        </button>
+                        {location.pathname === '/practice' && (
+                            <button
+                                onClick={() => navigate('/')}
+                                aria-label="Home"
+                                className="p-2 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors mr-2"
+                            >
+                                Home
+                            </button>
+                        )}
 
                         {/* Settings Icon Button */}
                         <button
