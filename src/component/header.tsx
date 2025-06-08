@@ -1,29 +1,65 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
-// Header component with app name on the left and GitHub link on the right.
-const Header = () => {
+// HeaderProps is no longer needed if onSettingsClick is the only prop.
+// If there were other props, they would remain. For now, assuming it becomes an empty interface or removed.
+// Let's remove HeaderProps if it becomes empty.
+
+const Header: React.FC = () => { // No props needed now for this specific change
+    const navigate = useNavigate(); // Initialize navigate
+
+    const handleSettingsClick = () => {
+        navigate('/settings'); // Navigate to /settings route
+    };
+
     return (
         <header className="bg-white border-b border-gray-200 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     {/* Left Section: App Name */}
                     <div className="flex-shrink-0">
-                        {/* The app name with a gradient effect for a modern look */}
                         <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
                             Einbürgerungstest Practice
                         </span>
                     </div>
 
-                    {/* Right Section: GitHub Link */}
+                    {/* Right Section: Settings Icon and GitHub Link */}
                     <div className="flex items-center">
-                        {/* Link to the GitHub repository */}
+                        {/* Settings Icon Button */}
+                        <button
+                            onClick={handleSettingsClick} // Updated onClick handler
+                            aria-label="Settings"
+                            className="p-2 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors mr-4"
+                        >
+                            {/* Gear Icon (inline SVG) */}
+                            <svg
+                                className="h-6 w-6"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                                />
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
+                            </svg>
+                        </button>
+
+                        {/* Link to the GitHub repository (existing code) */}
                         <a
                             href="https://github.com/hi-manshu/einburgerungstest"
-                            target="_blank" // Opens the link in a new tab
-                            rel="noopener noreferrer" // Recommended for security when using target="_blank"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 font-medium transition-colors"
                         >
-                            {/* GitHub Icon (inline SVG for self-containment and easy styling) */}
                             <svg
                                 className="h-6 w-6"
                                 fill="currentColor"
@@ -36,7 +72,6 @@ const Header = () => {
                                     clipRule="evenodd"
                                 />
                             </svg>
-                            {/* GitHub username text */}
                             <span>hi-manshu</span>
                         </a>
                     </div>

@@ -1,9 +1,26 @@
 import React, { useState, useEffect, useCallback, ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import shuffleArray from './utils/shuffleArray';
-import { Option, Question, RawQuestion, StatesData, ExamResultsData } from './types'; // Added Option back
+import { Option, Question, RawQuestion, StatesData, ExamResultsData, Language } from './types'; // Added Option back
 import MainLayout from './component/MainLayout';
 import AppRoutes from './AppRoutes';
+import OnboardingDialog from './component/ui/OnboardingDialog';
+
+// Define above the App component
+// interface Language {
+//     code: string;
+//     name: string;
+// }
+
+const LANGUAGES: Language[] = [
+    { code: 'en', name: 'English' },
+    { code: 'tr', name: 'Türkçe' },
+    { code: 'ru', name: 'Русский' },
+    { code: 'fr', name: 'Français' },
+    { code: 'ar', name: 'العربية' },
+    { code: 'uk', name: 'Українська' },
+    { code: 'hi', name: 'हिन्दी' }
+];
 
 // --- App Component Definition ---
 const App: React.FC = () => {
@@ -17,9 +34,42 @@ const App: React.FC = () => {
     const [examQuestionsForMode, setExamQuestionsForMode] = useState<Question[]>([]);
     const [flashcardSessionQuestions, setFlashcardSessionQuestions] = useState<Question[]>([]);
     const [examResultsData, setExamResultsData] = useState<ExamResultsData | null>(null); // Use ExamResultsData
-    const [selectedState, setSelectedState] = useState<string>(localStorage.getItem('selectedState') || '');
-    const [selectedLanguage, setSelectedLanguage] = useState<string>(localStorage.getItem('selectedLanguage') || 'en');
 
+
+    // New state initializations for preferences
+    const [selectedState, setSelectedState] = useState<string>('');
+    const [selectedLanguage, setSelectedLanguage] = useState<string>(''); // Will default to 'en' in useEffect if not found
+    const [showOnboardingDialog, setShowOnboardingDialog] = useState<boolean>(false); // Default to false, useEffect will decide
+    const [preferencesLoaded, setPreferencesLoaded] = useState<boolean>(false);
+
+    // Remove old direct localStorage check for showOnboardingDialog:
+    // const storedSelectedState = localStorage.getItem('selectedState');
+    // const storedSelectedLanguage = localStorage.getItem('selectedLanguage');
+    // const shouldShowOnboarding = ...
+    // const [showOnboardingDialog, setShowOnboardingDialog] = useState<boolean>(shouldShowOnboarding);
+
+    // useEffect for loading preferences and deciding on onboarding dialog
+    useEffect(() => {
+        const storedStateVal = localStorage.getItem('selectedState');
+        const storedLangVal = localStorage.getItem('selectedLanguage');
+
+        const currentSelectedState = (storedStateVal && storedStateVal.trim() !== '') ? storedStateVal : '';
+        // Default to 'en' if language is missing/empty in storage, but keep track if it was originally missing for dialog logic
+        const currentSelectedLanguage = (storedLangVal && storedLangVal.trim() !== '') ? storedLangVal : 'en';
+
+        setSelectedState(currentSelectedState);
+        setSelectedLanguage(currentSelectedLanguage);
+
+        // Show dialog if state is effectively empty (never validly chosen)
+        // OR if language was originally missing/empty from localStorage (user hasn't confirmed 'en' default)
+        const needsOnboarding = !currentSelectedState || !storedLangVal || storedLangVal.trim() === '';
+
+        setShowOnboardingDialog(needsOnboarding);
+        setPreferencesLoaded(true);
+    }, []); // Empty dependency array ensures this runs once on mount
+
+    // Callbacks like handleStateChange, handleLanguageChange, handleSavePreferences remain largely the same,
+    // as they operate on the React state and localStorage.
     const handleStateChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
         const newState = event.target.value;
         setSelectedState(newState);
@@ -27,8 +77,11 @@ const App: React.FC = () => {
     }, []);
 
     const handleResetState = useCallback(() => {
-        setSelectedState('');
-        localStorage.removeItem('selectedState');
+        setSelectedState(''); // Update React state
+        localStorage.removeItem('selectedState'); // Remove from localStorage
+        // When state is reset, the user should ideally go through onboarding again on next load if they don't select a new state.
+        // Or, if they are in settings, this would just clear it, and they'd need to pick one to save.
+        // If they are on the main app, a refresh would trigger onboarding.
     }, []);
 
     const handleLanguageChange = useCallback((newLanguage: string) => {
@@ -36,9 +89,25 @@ const App: React.FC = () => {
         localStorage.setItem('selectedLanguage', newLanguage);
     }, []);
 
+    const handleSavePreferences = useCallback(() => { // For initial onboarding dialog
+        setShowOnboardingDialog(false);
+        // At this point, selectedState and selectedLanguage should be set in React state
+        // and localStorage by handleStateChange/handleLanguageChange.
+        // If selectedState is still somehow empty, the dialog's save button should be disabled.
+        // If it's not disabled, it implies valid selections were made.
+    }, [setShowOnboardingDialog]);
+
+
+    // ... other useEffect hooks for data fetching and processing remain the same ...
+    // Make sure they correctly use selectedLanguage if its loading is now deferred.
+    // The main data processing useEffect depends on `rawQuestionsData` and `selectedLanguage`.
+    // Since selectedLanguage is set in the new preferences useEffect, this should be fine.
+
     useEffect(() => {
         const fetchInitialData = async () => {
-            setIsLoading(true);
+            // setIsLoading(true); // isLoading is for main data, not preferences
+            // ... fetchInitialData logic remains the same ...
+            setIsLoading(true); // Keep this for main data loading state
             let qError: string | null = null;
             let sError: string | null = null;
             let fetchedQuestions: RawQuestion[] | null = null;
@@ -78,16 +147,17 @@ const App: React.FC = () => {
             } else if (!fetchedQuestions || fetchedQuestions.length === 0) {
                 setLoadingError('No questions found in the data file.');
             }
-            setIsLoading(false);
+            setIsLoading(false); // Keep this for main data loading state
         };
         fetchInitialData();
-    }, []);
+    }, []); // This useEffect for fetching questions/states data is separate
 
     useEffect(() => {
-        if (!rawQuestionsData) {
+        if (!rawQuestionsData || !preferencesLoaded) { // Ensure preferences (especially language) are loaded before processing
             return;
         }
-
+        // ... tempQuestions mapping logic using selectedLanguage ...
+        // This ensures question processing waits for selectedLanguage to be settled.
         const tempQuestions: Question[] = rawQuestionsData.map((newQuestion: RawQuestion) => {
             const options: Option[] = ['a', 'b', 'c', 'd'].reduce((acc: Option[], key: string) => {
                 if (newQuestion.hasOwnProperty(key)) {
@@ -117,10 +187,12 @@ const App: React.FC = () => {
         });
         setAllQuestionsData(tempQuestions);
 
-    }, [rawQuestionsData, selectedLanguage]);
+    }, [rawQuestionsData, selectedLanguage, preferencesLoaded]); // Added preferencesLoaded here
 
-    useEffect(() => {
-        if (selectedState && allQuestionsData.length > 0 && practiceSessionQuestions.length > 0) {
+    // ... other useEffects and handlers (handleStartPractice, etc.) remain ...
+     useEffect(() => {
+        if (selectedState && allQuestionsData.length > 0 && practiceSessionQuestions.length > 0 && preferencesLoaded) {
+            // ... logic for updating practiceSessionQuestions ...
             const allQuestionsMap = new Map(allQuestionsData.map(q => [q.id, q]));
 
             const updatedPracticeQuestions = practiceSessionQuestions.map((practiceQ: Question) => {
@@ -149,7 +221,8 @@ const App: React.FC = () => {
                 setPracticeSessionQuestions(updatedPracticeQuestions);
             }
         }
-    }, [allQuestionsData, selectedState, practiceSessionQuestions]);
+    }, [allQuestionsData, selectedState, practiceSessionQuestions, preferencesLoaded]); // Added preferencesLoaded
+
 
     const handleStartPractice = useCallback((stateCode: string) => {
         setSelectedState(stateCode);
@@ -244,7 +317,6 @@ const App: React.FC = () => {
 
 
     if (isLoading) return <p className="text-center text-gray-500 text-xl py-10">Loading data...</p>;
-
     if (loadingError) return (
         <div className="text-center text-red-600 p-6 bg-red-50 rounded-lg shadow-md">
             <h2 className="text-2xl font-bold mb-3">App Error</h2>
@@ -252,8 +324,32 @@ const App: React.FC = () => {
             <pre className="text-sm bg-white p-3 rounded border border-red-200 whitespace-pre-wrap">{loadingError}</pre>
             <p className="mt-4">Try refreshing. Ensure data files are correct and accessible from the /public directory (e.g. /data/question.json).</p>
         </div>
-    );
+    ); // Remains same
 
+    // If onboarding is needed, it takes precedence. preferencesLoaded will be true by then.
+    if (showOnboardingDialog) {
+        return (
+            <MainLayout>
+                <OnboardingDialog
+                    statesData={statesData}
+                    selectedState={selectedState}
+                    onStateChange={handleStateChange}
+                    selectedLanguage={selectedLanguage}
+                    onLanguageChange={handleLanguageChange}
+                    onSavePreferences={handleSavePreferences}
+                    availableLanguages={LANGUAGES}
+                />
+                {/* Optionally render a minimal AppRoutes or nothing behind the modal */}
+            </MainLayout>
+        );
+    }
+
+    // If not onboarding, but preferences still loading (should be quick)
+    if (!preferencesLoaded) {
+        return <p className="text-center text-gray-500 text-xl py-10">Loading preferences...</p>;
+    }
+
+    // If here, onboarding is not needed, and preferences are loaded.
     return (
         <MainLayout>
             <AppRoutes
@@ -266,6 +362,7 @@ const App: React.FC = () => {
                 onResetState={handleResetState}
                 selectedLanguage={selectedLanguage}
                 onLanguageChange={handleLanguageChange}
+                availableLanguages={LANGUAGES} // Add this prop
                 practiceSessionQuestions={practiceSessionQuestions}
                 examQuestionsForMode={examQuestionsForMode}
                 onShowResultsPage={handleShowResultsPage}

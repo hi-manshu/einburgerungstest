@@ -83,3 +83,8 @@ export interface RawQuestion {
     };
     [key: string]: any;
 }
+
+export interface Language {
+    code: string;
+    name: string;
+}
