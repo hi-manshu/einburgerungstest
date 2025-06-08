@@ -1,0 +1,75 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x # or your preferred version
+
+      - name: Install Dependencies
+        run: npm install # or yarn install
+
+      - name: Install Vercel CLI
+        run: |
+          echo "Installing Vercel CLI..."
+          npm install -g vercel
+          echo "Vercel CLI installed."
+
+      - name: Pull Vercel Project Settings
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          echo "Pulling Vercel project settings..."
+          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          echo "Vercel project settings pulled."
+
+      - name: Configure Firebase
+        env:
+          FB_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FB_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+          FB_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FB_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          FB_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+          FB_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          FB_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
+        run: |
+          echo "Starting Firebase configuration script..."
+          chmod +x scripts/generate_firebase_config.sh
+          ./scripts/generate_firebase_config.sh
+          echo "Firebase configuration script finished."
+
+      - name: Build Project
+        env:
+          # If your build step needs Firebase Admin SDK (e.g. for Next.js API routes during build)
+          # and you created a service account file like 'firebase-service-account.json' (ensure name matches):
+          # GOOGLE_APPLICATION_CREDENTIALS: ./firebase-service-account.json
+
+          # If using client-side Firebase config via .env.local (as created above):
+          # Next.js automatically loads .env.local during build.
+          # Ensure your Firebase initialization code reads these NEXT_PUBLIC_ variables.
+          CI: false # Common practice for some build tools in CI
+        run: |
+          echo "Building project..."
+          npm run build # Or your project's build command
+          echo "Project build finished."
+
+      - name: Deploy Project to Vercel
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          echo "Deploying project to Vercel..."
+          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
+          echo "Project deployment to Vercel finished."
