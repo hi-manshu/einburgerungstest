@@ -232,20 +232,20 @@ const ExamResultsPage: React.FC<ExamResultsPageProps> = ({
                 </div>
             </div>
 
-            <div className="mt-8 flex flex-col sm:flex-row w-full gap-4">
+            <div className="mt-8 flex flex-row w-full gap-4">
                 <button
                     onClick={onRetryTest}
-                    className="w-full sm:w-1/3 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors">
+                    className="flex-1 bg-transparent border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-bold py-2 px-4 rounded transition-colors">
                     Retry Test
                 </button>
                 <button
                     onClick={onStartNewTest}
-                    className="w-full sm:w-1/3 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors">
+                    className="flex-1 bg-transparent border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-bold py-2 px-4 rounded transition-colors">
                     New Test
                 </button>
                 <button
                     onClick={onNavigateHome}
-                    className="w-full sm:w-1/3 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors">
+                    className="flex-1 bg-transparent border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-bold py-2 px-4 rounded transition-colors">
                     Home
                 </button>
             </div>
