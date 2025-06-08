@@ -8,7 +8,6 @@
 ![GitHub stars](https://img.shields.io/github/stars/hi-manshu/einburgerungstest?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/hi-manshu/einburgerungstest?style=social)
 ![GitHub issues](https://img.shields.io/github/issues/hi-manshu/einburgerungstest)
-![License](https://img.shields.io/github/license/hi-manshu/einburgerungstest)
 ![GitHub visitors](https://visitor-badge.glitch.me/badge?page_id=hi-manshu.einburgerungstest)
 
 ## Einbürgerungstest – German Naturalization Test
