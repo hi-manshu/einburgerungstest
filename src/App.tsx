@@ -77,7 +77,7 @@ const App: React.FC = () => {
 
 
 
-    const needsOnboarding = false;
+    const needsOnboarding = !localStorage.getItem("hasOnboarded");
 
     setShowOnboardingDialog(needsOnboarding);
     setPreferencesLoaded(true);
@@ -122,10 +122,7 @@ const App: React.FC = () => {
     logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'save_preferences' });
 
     setShowOnboardingDialog(false);
-
-
-
-
+    localStorage.setItem("hasOnboarded", "true");
   }, [setShowOnboardingDialog]);
 
 
