@@ -1,10 +1,11 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import ExamResultsPage from './ExamResultsPage'; // Adjust path as needed
+import ExamResultsPage from './ExamResultsPage';
 import '@testing-library/jest-dom';
+import { Question, Option, ExamUserAnswers, ExamResultsPageProps } from '../types'; // Import types
 
 // Message Arrays (as defined in the component)
-const perfectScoreMessages = [
+const perfectScoreMessages: string[] = [
     "Perfect Score! You Crushed It!", "Flawless Victory!",
     "33 Out of 33? You're a Legend!", "Nailed It! You’re the Gold Standard!",
     "This Test Didn’t Stand a Chance!", "Zero Mistakes. All Brilliance."
@@ -21,28 +22,29 @@ const failedMessages = [
 ];
 
 // Mock callback functions
-const mockNavigateHome = jest.fn();
-const mockRetryTest = jest.fn();
-const mockStartNewTest = jest.fn();
+const mockNavigateHome: jest.Mock<void, []> = jest.fn();
+const mockRetryTest: jest.Mock<void, []> = jest.fn();
+const mockStartNewTest: jest.Mock<void, []> = jest.fn();
 
-const baseQuestions = [
-    { id: 'q1', question_text: 'Question 1 Text?', question_text_de: 'Frage 1 Text?', options: [{id: 'a', text: 'Opt A1'}, {id: 'b', text: 'Opt B1'}], correct_answer: 'a', explanation: 'Expl Q1' },
-    { id: 'q2', question_text: 'Question 2 Text?', question_text_de: 'Frage 2 Text?', options: [{id: 'c', text: 'Opt C2'}, {id: 'd', text: 'Opt D2'}], correct_answer: 'd', explanation: 'Expl Q2' },
-    { id: 'q3', question_text: 'Question 3 Text?', question_text_de: 'Frage 3 Text?', options: [{id: 'e', text: 'Opt E3'}, {id: 'f', text: 'Opt F3'}], correct_answer: 'e', explanation: 'Expl Q3' },
+const baseQuestions: Question[] = [
+    { id: 'q1', question_text: 'Question 1 Text?', question_text_de: 'Frage 1 Text?', options: [{id: 'a', text: 'Opt A1'}, {id: 'b', text: 'Opt B1'}], correct_answer: 'a', explanation: 'Expl Q1', state_code: null },
+    { id: 'q2', question_text: 'Question 2 Text?', question_text_de: 'Frage 2 Text?', options: [{id: 'c', text: 'Opt C2'}, {id: 'd', text: 'Opt D2'}], correct_answer: 'd', explanation: 'Expl Q2', state_code: null },
+    { id: 'q3', question_text: 'Question 3 Text?', question_text_de: 'Frage 3 Text?', options: [{id: 'e', text: 'Opt E3'}, {id: 'f', text: 'Opt F3'}], correct_answer: 'e', explanation: 'Expl Q3', state_code: null },
 ];
 
 // Helper to create props for tests, making overrides easy
-const getTestProps = (overrides) => ({
-    questions: baseQuestions, // Default to 3 questions
-    userAnswers: { q1: 'a', q2: 'c' }, // q1 correct, q2 incorrect, q3 unanswered
+const getTestProps = (overrides: Partial<ExamResultsPageProps>): ExamResultsPageProps => ({
+    questions: baseQuestions,
+    userAnswers: { q1: 'a', q2: 'c' },
     timeTaken: 120,
-    score: 33.33,
-    passMark: 2,
-    correctAnswersCount: 1, // Matches userAnswers for baseQuestions
-    isPassed: false, // 1 correct < passMark 2
+    score: 33.33, // (1/3 * 100)
+    passMark: 51.51, // Example: (17/33 * 100)
+    correctAnswersCount: 1,
+    isPassed: false,
     onNavigateHome: mockNavigateHome,
     onRetryTest: mockRetryTest,
     onStartNewTest: mockStartNewTest,
+    selectedLanguageCode: 'en', // Default language for tests
     ...overrides,
 });
 
@@ -111,19 +113,19 @@ describe('ExamResultsPage - Fixed Outcome Categories & Messages', () => {
     });
 
     test('displays a PERFECT SCORE message and green text for correctAnswersCount = 33', () => {
-        const manyQuestions = Array(33).fill(null).map((_, i) => ({
+        const manyQuestions: Question[] = Array(33).fill(null).map((_, i) => ({
             id: `q${i+1}`, question_text: `Q${i+1}`, question_text_de: `F${i+1}`,
-            options: [{id: 'a', text: 'Opt A'}, {id: 'b', text: 'Opt B'}], correct_answer: 'a', explanation: `E${i+1}`
+            options: [{id: 'a', text: 'Opt A'}, {id: 'b', text: 'Opt B'}], correct_answer: 'a', explanation: `E${i+1}`, state_code: null
         }));
-        const allUserAnswersCorrect = manyQuestions.reduce((acc, q) => ({...acc, [q.id]: 'a'}), {});
+        const allUserAnswersCorrect: ExamUserAnswers = manyQuestions.reduce((acc, q) => ({...acc, [q.id]: 'a'}), {});
 
         const props = getTestProps({
             questions: manyQuestions,
-            correctAnswersCount: 33,
             userAnswers: allUserAnswersCorrect,
-            isPassed: true,
+            correctAnswersCount: 33,
             score: 100,
-            passMark: 17
+            isPassed: true,
+            passMark: 51.51, // (17/33 * 100)
         });
         render(<ExamResultsPage {...props} />);
 
