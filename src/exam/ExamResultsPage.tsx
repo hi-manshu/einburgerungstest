@@ -110,7 +110,43 @@ const ExamResultsPage: React.FC<ExamResultsPageProps> = ({
                 </div>
             </div>
 
-            <div className="mb-8">
+            {showSponsorMessage && (
+                <a
+                    href="https://github.com/sponsors/hi-manshu"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block mt-8 mb-8" // Added mb-8 for spacing below
+                    onClick={(e) => {
+                        // Allow click only if not on the button itself
+                        if ((e.target as HTMLElement).closest('button')) {
+                            e.preventDefault();
+                        }
+                    }}
+                >
+                    <div className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-4 rounded-md shadow-lg relative">
+                        <div className="flex justify-between items-center">
+                            <p className="font-semibold">
+                                If you found this helpful, please consider sponsoring to support further development!
+                            </p>
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault(); // Stop the link navigation
+                                    e.stopPropagation(); // Stop event bubbling
+                                    setShowSponsorMessage(false);
+                                }}
+                                className="ml-4 p-1 rounded-full hover:bg-white hover:bg-opacity-20 focus:outline-none focus:ring-2 focus:ring-white transition-colors absolute top-3 right-3"
+                                aria-label="Dismiss sponsor message"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </a>
+            )}
+
+            <div className="mb-8"> {/* This div now follows the sponsor message or is at top if message hidden */}
                 <h3 className="text-2xl font-semibold mb-6 text-indigo-600">Question Review</h3>
                 <div className="flex overflow-x-auto space-x-2 p-2 mb-4 bg-slate-200 rounded-md shadow-sm">
                     {questions.map((question: Question, index: number) => {
@@ -196,42 +232,23 @@ const ExamResultsPage: React.FC<ExamResultsPageProps> = ({
                 </div>
             </div>
 
-            <div className="mt-8 flex flex-row flex-wrap justify-center items-center gap-4">
+            <div className="mt-8 flex flex-col sm:flex-row w-full gap-4">
                 <button
                     onClick={onRetryTest}
-                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg min-w-[160px] shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-150 ease-in-out">
+                    className="w-full sm:w-1/3 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors">
                     Retry Test
                 </button>
                 <button
                     onClick={onStartNewTest}
-                    className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg min-w-[160px] shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-150 ease-in-out">
+                    className="w-full sm:w-1/3 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors">
                     New Test
                 </button>
                 <button
                     onClick={onNavigateHome}
-                    className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-lg text-lg min-w-[160px] shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-150 ease-in-out">
+                    className="w-full sm:w-1/3 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors">
                     Home
                 </button>
             </div>
-
-            {showSponsorMessage && (
-                <div className="mt-8 p-4 rounded-md shadow-lg bg-gradient-to-r from-purple-500 to-indigo-600 text-white">
-                    <div className="flex justify-between items-center">
-                        <p className="font-semibold">
-                            If you found this helpful, please consider sponsoring to support further development!
-                        </p>
-                        <button
-                            onClick={() => setShowSponsorMessage(false)}
-                            className="ml-4 p-2 rounded-full hover:bg-white hover:bg-opacity-20 focus:outline-none focus:ring-2 focus:ring-white transition-colors"
-                            aria-label="Dismiss sponsor message"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
