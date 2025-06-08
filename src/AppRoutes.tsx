@@ -10,11 +10,9 @@ import BummerPage from "./component/BummerPage";
 import { Question, StatesData, ExamResultsData, Language } from "./types";
 
 interface AppRoutesProps {
-
   onStartPractice: (stateCode: string) => void;
   onStartExam: (stateCode: string) => void;
   onStartFlashcards: (stateCode: string) => void;
-
 
   statesData: StatesData;
   selectedState: string;
@@ -24,21 +22,16 @@ interface AppRoutesProps {
   onLanguageChange: (newLanguage: string) => void;
   availableLanguages: Language[];
 
-
   practiceSessionQuestions: Question[];
-
 
   examQuestionsForMode: Question[];
   onShowResultsPage: (results: ExamResultsData) => void;
-
 
   examResultsData: ExamResultsData | null;
   onRetryTest: () => void;
   onStartNewTest: () => void;
 
-
   flashcardSessionQuestions: Question[];
-
 
   onNavigateHome: () => void;
 }

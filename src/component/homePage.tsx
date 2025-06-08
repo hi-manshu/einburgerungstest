@@ -15,11 +15,11 @@ const HomePage: React.FC<HomePageProps> = ({
   selectedState,
 }) => {
   const handleActivityNavigation = (
-    activityStartFunction: (stateCode: string) => void
+    activityStartFunction: (stateCode: string) => void,
   ) => {
     if (!selectedState) {
       alert(
-        "Please ensure your state is selected (you might need to refresh or clear site data if issues persist)."
+        "Please ensure your state is selected (you might need to refresh or clear site data if issues persist).",
       );
       return;
     }
@@ -45,7 +45,11 @@ const HomePage: React.FC<HomePageProps> = ({
         </svg>
       ),
       action: () => {
-        logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'start_practice', selected_state: selectedState });
+        logAnalyticsEvent("select_content", {
+          content_type: "button",
+          item_id: "start_practice",
+          selected_state: selectedState,
+        });
         handleActivityNavigation(onStartPractice);
       },
     },
@@ -67,7 +71,11 @@ const HomePage: React.FC<HomePageProps> = ({
         </svg>
       ),
       action: () => {
-        logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'start_exam', selected_state: selectedState });
+        logAnalyticsEvent("select_content", {
+          content_type: "button",
+          item_id: "start_exam",
+          selected_state: selectedState,
+        });
         handleActivityNavigation(onStartExam);
       },
     },
@@ -89,7 +97,11 @@ const HomePage: React.FC<HomePageProps> = ({
         </svg>
       ),
       action: () => {
-        logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'start_flashcards', selected_state: selectedState });
+        logAnalyticsEvent("select_content", {
+          content_type: "button",
+          item_id: "start_flashcards",
+          selected_state: selectedState,
+        });
         handleActivityNavigation(onStartFlashcards);
       },
     },
@@ -110,8 +122,7 @@ const HomePage: React.FC<HomePageProps> = ({
             key={card.id}
             className="group bg-white rounded-xl shadow-lg p-6 flex flex-col items-center justify-between hover:shadow-2xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1"
           >
-            <div>
-
+            <div className="flex flex-col items-center">
               {card.icon}
               <h3 className="text-xl font-semibold text-gray-700 mb-2">
                 {card.title}

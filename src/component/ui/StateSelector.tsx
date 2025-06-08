@@ -31,7 +31,7 @@ const StateSelector: React.FC<StateSelectorProps> = ({
         <option value="">Select a State</option>
         {Object.entries(statesData || {})
           .sort(([, a]: [string, string], [, b]: [string, string]) =>
-            a.localeCompare(b)
+            a.localeCompare(b),
           )
           .map(([code, name]) => (
             <option key={code} value={code}>

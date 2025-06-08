@@ -3,10 +3,6 @@ import { StatesData, Language } from "../../types";
 import StateSelector from "./StateSelector";
 import LanguageSelector from "./LanguageSelector";
 
-
-
-
-
 interface OnboardingDialogProps {
   statesData: StatesData;
   selectedState: string;
@@ -34,7 +30,6 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
 }) => {
   const handleSave = () => {
     if (!selectedState || !selectedLanguage) {
-
       alert("Please select both a state and a language.");
       return;
     }
@@ -55,7 +50,6 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
         {introText && (
           <p className="text-gray-600 mb-6 text-center">{introText}</p>
         )}
-
 
         <div className="space-y-6">
           <StateSelector

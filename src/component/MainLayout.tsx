@@ -3,11 +3,9 @@ import Header from "./Header";
 
 interface MainLayoutProps {
   children: ReactNode;
-
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-
   return (
     <React.Fragment>
       <Header />

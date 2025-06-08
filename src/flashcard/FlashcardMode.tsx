@@ -26,7 +26,10 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
   const entryTimeRef = useRef<number | null>(null);
 
   const handleCancelFlashcards = () => {
-    logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'cancel_flashcards' });
+    logAnalyticsEvent("select_content", {
+      content_type: "button",
+      item_id: "cancel_flashcards",
+    });
     onNavigateHome();
   };
 
@@ -35,11 +38,11 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
     return () => {
       if (entryTimeRef.current) {
         const duration = Date.now() - entryTimeRef.current;
-        logAnalyticsEvent('timing_complete', {
-            name: 'flashcard_mode',
-            value: duration,
-            event_category: 'engagement',
-            event_label: 'time_spent_on_flashcards'
+        logAnalyticsEvent("timing_complete", {
+          name: "flashcard_mode",
+          value: duration,
+          event_category: "engagement",
+          event_label: "time_spent_on_flashcards",
         });
         entryTimeRef.current = null;
       }
@@ -80,7 +83,7 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
   const getCorrectAnswerText = (card: Question | null): string => {
     if (!card || !card.options || !card.correct_answer) return "N/A";
     const correctOption = card.options.find(
-      (opt) => opt.id === card.correct_answer
+      (opt) => opt.id === card.correct_answer,
     );
     if (!correctOption) return "N/A";
     return `${card.correct_answer.toUpperCase()}. ${correctOption.text}`;
@@ -90,7 +93,7 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
     if (!currentCard) return;
     if (timerIdRef.current) clearTimeout(timerIdRef.current);
     setFeedback(
-      `Zeit abgelaufen! Richtig: ${getCorrectAnswerText(currentCard)}`
+      `Zeit abgelaufen! Richtig: ${getCorrectAnswerText(currentCard)}`,
     );
     setShowingAnswer(true);
   };
@@ -99,40 +102,55 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
     if (showingAnswer || !currentCard) return;
     if (timerIdRef.current) clearTimeout(timerIdRef.current);
     const isCorrect = selectedOptionId === currentCard.correct_answer;
-    logAnalyticsEvent('select_content', {
-        content_type: 'button',
-        item_id: 'flashcard_option_select',
-        card_id: currentCard.id,
-        selected_option: selectedOptionId,
-        is_correct: isCorrect
+    logAnalyticsEvent("select_content", {
+      content_type: "button",
+      item_id: "flashcard_option_select",
+      card_id: currentCard.id,
+      selected_option: selectedOptionId,
+      is_correct: isCorrect,
     });
     if (isCorrect) {
       setFeedback("Richtig!");
       // Marking as known implicitly by getting it right
-      logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'flashcard_mark_known', card_id: currentCard.id });
+      logAnalyticsEvent("select_content", {
+        content_type: "button",
+        item_id: "flashcard_mark_known",
+        card_id: currentCard.id,
+      });
       feedbackTimeoutIdRef.current = setTimeout(() => {
         setRemainingQuestions((prev) =>
-          prev.filter((q) => q.id !== currentCard!.id)
+          prev.filter((q) => q.id !== currentCard!.id),
         );
       }, 1500);
     } else {
       setFeedback(`Falsch. Richtig: ${getCorrectAnswerText(currentCard)}`);
       // Marking as unknown implicitly by getting it wrong
-      logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'flashcard_mark_unknown', card_id: currentCard.id });
+      logAnalyticsEvent("select_content", {
+        content_type: "button",
+        item_id: "flashcard_mark_unknown",
+        card_id: currentCard.id,
+      });
       setShowingAnswer(true); // Show answer, user will then click next
     }
   };
 
   const handleProceedToNextCard = () => {
     if (!currentCard) return;
-    logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'flashcard_next_card', card_id: currentCard.id });
+    logAnalyticsEvent("select_content", {
+      content_type: "button",
+      item_id: "flashcard_next_card",
+      card_id: currentCard.id,
+    });
     setRemainingQuestions((prev) =>
-      prev.filter((q) => q.id !== currentCard!.id)
+      prev.filter((q) => q.id !== currentCard!.id),
     );
   };
 
   const handleRestartFlashcards = () => {
-    logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'flashcard_restart' });
+    logAnalyticsEvent("select_content", {
+      content_type: "button",
+      item_id: "flashcard_restart",
+    });
     setRemainingQuestions(shuffleArray(initialQuestions || []) as Question[]);
   };
 
@@ -192,8 +210,8 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
               feedback.startsWith("Richtig")
                 ? "bg-green-100 text-green-700"
                 : feedback.startsWith("Zeit")
-                ? "bg-yellow-100 text-yellow-700"
-                : "bg-red-100 text-red-700"
+                  ? "bg-yellow-100 text-yellow-700"
+                  : "bg-red-100 text-red-700"
             }`}
           >
             {feedback}
@@ -213,9 +231,13 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
             <button
               key={opt.id}
               onClick={() => {
-                  handleOptionSelect(opt.id);
-                  // Flipping the card is implicit in selecting an option
-                  logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'flashcard_flip', card_id: currentCard.id });
+                handleOptionSelect(opt.id);
+                // Flipping the card is implicit in selecting an option
+                logAnalyticsEvent("select_content", {
+                  content_type: "button",
+                  item_id: "flashcard_flip",
+                  card_id: currentCard.id,
+                });
               }}
               className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
             >

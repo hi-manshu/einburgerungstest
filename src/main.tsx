@@ -16,7 +16,7 @@ if (rootElement) {
         {/* console.log("Firebase Analytics initialized:", analytics); */}
         {/* console.log("Firebase App initialized:", app); */}
       </BrowserRouter>
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 } else {
   console.error("Failed to find the root element");

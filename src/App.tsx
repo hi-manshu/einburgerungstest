@@ -13,8 +13,8 @@ import MainLayout from "./component/MainLayout";
 import AppRoutes from "./AppRoutes";
 import OnboardingDialog from "./component/ui/OnboardingDialog";
 
-import useScreenTracking from './utils/useScreenTracking';
-import { logAnalyticsEvent } from './utils/analytics';
+import useScreenTracking from "./utils/useScreenTracking";
+import { logAnalyticsEvent } from "./utils/analytics";
 
 const LANGUAGES: Language[] = [
   { code: "en", name: "English" },
@@ -26,10 +26,8 @@ const LANGUAGES: Language[] = [
   { code: "hi", name: "हिन्दी" },
 ];
 
-
 const App: React.FC = () => {
   useScreenTracking();
-
 
   const navigate = useNavigate();
   const [rawQuestionsData, setRawQuestionsData] = useState<
@@ -43,7 +41,7 @@ const App: React.FC = () => {
     Question[]
   >([]);
   const [examQuestionsForMode, setExamQuestionsForMode] = useState<Question[]>(
-    []
+    [],
   );
   const [flashcardSessionQuestions, setFlashcardSessionQuestions] = useState<
     Question[]
@@ -51,16 +49,11 @@ const App: React.FC = () => {
   const [examResultsData, setExamResultsData] =
     useState<ExamResultsData | null>(null);
 
-
   const [selectedState, setSelectedState] = useState<string>("");
   const [selectedLanguage, setSelectedLanguage] = useState<string>("");
   const [showOnboardingDialog, setShowOnboardingDialog] =
     useState<boolean>(false);
   const [preferencesLoaded, setPreferencesLoaded] = useState<boolean>(false);
-
-
-
-
 
   useEffect(() => {
     const storedStateVal = localStorage.getItem("selectedState");
@@ -75,64 +68,57 @@ const App: React.FC = () => {
     setSelectedState(currentSelectedState);
     setSelectedLanguage(currentSelectedLanguage);
 
-
-
     const needsOnboarding = !localStorage.getItem("hasOnboarded");
 
     setShowOnboardingDialog(needsOnboarding);
     setPreferencesLoaded(true);
   }, []);
 
-
-
   const handleStateChange = useCallback(
     (event: ChangeEvent<HTMLSelectElement>) => {
       const newState = event.target.value;
       setSelectedState(newState);
       localStorage.setItem("selectedState", newState);
-      logAnalyticsEvent('select_item', {
-        item_list_id: 'state_selection',
-        item_list_name: 'State Selection',
-        items: [{ item_id: newState, item_name: statesData[newState]?.name }]
+      logAnalyticsEvent("select_item", {
+        item_list_id: "state_selection",
+        item_list_name: "State Selection",
+        items: [{ item_id: newState, item_name: statesData[newState]?.name }],
       });
     },
-    [statesData]
+    [statesData],
   );
 
   const handleResetState = useCallback(() => {
     setSelectedState("");
     localStorage.removeItem("selectedState");
-    logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'reset_state' });
-
-
-
+    logAnalyticsEvent("select_content", {
+      content_type: "button",
+      item_id: "reset_state",
+    });
   }, []);
 
   const handleLanguageChange = useCallback((newLanguage: string) => {
     setSelectedLanguage(newLanguage);
     localStorage.setItem("selectedLanguage", newLanguage);
-    logAnalyticsEvent('select_item', {
-      item_list_id: 'language_selection',
-      item_list_name: 'Language Selection',
-      items: [{ item_id: newLanguage }]
+    logAnalyticsEvent("select_item", {
+      item_list_id: "language_selection",
+      item_list_name: "Language Selection",
+      items: [{ item_id: newLanguage }],
     });
   }, []);
 
   const handleSavePreferences = useCallback(() => {
-    logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'save_preferences' });
+    logAnalyticsEvent("select_content", {
+      content_type: "button",
+      item_id: "save_preferences",
+    });
 
     setShowOnboardingDialog(false);
     localStorage.setItem("hasOnboarded", "true");
   }, [setShowOnboardingDialog]);
 
-
-
-
-
   useEffect(() => {
     const fetchInitialData = async () => {
-
-
       setIsLoading(true);
       let qError: string | null = null;
       let sError: string | null = null;
@@ -143,7 +129,7 @@ const App: React.FC = () => {
         const qResponse = await fetch("/data/question.json");
         if (!qResponse.ok)
           throw new Error(
-            `Questions fetch failed: ${qResponse.status} ${qResponse.statusText}`
+            `Questions fetch failed: ${qResponse.status} ${qResponse.statusText}`,
           );
         fetchedQuestions = (await qResponse.json()) as RawQuestion[];
         if (!Array.isArray(fetchedQuestions)) {
@@ -158,7 +144,7 @@ const App: React.FC = () => {
         const sResponse = await fetch("/data/states.json");
         if (!sResponse.ok)
           throw new Error(
-            `States fetch failed: ${sResponse.status} ${sResponse.statusText}`
+            `States fetch failed: ${sResponse.status} ${sResponse.statusText}`,
           );
         const statesArray = (await sResponse.json()) as {
           code: string;
@@ -192,10 +178,8 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (!rawQuestionsData || !preferencesLoaded) {
-
       return;
     }
-
 
     const tempQuestions: Question[] = rawQuestionsData.map(
       (newQuestion: RawQuestion) => {
@@ -213,7 +197,7 @@ const App: React.FC = () => {
             }
             return acc;
           },
-          []
+          [],
         );
 
         let stateCode: string | null = null;
@@ -240,11 +224,10 @@ const App: React.FC = () => {
             "",
           state_code: stateCode,
         };
-      }
+      },
     );
     setAllQuestionsData(tempQuestions);
   }, [rawQuestionsData, selectedLanguage, preferencesLoaded]);
-
 
   useEffect(() => {
     if (
@@ -253,7 +236,6 @@ const App: React.FC = () => {
       practiceSessionQuestions.length > 0 &&
       preferencesLoaded
     ) {
-
       const allQuestionsMap = new Map(allQuestionsData.map((q) => [q.id, q]));
 
       const updatedPracticeQuestions = practiceSessionQuestions.map(
@@ -265,7 +247,7 @@ const App: React.FC = () => {
 
           const updatedOptions = practiceQ.options.map((opt: Option) => {
             const fullOptionData = fullQuestionData.options.find(
-              (fullOpt) => fullOpt.id === opt.id
+              (fullOpt) => fullOpt.id === opt.id,
             );
             return {
               ...opt,
@@ -282,7 +264,7 @@ const App: React.FC = () => {
             explanation: fullQuestionData.explanation,
             options: updatedOptions,
           };
-        }
+        },
       );
 
       if (
@@ -304,17 +286,17 @@ const App: React.FC = () => {
       setSelectedState(stateCode);
       localStorage.setItem("selectedState", stateCode);
       const generalQuestions = allQuestionsData.filter(
-        (q) => q.state_code === null
+        (q) => q.state_code === null,
       );
       const stateSpecificQuestions = allQuestionsData.filter(
-        (q) => q.state_code === stateCode
+        (q) => q.state_code === stateCode,
       );
 
       const sessionQuestions = [...generalQuestions, ...stateSpecificQuestions];
       setPracticeSessionQuestions(shuffleArray(sessionQuestions) as Question[]);
       navigate("/practice");
     },
-    [allQuestionsData, setSelectedState, navigate]
+    [allQuestionsData, setSelectedState, navigate],
   );
 
   const handleStartExam = useCallback(
@@ -330,15 +312,15 @@ const App: React.FC = () => {
       const TARGET_STATE_QUESTIONS_IN_EXAM = 3;
 
       const generalQuestions = allQuestionsData.filter(
-        (q) => q.state_code === null
+        (q) => q.state_code === null,
       );
       const stateSpecificQuestions = allQuestionsData.filter(
-        (q) => q.state_code === stateCodeFromButton
+        (q) => q.state_code === stateCodeFromButton,
       );
 
       let examStateQuestions = shuffleArray(stateSpecificQuestions).slice(
         0,
-        TARGET_STATE_QUESTIONS_IN_EXAM
+        TARGET_STATE_QUESTIONS_IN_EXAM,
       ) as Question[];
 
       const generalQuestionsNeeded =
@@ -347,7 +329,7 @@ const App: React.FC = () => {
       if (generalQuestionsNeeded > 0) {
         examGeneralQuestions = shuffleArray(generalQuestions).slice(
           0,
-          generalQuestionsNeeded
+          generalQuestionsNeeded,
         ) as Question[];
       }
 
@@ -356,13 +338,13 @@ const App: React.FC = () => {
         ...examGeneralQuestions,
       ];
       const finalExamQuestions = shuffleArray(
-        combinedExamQuestions
+        combinedExamQuestions,
       ) as Question[];
 
       setExamQuestionsForMode(finalExamQuestions);
       navigate("/exam");
     },
-    [allQuestionsData, setSelectedState, navigate]
+    [allQuestionsData, setSelectedState, navigate],
   );
 
   const handleStartFlashcards = useCallback(
@@ -370,19 +352,19 @@ const App: React.FC = () => {
       setSelectedState(stateCodeFromButton);
       localStorage.setItem("selectedState", stateCodeFromButton);
       const generalQuestions = allQuestionsData.filter(
-        (q) => q.state_code === null
+        (q) => q.state_code === null,
       );
       const stateSpecificQuestions = allQuestionsData.filter(
-        (q) => q.state_code === stateCodeFromButton
+        (q) => q.state_code === stateCodeFromButton,
       );
 
       const sessionQuestions = [...generalQuestions, ...stateSpecificQuestions];
       setFlashcardSessionQuestions(
-        shuffleArray(sessionQuestions) as Question[]
+        shuffleArray(sessionQuestions) as Question[],
       );
       navigate("/flashcards");
     },
-    [allQuestionsData, setSelectedState, navigate]
+    [allQuestionsData, setSelectedState, navigate],
   );
 
   const handleNavigateHome = useCallback(() => {
@@ -391,13 +373,12 @@ const App: React.FC = () => {
     navigate("/");
   }, [navigate]);
 
-
   const handleShowResultsPage = useCallback(
     (results: ExamResultsData) => {
       setExamResultsData(results);
       navigate("/results");
     },
-    [navigate]
+    [navigate],
   );
 
   const handleRetryTestFromResults = useCallback(() => {
@@ -410,14 +391,14 @@ const App: React.FC = () => {
       const EXAM_TOTAL_QUESTIONS = 33;
       const TARGET_STATE_QUESTIONS_IN_EXAM = 3;
       const generalQuestions = allQuestionsData.filter(
-        (q) => q.state_code === null
+        (q) => q.state_code === null,
       );
       const stateSpecificQuestions = allQuestionsData.filter(
-        (q) => q.state_code === selectedState
+        (q) => q.state_code === selectedState,
       );
       let examStateQuestions = shuffleArray(stateSpecificQuestions).slice(
         0,
-        TARGET_STATE_QUESTIONS_IN_EXAM
+        TARGET_STATE_QUESTIONS_IN_EXAM,
       ) as Question[];
       const generalQuestionsNeeded =
         EXAM_TOTAL_QUESTIONS - examStateQuestions.length;
@@ -425,7 +406,7 @@ const App: React.FC = () => {
       if (generalQuestionsNeeded > 0) {
         examGeneralQuestions = shuffleArray(generalQuestions).slice(
           0,
-          generalQuestionsNeeded
+          generalQuestionsNeeded,
         ) as Question[];
       }
       let combinedExamQuestions = [
@@ -433,7 +414,7 @@ const App: React.FC = () => {
         ...examGeneralQuestions,
       ];
       const finalExamQuestions = shuffleArray(
-        combinedExamQuestions
+        combinedExamQuestions,
       ) as Question[];
 
       setExamQuestionsForMode(finalExamQuestions);
@@ -463,7 +444,6 @@ const App: React.FC = () => {
       </div>
     );
 
-
   if (showOnboardingDialog) {
     return (
       <MainLayout>
@@ -476,11 +456,9 @@ const App: React.FC = () => {
           onSavePreferences={handleSavePreferences}
           availableLanguages={LANGUAGES}
         />
-
       </MainLayout>
     );
   }
-
 
   if (!preferencesLoaded) {
     return (
@@ -489,7 +467,6 @@ const App: React.FC = () => {
       </p>
     );
   }
-
 
   return (
     <MainLayout>
