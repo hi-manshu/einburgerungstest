@@ -12,8 +12,10 @@ import {
 import MainLayout from "./component/MainLayout";
 import AppRoutes from "./AppRoutes";
 import OnboardingDialog from "./component/ui/OnboardingDialog";
-import { analytics } from "../firebaseConfig";
-import { logEvent } from "firebase/analytics";
+// import { analytics } from "../firebaseConfig"; // Will be replaced by new firebase.ts
+// import { logEvent } from "firebase/analytics"; // Will be replaced by new firebase.ts
+import useScreenTracking from './utils/useScreenTracking'; // Adjust path if needed
+import { logAnalyticsEvent } from './utils/analytics';
 
 const LANGUAGES: Language[] = [
   { code: "en", name: "English" },
@@ -27,10 +29,11 @@ const LANGUAGES: Language[] = [
 
 // --- App Component Definition ---
 const App: React.FC = () => {
-  console.log("home");
-  logEvent(analytics, "app event", {
-    screen: "home",
-  });
+  useScreenTracking(); // Call the hook here
+  // console.log("home"); // Optional: remove or keep existing logging
+  // logEvent(analytics, "app event", { // Optional: remove or keep existing logging
+  //   screen: "home",
+  // });
 
   const navigate = useNavigate();
   const [rawQuestionsData, setRawQuestionsData] = useState<
@@ -94,13 +97,19 @@ const App: React.FC = () => {
       const newState = event.target.value;
       setSelectedState(newState);
       localStorage.setItem("selectedState", newState);
+      logAnalyticsEvent('select_item', {
+        item_list_id: 'state_selection',
+        item_list_name: 'State Selection',
+        items: [{ item_id: newState, item_name: statesData[newState]?.name }]
+      });
     },
-    []
+    [statesData] // Added statesData dependency
   );
 
   const handleResetState = useCallback(() => {
     setSelectedState(""); // Update React state
     localStorage.removeItem("selectedState"); // Remove from localStorage
+    logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'reset_state' });
     // When state is reset, the user should ideally go through onboarding again on next load if they don't select a new state.
     // Or, if they are in settings, this would just clear it, and they'd need to pick one to save.
     // If they are on the main app, a refresh would trigger onboarding.
@@ -109,9 +118,15 @@ const App: React.FC = () => {
   const handleLanguageChange = useCallback((newLanguage: string) => {
     setSelectedLanguage(newLanguage);
     localStorage.setItem("selectedLanguage", newLanguage);
+    logAnalyticsEvent('select_item', {
+      item_list_id: 'language_selection',
+      item_list_name: 'Language Selection',
+      items: [{ item_id: newLanguage }]
+    });
   }, []);
 
   const handleSavePreferences = useCallback(() => {
+    logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'save_preferences' });
     // For initial onboarding dialog
     setShowOnboardingDialog(false);
     // At this point, selectedState and selectedLanguage should be set in React state

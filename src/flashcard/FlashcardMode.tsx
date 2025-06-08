@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { logAnalyticsEvent } from "../utils/analytics";
 import shuffleArray from "../utils/shuffleArray";
 import { Question, Option } from "../types"; // Import shared types
 
@@ -22,6 +23,28 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
   const [timer, setTimer] = useState<number>(cardDuration);
   const timerIdRef = useRef<NodeJS.Timeout | null>(null);
   const feedbackTimeoutIdRef = useRef<NodeJS.Timeout | null>(null);
+  const entryTimeRef = useRef<number | null>(null);
+
+  const handleCancelFlashcards = () => {
+    logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'cancel_flashcards' });
+    onNavigateHome();
+  };
+
+  useEffect(() => {
+    entryTimeRef.current = Date.now();
+    return () => {
+      if (entryTimeRef.current) {
+        const duration = Date.now() - entryTimeRef.current;
+        logAnalyticsEvent('timing_complete', {
+            name: 'flashcard_mode',
+            value: duration,
+            event_category: 'engagement',
+            event_label: 'time_spent_on_flashcards'
+        });
+        entryTimeRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     setRemainingQuestions(shuffleArray(initialQuestions || []) as Question[]);
@@ -76,8 +99,17 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
     if (showingAnswer || !currentCard) return;
     if (timerIdRef.current) clearTimeout(timerIdRef.current);
     const isCorrect = selectedOptionId === currentCard.correct_answer;
+    logAnalyticsEvent('select_content', {
+        content_type: 'button',
+        item_id: 'flashcard_option_select',
+        card_id: currentCard.id,
+        selected_option: selectedOptionId,
+        is_correct: isCorrect
+    });
     if (isCorrect) {
       setFeedback("Richtig!");
+      // Marking as known implicitly by getting it right
+      logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'flashcard_mark_known', card_id: currentCard.id });
       feedbackTimeoutIdRef.current = setTimeout(() => {
         setRemainingQuestions((prev) =>
           prev.filter((q) => q.id !== currentCard!.id)
@@ -85,18 +117,22 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
       }, 1500);
     } else {
       setFeedback(`Falsch. Richtig: ${getCorrectAnswerText(currentCard)}`);
-      setShowingAnswer(true);
+      // Marking as unknown implicitly by getting it wrong
+      logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'flashcard_mark_unknown', card_id: currentCard.id });
+      setShowingAnswer(true); // Show answer, user will then click next
     }
   };
 
   const handleProceedToNextCard = () => {
     if (!currentCard) return;
+    logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'flashcard_next_card', card_id: currentCard.id });
     setRemainingQuestions((prev) =>
       prev.filter((q) => q.id !== currentCard!.id)
     );
   };
 
   const handleRestartFlashcards = () => {
+    logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'flashcard_restart' });
     setRemainingQuestions(shuffleArray(initialQuestions || []) as Question[]);
   };
 
@@ -108,7 +144,7 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
       <div className="text-center p-6">
         <p className="text-xl text-gray-700 mb-6">Keine Fragen verfügbar.</p>
         <button
-          onClick={onNavigateHome}
+          onClick={handleCancelFlashcards}
           className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded text-lg"
         >
           Zurück zur Startseite
@@ -132,7 +168,7 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
             Wiederholen
           </button>
           <button
-            onClick={onNavigateHome}
+            onClick={handleCancelFlashcards}
             className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded text-lg transition-colors"
           >
             Zurück zur Startseite
@@ -176,7 +212,11 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
           {currentCard.options.map((opt: Option) => (
             <button
               key={opt.id}
-              onClick={() => handleOptionSelect(opt.id)}
+              onClick={() => {
+                  handleOptionSelect(opt.id);
+                  // Flipping the card is implicit in selecting an option
+                  logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'flashcard_flip', card_id: currentCard.id });
+              }}
               className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
             >
               <div className="text-base">
@@ -194,7 +234,7 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
         </button>
       )}
       <button
-        onClick={onNavigateHome}
+        onClick={handleCancelFlashcards}
         className="mt-8 bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 px-5 rounded-lg w-full transition-colors"
       >
         Return to Home

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { logAnalyticsEvent } from '../utils/analytics';
 import ExamTimer from './ExamTimer';
 import QuestionDisplay from './QuestionDisplay';
 import ExamNavigation from './ExamNavigation';
@@ -21,6 +22,12 @@ const ExamMode: React.FC<ExamModeProps> = ({ questions: initialExamQuestions, on
     const [timeRemaining, setTimeRemaining] = useState<number>(examDuration);
     const [showSubmitConfirmPopup, setShowSubmitConfirmPopup] = useState<boolean>(false);
     const examTimerId = useRef<NodeJS.Timeout | null>(null);
+    const entryTimeRef = useRef<number | null>(null);
+
+    const handleCancelExam = () => {
+        logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'cancel_exam' });
+        onNavigateHome();
+    };
 
     const handleSubmitExam = useCallback((isAutoSubmit: boolean = false) => {
         if (examTimerId.current) {
@@ -64,6 +71,8 @@ const ExamMode: React.FC<ExamModeProps> = ({ questions: initialExamQuestions, on
     }, [initialExamQuestions, examDuration]);
 
     useEffect(() => {
+        entryTimeRef.current = Date.now();
+
         if (questions.length > 0) { // Only start timer if there are questions
             examTimerId.current = setInterval(() => {
                 setTimeRemaining(prevTime => {
@@ -81,6 +90,17 @@ const ExamMode: React.FC<ExamModeProps> = ({ questions: initialExamQuestions, on
             if (examTimerId.current) {
                 clearInterval(examTimerId.current);
                 examTimerId.current = null;
+            }
+            // Calculate duration and log event on unmount
+            if (entryTimeRef.current) {
+                const duration = Date.now() - entryTimeRef.current;
+                logAnalyticsEvent('timing_complete', {
+                    name: 'exam_mode',
+                    value: duration,
+                    event_category: 'engagement',
+                    event_label: 'time_spent_on_exam'
+                });
+                entryTimeRef.current = null; // Reset for potential re-mounts
             }
         };
     }, [questions, handleSubmitExam]); // Added questions to dependency array
@@ -172,11 +192,14 @@ const ExamMode: React.FC<ExamModeProps> = ({ questions: initialExamQuestions, on
             />
 
             <div className="mt-8 flex space-x-4">
-                <button onClick={onNavigateHome} className="md:w-2/4 border border-indigo-500 text-indigo-500 font-bold py-2 px-4 rounded hover:bg-indigo-100 transition-colors">
+                <button onClick={handleCancelExam} className="md:w-2/4 border border-indigo-500 text-indigo-500 font-bold py-2 px-4 rounded hover:bg-indigo-100 transition-colors">
                     Cancel Exam
                 </button>
                 <button
-                    onClick={() => setShowSubmitConfirmPopup(true)}
+                    onClick={() => {
+                        logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'submit_exam_attempt' });
+                        setShowSubmitConfirmPopup(true);
+                    }}
                     disabled={Object.keys(examUserAnswers).length === 0}
                     className="md:w-2/4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 transition-opacity"
                 >
@@ -188,6 +211,7 @@ const ExamMode: React.FC<ExamModeProps> = ({ questions: initialExamQuestions, on
                 isOpen={showSubmitConfirmPopup}
                 onClose={() => setShowSubmitConfirmPopup(false)}
                 onConfirm={() => {
+                    logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'submit_exam_confirm', unanswered_questions: unansweredQuestionsCount });
                     handleSubmitExam(false);
                     setShowSubmitConfirmPopup(false);
                 }}

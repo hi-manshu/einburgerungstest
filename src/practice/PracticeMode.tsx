@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { logAnalyticsEvent } from '../utils/analytics';
 import { Question, Option } from '../types'; // Import shared types
 
 // --- TypeScript Interface Definitions ---
@@ -38,6 +39,23 @@ const PracticeMode: React.FC<PracticeModeProps> = ({ questions: initialQuestions
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
     const [userAnswers, setUserAnswers] = useState<UserAnswers>({});
     const [showResults, setShowResults] = useState<boolean>(false);
+    const entryTimeRef = useRef<number | null>(null);
+
+    useEffect(() => {
+        entryTimeRef.current = Date.now();
+        return () => {
+            if (entryTimeRef.current) {
+                const duration = Date.now() - entryTimeRef.current;
+                logAnalyticsEvent('timing_complete', {
+                    name: 'practice_mode',
+                    value: duration,
+                    event_category: 'engagement',
+                    event_label: 'time_spent_on_practice'
+                });
+                entryTimeRef.current = null;
+            }
+        };
+    }, []);
 
     useEffect(() => {
         let shouldResetSession = false;

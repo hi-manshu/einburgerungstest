@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom"; // Import useNavigate and useLocation
+import { logAnalyticsEvent } from "../../utils/analytics";
 
 // HeaderProps is no longer needed if onSettingsClick is the only prop.
 // If there were other props, they would remain. For now, assuming it becomes an empty interface or removed.
@@ -11,6 +12,7 @@ const Header: React.FC = () => {
   const location = useLocation(); // Initialize useLocation
 
   const handleSettingsClick = () => {
+    logAnalyticsEvent('select_content', { content_type: 'icon', item_id: 'header_settings_icon' });
     navigate("/settings"); // Navigate to /settings route
   };
 
@@ -21,7 +23,10 @@ const Header: React.FC = () => {
           {/* Left Section: App Name */}
           <div className="flex-shrink-0">
             <a
-              href="/settings"
+              onClick={() => {
+                logAnalyticsEvent('select_content', { content_type: 'icon', item_id: 'header_home_icon' });
+                navigate("/");
+              }}
               className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text cursor-pointer"
             >
               <img
@@ -34,9 +39,12 @@ const Header: React.FC = () => {
           {/* Right Section: Settings Icon and GitHub Link */}
           <div className="flex items-center">
             {/* Home Button */}
-            {location.pathname === "/practice" && (
+            {location.pathname !== "/" && (
               <button
-                onClick={() => navigate("/")}
+                onClick={() => {
+                  logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'header_home_button' });
+                  navigate("/");
+                }}
                 aria-label="Home"
                 className="p-2 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors mr-2"
               >
@@ -74,6 +82,9 @@ const Header: React.FC = () => {
 
             {/* Link to the GitHub repository (existing code) */}
             <a
+              onClick={() => {
+                logAnalyticsEvent('select_content', { content_type: 'link', item_id: 'header_github_link' });
+              }}
               href="https://github.com/hi-manshu/einburgerungstest"
               target="_blank"
               rel="noopener noreferrer"

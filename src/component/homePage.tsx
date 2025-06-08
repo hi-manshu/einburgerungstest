@@ -1,4 +1,5 @@
 import React from "react";
+import { logAnalyticsEvent } from "../utils/analytics";
 
 interface HomePageProps {
   onStartPractice: (stateCode: string) => void;
@@ -43,7 +44,10 @@ const HomePage: React.FC<HomePageProps> = ({
           <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M6 16h.01"></path>
         </svg>
       ),
-      action: () => handleActivityNavigation(onStartPractice),
+      action: () => {
+        logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'start_practice', selected_state: selectedState });
+        handleActivityNavigation(onStartPractice);
+      },
     },
     {
       id: "exam",
@@ -62,7 +66,10 @@ const HomePage: React.FC<HomePageProps> = ({
           <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
       ),
-      action: () => handleActivityNavigation(onStartExam),
+      action: () => {
+        logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'start_exam', selected_state: selectedState });
+        handleActivityNavigation(onStartExam);
+      },
     },
     {
       id: "flashcards",
@@ -81,7 +88,10 @@ const HomePage: React.FC<HomePageProps> = ({
           <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4 3H9m3 4H9m3 4H9M9 9V6a3 3 0 013-3h.01"></path>
         </svg>
       ),
-      action: () => handleActivityNavigation(onStartFlashcards),
+      action: () => {
+        logAnalyticsEvent('select_content', { content_type: 'button', item_id: 'start_flashcards', selected_state: selectedState });
+        handleActivityNavigation(onStartFlashcards);
+      },
     },
   ];
 
