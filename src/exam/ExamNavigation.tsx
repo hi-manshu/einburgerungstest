@@ -1,6 +1,24 @@
 import React from 'react';
 
-const ExamNavigation = ({ currentExamQuestionIndex, totalQuestions, handleNavigation, handleSubmitExam, examUserAnswers }) => {
+interface ExamUserAnswers {
+    [key: string]: string; // Assuming questionId: selectedOptionId
+}
+
+interface ExamNavigationProps {
+    currentExamQuestionIndex: number;
+    totalQuestions: number;
+    handleNavigation: (direction: number) => void;
+    handleSubmitExam: (isTimeUp: boolean) => void;
+    examUserAnswers: ExamUserAnswers;
+}
+
+const ExamNavigation: React.FC<ExamNavigationProps> = ({
+    currentExamQuestionIndex,
+    totalQuestions,
+    handleNavigation,
+    handleSubmitExam,
+    examUserAnswers
+}) => {
     const hasAnswers = Object.keys(examUserAnswers).length > 0;
 
     return (
@@ -29,7 +47,7 @@ const ExamNavigation = ({ currentExamQuestionIndex, totalQuestions, handleNaviga
                 </button>
             ) : (
                 <button
-                    onClick={() => handleSubmitExam(false)}
+                    onClick={() => handleSubmitExam(false)} // isTimeUp is false for manual submit
                     disabled={!hasAnswers} // Disabled if no answers on the last question
                     className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors disabled:opacity-50">
                     Submit Results
