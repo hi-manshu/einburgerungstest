@@ -21,13 +21,19 @@ jobs:
         run: npm install # or yarn install
 
       - name: Install Vercel CLI
-        run: npm install -g vercel
+        run: |
+          echo "Installing Vercel CLI..."
+          npm install -g vercel
+          echo "Vercel CLI installed."
 
       - name: Pull Vercel Project Settings
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        run: |
+          echo "Pulling Vercel project settings..."
+          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          echo "Vercel project settings pulled."
 
       - name: Configure Firebase
         env:
@@ -39,11 +45,12 @@ jobs:
           FB_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
           FB_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
         run: |
+          echo "Starting Firebase configuration script..."
           chmod +x scripts/generate_firebase_config.sh
           ./scripts/generate_firebase_config.sh
+          echo "Firebase configuration script finished."
 
       - name: Build Project
-        run: npm run build # Or your project's build command
         env:
           # If your build step needs Firebase Admin SDK (e.g. for Next.js API routes during build)
           # and you created a service account file like 'firebase-service-account.json' (ensure name matches):
@@ -53,9 +60,16 @@ jobs:
           # Next.js automatically loads .env.local during build.
           # Ensure your Firebase initialization code reads these NEXT_PUBLIC_ variables.
           CI: false # Common practice for some build tools in CI
+        run: |
+          echo "Building project..."
+          npm run build # Or your project's build command
+          echo "Project build finished."
 
       - name: Deploy Project to Vercel
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: |
+          echo "Deploying project to Vercel..."
+          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
+          echo "Project deployment to Vercel finished."
