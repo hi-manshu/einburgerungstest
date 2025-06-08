@@ -6,6 +6,7 @@ import ExamResultsPage from './exam/ExamResultsPage';
 import FlashcardMode from './flashcard/FlashcardMode';
 import HomePage from './component/homePage';
 import SettingsPage from './component/SettingsPage'; // Import SettingsPage
+import BummerPage from '../component/BummerPage'; // Import BummerPage
 import { Question, StatesData, ExamResultsData, Language } from './types';
 
 interface AppRoutesProps {
@@ -53,12 +54,13 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
 }) => {
     return (
         <Routes>
-            <Route path="/" element={<HomePage
+            <Route path="/home" element={<HomePage
                 onStartPractice={onStartPractice}
                 onStartExam={onStartExam}
                 onStartFlashcards={onStartFlashcards}
                 selectedState={selectedState}
             />} />
+            <Route path="/" element={<Navigate to="/home" replace />} />
             <Route path="/practice" element={<PracticeMode
                 questions={practiceSessionQuestions}
                 onNavigateHome={onNavigateHome}
@@ -83,7 +85,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
                 onNavigateHome={onNavigateHome}
                 onRetryTest={onRetryTest}
                 onStartNewTest={onStartNewTest}
-            /> : <Navigate to="/" replace />} />
+            /> : <BummerPage />} />
             <Route path="/flashcards" element={<FlashcardMode
                 initialQuestions={flashcardSessionQuestions}
                 onNavigateHome={onNavigateHome}

@@ -76,7 +76,7 @@ const HomePage: React.FC<HomePageProps> = ({
                         </div>
                         <button
                             onClick={card.action}
-                            className="w-full mt-4 bg-blue-500 text-white py-2 px-4 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+                            className="w-full mt-4 bg-blue-500 text-white py-2 px-4 rounded-md transition-opacity duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
                         >
                             Start
                         </button>
