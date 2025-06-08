@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { logAnalyticsEvent } from "../utils/analytics";
+import { logAnalyticsEvent } from "../analytics/analytics";
 
 const Header: React.FC = () => {
   const navigate = useNavigate();

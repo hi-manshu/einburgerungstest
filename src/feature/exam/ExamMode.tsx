@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { logAnalyticsEvent } from "../utils/analytics";
+import { logAnalyticsEvent } from "../../analytics/analytics";
 import ExamTimer from "./ExamTimer";
 import QuestionDisplay from "./QuestionDisplay";
 import ExamNavigation from "./ExamNavigation";
 import SubmitConfirmPopup from "./components/SubmitConfirmPopup";
-import { Question, ExamUserAnswers, ExamResultsData } from "../types";
+import { Question, ExamUserAnswers, ExamResultsData } from "../../types";
 
 interface ExamModeProps {
   questions: Question[];
@@ -82,7 +82,7 @@ const ExamMode: React.FC<ExamModeProps> = ({
       timeRemaining,
       onShowResultsPage,
       selectedLanguageCode,
-    ],
+    ]
   );
 
   useEffect(() => {
@@ -134,7 +134,7 @@ const ExamMode: React.FC<ExamModeProps> = ({
 
   const handleExamAnswerSelection = (
     questionId: string,
-    selectedOptionId: string,
+    selectedOptionId: string
   ) => {
     setExamUserAnswers((prev) => ({ ...prev, [questionId]: selectedOptionId }));
   };

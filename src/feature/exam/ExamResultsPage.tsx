@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { Question, ExamUserAnswers, ExamResultsPageProps } from "../types";
+import { Question, ExamUserAnswers, ExamResultsPageProps } from "../../types";
 
 const perfectScoreMessages: string[] = [
   "Perfect Score! You Crushed It!",
@@ -95,7 +95,7 @@ const ExamResultsPage: React.FC<ExamResultsPageProps> = ({
 
   if (questionToDisplay) {
     const correctAnswerOption = questionToDisplay.options.find(
-      (opt) => opt.id === questionToDisplay.correct_answer,
+      (opt) => opt.id === questionToDisplay.correct_answer
     );
     correctAnswerTextDetails = correctAnswerOption
       ? correctAnswerOption.text
@@ -103,7 +103,7 @@ const ExamResultsPage: React.FC<ExamResultsPageProps> = ({
 
     if (userAnswerDetails !== undefined) {
       const userAnswerOption = questionToDisplay.options.find(
-        (opt) => opt.id === userAnswerDetails,
+        (opt) => opt.id === userAnswerDetails
       );
       userAnswerTextDetails = userAnswerOption ? userAnswerOption.text : "N/A";
     }
@@ -238,7 +238,6 @@ const ExamResultsPage: React.FC<ExamResultsPageProps> = ({
               {selectedLanguageCode !== "de" &&
                 questionToDisplay.question_text_translation && (
                   <p className="text-md text-gray-600 mb-3 italic">
-                    ({getLanguageName(selectedLanguageCode)}){" "}
                     {questionToDisplay.question_text_translation}
                   </p>
                 )}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { logAnalyticsEvent } from "../utils/analytics";
-import { Question, Option } from "../types";
+import { logAnalyticsEvent } from "../../analytics/analytics";
+import { Question, Option } from "../../types";
 
 interface UserAnswer {
   answer: string | null;
@@ -89,7 +89,7 @@ const PracticeMode: React.FC<PracticeModeProps> = ({
 
   const handleAnswerSelection = (
     questionId: string,
-    selectedOptionId: string,
+    selectedOptionId: string
   ) => {
     if (userAnswers[questionId]?.answer) return;
     const question = questions.find((q) => q.id === questionId);
@@ -148,13 +148,13 @@ const PracticeMode: React.FC<PracticeModeProps> = ({
 
   if (showResults) {
     const answeredCount = Object.keys(userAnswers).filter(
-      (qid) => userAnswers[qid]?.answer !== null,
+      (qid) => userAnswers[qid]?.answer !== null
     ).length;
     const correctCount = Object.values(userAnswers).filter(
-      (ans) => ans?.correct,
+      (ans) => ans?.correct
     ).length;
     const markedCount = Object.values(userAnswers).filter(
-      (ans) => ans?.marked,
+      (ans) => ans?.marked
     ).length;
     return (
       <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg max-w-2xl mx-auto text-center">
@@ -224,7 +224,7 @@ const PracticeMode: React.FC<PracticeModeProps> = ({
           </h3>
           {currentQuestion.question_text_translation && (
             <p className="text-sm text-gray-500 mt-1 mb-4 italic">
-              {`(${getLanguageName(selectedLanguageCode)}) ${currentQuestion.question_text_translation}`}
+              {`${currentQuestion.question_text_translation}`}
             </p>
           )}
           <div className="space-y-3">
@@ -260,7 +260,7 @@ const PracticeMode: React.FC<PracticeModeProps> = ({
                   </div>
                   {opt.text_translation && (
                     <div className="italic text-xs text-gray-500 ml-6 mt-1">
-                      {`(${getLanguageName(selectedLanguageCode)}) ${opt.text_translation}`}
+                      {`${opt.text_translation}`}
                     </div>
                   )}
                 </button>

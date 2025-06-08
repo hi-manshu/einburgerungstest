@@ -1,9 +1,9 @@
 import React from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import PracticeMode from "./practice/PracticeMode";
-import ExamMode from "./exam/ExamMode";
-import ExamResultsPage from "./exam/ExamResultsPage";
-import FlashcardMode from "./flashcard/FlashcardMode";
+import PracticeMode from "../src/feature/practice/PracticeMode";
+import ExamMode from "../src/feature/exam/ExamMode";
+import ExamResultsPage from "../src/feature/exam/ExamResultsPage";
+import FlashcardMode from "./feature/flashcard/FlashcardMode";
 import HomePage from "./component/HomePage";
 import SettingsPage from "./component/SettingsPage";
 import BummerPage from "./component/BummerPage";

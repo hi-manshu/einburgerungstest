@@ -1,5 +1,5 @@
 import React from "react";
-import { logAnalyticsEvent } from "../utils/analytics";
+import { logAnalyticsEvent } from "../analytics/analytics";
 
 interface HomePageProps {
   onStartPractice: (stateCode: string) => void;
@@ -15,11 +15,11 @@ const HomePage: React.FC<HomePageProps> = ({
   selectedState,
 }) => {
   const handleActivityNavigation = (
-    activityStartFunction: (stateCode: string) => void,
+    activityStartFunction: (stateCode: string) => void
   ) => {
     if (!selectedState) {
       alert(
-        "Please ensure your state is selected (you might need to refresh or clear site data if issues persist).",
+        "Please ensure your state is selected (you might need to refresh or clear site data if issues persist)."
       );
       return;
     }

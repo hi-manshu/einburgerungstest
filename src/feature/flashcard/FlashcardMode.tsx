@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import { logAnalyticsEvent } from "../utils/analytics";
-import shuffleArray from "../utils/shuffleArray";
-import { Question, Option } from "../types"; // Import shared types
+import { logAnalyticsEvent } from "../../analytics/analytics";
+import shuffleArray from "../../utils/shuffleArray";
+import { Question, Option } from "../../types"; // Import shared types
 
 interface FlashcardModeProps {
   initialQuestions: Question[];
@@ -83,7 +83,7 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
   const getCorrectAnswerText = (card: Question | null): string => {
     if (!card || !card.options || !card.correct_answer) return "N/A";
     const correctOption = card.options.find(
-      (opt) => opt.id === card.correct_answer,
+      (opt) => opt.id === card.correct_answer
     );
     if (!correctOption) return "N/A";
     return `${card.correct_answer.toUpperCase()}. ${correctOption.text}`;
@@ -93,7 +93,7 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
     if (!currentCard) return;
     if (timerIdRef.current) clearTimeout(timerIdRef.current);
     setFeedback(
-      `Zeit abgelaufen! Richtig: ${getCorrectAnswerText(currentCard)}`,
+      `Zeit abgelaufen! Richtig: ${getCorrectAnswerText(currentCard)}`
     );
     setShowingAnswer(true);
   };
@@ -119,7 +119,7 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
       });
       feedbackTimeoutIdRef.current = setTimeout(() => {
         setRemainingQuestions((prev) =>
-          prev.filter((q) => q.id !== currentCard!.id),
+          prev.filter((q) => q.id !== currentCard!.id)
         );
       }, 1500);
     } else {
@@ -142,7 +142,7 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
       card_id: currentCard.id,
     });
     setRemainingQuestions((prev) =>
-      prev.filter((q) => q.id !== currentCard!.id),
+      prev.filter((q) => q.id !== currentCard!.id)
     );
   };
 

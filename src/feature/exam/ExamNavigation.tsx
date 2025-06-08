@@ -1,5 +1,5 @@
 import React from "react";
-import { logAnalyticsEvent } from "../utils/analytics";
+import { logAnalyticsEvent } from "../../analytics/analytics";
 
 interface ExamUserAnswers {
   [key: string]: string;
