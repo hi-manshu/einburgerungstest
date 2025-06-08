@@ -57,18 +57,15 @@ const App: React.FC = () => {
     }, []);
 
     const handleSavePreferences = useCallback(() => {
-        // State and language are already updated by onStateChange and onLanguageChange
-        // which are passed to the dialog.
-        // We just need to ensure they are saved to localStorage, which those handlers already do.
-        // Then, hide the dialog.
-        if (localStorage.getItem('selectedState') && localStorage.getItem('selectedLanguage')) {
-            setShowOnboardingDialog(false);
-        } else {
-            // This case should ideally be prevented by the dialog's own save button logic
-            console.warn("Attempted to save preferences without state or language selected.");
-            // Optionally, provide feedback to the user here if this state is reachable.
-        }
-    }, []);
+        // The button in OnboardingDialog is enabled by its 'disabled' prop,
+        // which checks if selectedState and selectedLanguage (props from App.tsx's state) are set.
+        // If this handleSavePreferences function is called, it means the button was enabled,
+        // implying that selectedState and selectedLanguage in App.tsx's state are populated.
+        // The handleStateChange and handleLanguageChange callbacks (also passed to the dialog)
+        // are responsible for updating both App.tsx's React state and localStorage.
+        // Therefore, we can directly proceed to hide the dialog.
+        setShowOnboardingDialog(false);
+    }, [setShowOnboardingDialog]); // setShowOnboardingDialog is stable and correctly listed as a dependency.
 
     useEffect(() => {
         const fetchInitialData = async () => {
