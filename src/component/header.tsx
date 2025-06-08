@@ -25,6 +25,15 @@ const Header: React.FC = () => { // No props needed now for this specific change
 
                     {/* Right Section: Settings Icon and GitHub Link */}
                     <div className="flex items-center">
+                        {/* Home Button */}
+                        <button
+                            onClick={() => navigate('/')}
+                            aria-label="Home"
+                            className="p-2 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors mr-2" // Adjusted margin to mr-2
+                        >
+                            Home
+                        </button>
+
                         {/* Settings Icon Button */}
                         <button
                             onClick={handleSettingsClick} // Updated onClick handler
