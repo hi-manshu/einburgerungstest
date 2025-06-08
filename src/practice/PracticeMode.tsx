@@ -198,7 +198,7 @@ const PracticeMode: React.FC<PracticeModeProps> = ({ questions: initialQuestions
                             {currentQuestion.explanation && <p className="text-sm mt-1">{currentQuestion.explanation}</p>}
                         </div>
                     )}
-                    <div className="mt-6 flex justify-between items-center">
+                    <div className="mt-6 flex justify-between items-center mb-2">
                         <button onClick={() => handleNavigate(-1)} disabled={currentQuestionIndex === 0} className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50">
                     Prev
                 </button>
@@ -212,9 +212,6 @@ const PracticeMode: React.FC<PracticeModeProps> = ({ questions: initialQuestions
                     </button>
                 )}
             </div>
-            <button onClick={onNavigateHome} className="mt-6 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded w-full">
-                Home
-            </button>
                 </>
             )}
         </div>
