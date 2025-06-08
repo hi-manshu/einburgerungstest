@@ -4,12 +4,6 @@
 
 🌐 [Visit the live app: einburgerungstest-practice.de](https://www.einburgerungstest-practice.de)
 
-![Build Status](https://github.com/hi-manshu/einburgerungstest/actions/workflows/vercel_deploy.yml/badge.svg)
-![GitHub stars](https://img.shields.io/github/stars/hi-manshu/einburgerungstest?style=social)
-![GitHub forks](https://img.shields.io/github/forks/hi-manshu/einburgerungstest?style=social)
-![GitHub issues](https://img.shields.io/github/issues/hi-manshu/einburgerungstest)
-![GitHub visitors](https://visitor-badge.glitch.me/badge?page_id=hi-manshu.einburgerungstest)
-
 ## Einbürgerungstest – German Naturalization Test
 
 The **Einbürgerungstest** is the official German naturalization (citizenship) test. It consists of **33 multiple-choice questions** covering essential topics such as German history, politics, society, and values. To pass, you must correctly answer **at least 17 questions** within the allotted time.
