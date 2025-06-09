@@ -7,14 +7,16 @@ import FlashcardMode from "./feature/flashcard/FlashcardMode";
 import HomePage from "./component/HomePage";
 import SettingsPage from "./component/SettingsPage";
 import BummerPage from "./component/BummerPage";
-import StatePracticeMode from "./feature/state-practice/StatePracticeMode"; // Add this
+import StatePracticeMode from "./feature/state-practice/StatePracticeMode";
+import PracticeByCategoryMode from "./feature/practice/PracticeByCategoryMode"; // Added this
 import { Question, StatesData, ExamResultsData, Language } from "./types";
 
 interface AppRoutesProps {
   onStartPractice: (stateCode: string) => void;
   onStartExam: (stateCode: string) => void;
   onStartFlashcards: (stateCode: string) => void;
-  onStartStatePractice: (stateCode: string) => void; // New prop
+  onStartStatePractice: (stateCode: string) => void;
+  onStartPracticeByCategory: (stateCode: string) => void; // Added for the new card
 
   statesData: StatesData;
   selectedState: string;
@@ -45,7 +47,8 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
   onStartPractice,
   onStartExam,
   onStartFlashcards,
-  onStartStatePractice, // New prop
+  onStartStatePractice,
+  onStartPracticeByCategory, // Added for the new card
   statesData,
   selectedState,
   onStateChange,
@@ -74,9 +77,10 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
             onStartPractice={onStartPractice}
             onStartExam={onStartExam}
             onStartFlashcards={onStartFlashcards}
-            onStartStatePractice={onStartStatePractice} // Pass it here
+            onStartStatePractice={onStartStatePractice}
+            onStartPracticeByCategory={onStartPracticeByCategory} // Pass it here
             selectedState={selectedState}
-            statesData={statesData} // Pass statesData
+            statesData={statesData}
           />
         }
       />
@@ -148,7 +152,17 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
           />
         }
       />
-
+      {/* Placeholder for Practice by Category */}
+      <Route
+        path="/practice-by-category"
+        element={
+          <PracticeByCategoryMode
+            onNavigateHome={onNavigateHome}
+            selectedLanguageCode={selectedLanguage}
+            enablePracticeTranslation={enablePracticeTranslation}
+          />
+        }
+      />
       <Route
         path="/settings"
         element={
@@ -167,5 +181,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
     </Routes>
   );
 };
+
+// Simple placeholder component has been removed as it's no longer used.
 
 export default AppRoutes;

@@ -7,6 +7,7 @@ interface HomePageProps {
   onStartExam: (stateCode: string) => void;
   onStartFlashcards: (stateCode: string) => void;
   onStartStatePractice: (stateCode: string) => void;
+  onStartPracticeByCategory: (stateCode: string) => void; // Added this
   selectedState: string;
   statesData: StatesData;
 }
@@ -16,6 +17,7 @@ const HomePage: React.FC<HomePageProps> = ({
   onStartExam,
   onStartFlashcards,
   onStartStatePractice,
+  onStartPracticeByCategory, // Added this
   selectedState,
   statesData,
 }) => {
@@ -93,6 +95,34 @@ const HomePage: React.FC<HomePageProps> = ({
           selected_state: selectedState,
         });
         handleActivityNavigation(onStartPractice);
+      },
+    },
+    {
+      id: "practice-by-category",
+      title: "Practice by Category",
+      subtitle: "Practice questions based on specific categories.",
+      icon: (
+        <svg
+          className="w-12 h-12 mb-4 text-yellow-500" // Changed color
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          {/* Using a generic list/category icon */}
+          <path d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+        </svg>
+      ),
+      action: () => {
+        logAnalyticsEvent("select_content", {
+          content_type: "button",
+          item_id: "start_practice_by_category",
+          selected_state: selectedState,
+        });
+        // Assuming navigation to /practice-by-category will be handled by onStartPracticeByCategory
+        handleActivityNavigation(onStartPracticeByCategory);
       },
     },
     {
