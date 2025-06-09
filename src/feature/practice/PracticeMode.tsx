@@ -227,6 +227,17 @@ const PracticeMode: React.FC<PracticeModeProps> = ({
               {`${currentQuestion.question_text_translation}`}
             </p>
           )}
+          {/* START: Added image display */}
+          {currentQuestion.image && (
+            <div className="my-4 text-center"> {/* Added text-center to center the image if it's smaller than container */}
+              <img
+                src={currentQuestion.image}
+                alt={`Illustration for question ${currentQuestion.id}`}
+                className="max-w-full h-auto rounded-md shadow-sm inline-block" // inline-block for text-center to take effect
+              />
+            </div>
+          )}
+          {/* END: Added image display */}
           <div className="space-y-3">
             {currentQuestion.options.map((opt: Option) => {
               let btnClass = "border-gray-300 hover:bg-gray-100 text-gray-800";

@@ -224,6 +224,7 @@ const App: React.FC = () => {
             newQuestion.context ||
             "",
           state_code: stateCode,
+          image: (newQuestion.image && newQuestion.image.trim() !== "" && newQuestion.image !== "-") ? newQuestion.image : undefined, // Added image handling
         };
       }
     );

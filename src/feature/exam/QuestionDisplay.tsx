@@ -53,6 +53,17 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
       <h3 className="text-lg md:text-xl font-medium mb-1">
         {currentQuestion.question_text}
       </h3>
+      {/* START: Added image display */}
+      {currentQuestion.image && (
+        <div className="my-4 text-center">
+          <img
+            src={currentQuestion.image}
+            alt={`Illustration for question ${currentQuestion.id}`}
+            className="max-w-full h-auto rounded-md shadow-sm inline-block"
+          />
+        </div>
+      )}
+      {/* END: Added image display */}
       {!isExamMode && currentQuestion.question_text_translation && (
         <p className="text-sm text-gray-500 mt-1 mb-4 italic">
           {`(${getLanguageName(selectedLanguageCode)}) ${currentQuestion.question_text_translation}`}

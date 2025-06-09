@@ -38,12 +38,6 @@ const StatePracticeMode: React.FC<StatePracticeModeProps> = ({
         <p className="text-xl text-gray-700 mb-4">
           No specific practice questions available for this state, or an error occurred.
         </p>
-        <button
-          onClick={onNavigateHome}
-          className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded"
-        >
-          Back to Home
-        </button>
       </div>
     );
   }
@@ -85,6 +79,17 @@ const StatePracticeMode: React.FC<StatePracticeModeProps> = ({
           {currentQuestion.question_text_translation}
         </p>
       )}
+      {/* START: Added image display */}
+      {currentQuestion.image && (
+        <div className="my-4 text-center">
+          <img
+            src={currentQuestion.image}
+            alt={`Illustration for question ${currentQuestion.id}`}
+            className="max-w-full h-auto rounded-md shadow-sm inline-block"
+          />
+        </div>
+      )}
+      {/* END: Added image display */}
       <div className="space-y-3">
         {currentQuestion.options.map((opt: Option) => {
           let btnClass = "border-gray-300 hover:bg-gray-100 text-gray-800";
@@ -147,14 +152,6 @@ const StatePracticeMode: React.FC<StatePracticeModeProps> = ({
           Next
         </button>
       </div>
-       <div className="mt-6 text-center">
-          <button
-            onClick={onNavigateHome}
-            className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded"
-          >
-            Back to Home
-          </button>
-        </div>
     </div>
   );
 };
