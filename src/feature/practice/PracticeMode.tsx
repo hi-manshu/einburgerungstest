@@ -33,6 +33,30 @@ const getLanguageName = (code: string): string => {
   return languageMap[code] || code;
 };
 
+// Message arrays adapted from ExamResultsPage.tsx
+const perfectScoreMessages: string[] = [
+  "Perfect Score! You Crushed It!",
+  "Flawless Victory!",
+  "Nailed It! You’re the Gold Standard!",
+  "This Practice Didn’t Stand a Chance!",
+  "Zero Mistakes. All Brilliance.",
+];
+const passedMessages: string[] = [
+  "Well Done! You Passed With Style!",
+  "On Point! Keep the Momentum Going!",
+  "Solid Work! You’ve Got This!",
+  "Good Job! Just a Few More to Perfection.",
+  "You Did It—And You’re Just Getting Started!",
+];
+const failedMessages: string[] = [
+  "Keep Practicing, You Can Do It!",
+  "Not This Time—But You’re Closer Than You Think!",
+  "Failure’s Just a Stepping Stone—Let’s Try Again!",
+  "Missed the Mark? Reset and Fire Again!",
+  "Oops! Time to Learn and Level Up!",
+  "Practice Mode: Activated. Powering Up…",
+];
+
 const PracticeMode: React.FC<PracticeModeProps> = ({
   questions: initialQuestions,
   onNavigateHome,
@@ -158,16 +182,53 @@ const PracticeMode: React.FC<PracticeModeProps> = ({
     const markedCount = Object.values(userAnswers).filter(
       (ans) => ans?.marked
     ).length;
+    const correctCount = Object.values(userAnswers).filter(
+      (ans) => ans?.correct
+    ).length;
+    const markedCount = Object.values(userAnswers).filter(
+      (ans) => ans?.marked
+    ).length;
+
+    const totalQuestions = questions.length;
+    const scorePercentage =
+      totalQuestions > 0 ? (correctCount / totalQuestions) * 100 : 0;
+
+    let messageArray: string[];
+    let messageColor: string;
+
+    if (scorePercentage === 100 && totalQuestions > 0) {
+      messageArray = perfectScoreMessages;
+      messageColor = "text-green-600";
+    } else if (scorePercentage >= 60) {
+      messageArray = passedMessages;
+      messageColor = "text-green-600";
+    } else {
+      messageArray = failedMessages;
+      messageColor = "text-red-600";
+    }
+    const encouragingMessage =
+      messageArray[Math.floor(Math.random() * messageArray.length)];
+
     return (
       <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg max-w-2xl mx-auto text-center">
         <h2 className="text-2xl font-bold mb-4">Practice Results</h2>
-        <p className="text-lg mb-2">Total: {questions.length}</p>
-        <p className="text-lg mb-2">Answered: {answeredCount}</p>
-        <p className="text-lg mb-2">
-          Correct:{" "}
-          <span className="font-semibold text-green-600">{correctCount}</span>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-4 text-lg">
+          <div>Total Questions:</div>
+          <div>{totalQuestions}</div>
+          <div>Answered:</div>
+          <div>{answeredCount}</div>
+          <div>Correct:</div>
+          <div className="font-semibold text-green-600">{correctCount}</div>
+          <div>Marked for Review:</div>
+          <div>{markedCount}</div>
+          <div>Your Score:</div>
+          <div className={`font-semibold ${messageColor}`}>
+            {scorePercentage.toFixed(0)}%
+          </div>
+        </div>
+        <p className={`text-xl font-semibold my-5 ${messageColor}`}>
+          {encouragingMessage}
         </p>
-        <p className="text-lg mb-4">Marked: {markedCount}</p>
         <div className="mt-6">
           <button
             onClick={handleRestart}
