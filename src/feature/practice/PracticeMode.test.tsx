@@ -56,14 +56,15 @@ const mockSimplePracticeQuestions: Question[] = [
 ];
 
 // New mock questions with category and state_code for category filter tests
-const mockQuestionsWithCategories: Question[] = [
+const mockQuestionsWithCategoriesUpdated: Question[] = [
   { id: 'q1', question_text: 'Q1 Text: History', category: 'History', options: [{id:'a',text:'OptA'}], correct_answer: 'a', state_code: 'S1', explanation: 'Expl1' },
-  { id: 'q2', question_text: 'Q2 Text: Math', category: 'Math', options: [{id:'a',text:'OptA'}], correct_answer: 'a', state_code: 'S2', explanation: 'Expl2' },
+  { id: 'q2', question_text: 'Q2 Text: Math', category: 'Math', options: [{id:'a',text:'OptA'}], correct_answer: 'a', state_code: 'S2A', explanation: 'Expl2' },
   { id: 'q3', question_text: 'Q3 Text: History', category: 'History', options: [{id:'a',text:'OptA'}], correct_answer: 'a', state_code: 'S3', explanation: 'Expl3' },
   { id: 'q4', question_text: 'Q4 Text: Science', category: 'Science', options: [{id:'a',text:'OptA'}], correct_answer: 'a', state_code: 'S1', explanation: 'Expl4' },
-  { id: 'q5', question_text: 'Q5 Text: Math', category: 'Math', options: [{id:'a',text:'OptA'}], correct_answer: 'a', state_code: 'S2', explanation: 'Expl5' },
-  { id: 'q6', question_text: 'Q6 Text: S2 (No Cat)', options: [{id:'a',text:'OptA'}], correct_answer: 'a', state_code: 'S2', explanation: 'Expl6' }, // Will use state_code 'S2' as category
-  { id: 'q7', question_text: 'Q7 Text: Unique', category: 'UniqueCategory', options: [{id:'a',text:'OptA'}], correct_answer: 'a', state_code: 'S4', explanation: 'Expl7' }, // For single question category test
+  { id: 'q5', question_text: 'Q5 Text: Math', category: 'Math', options: [{id:'a',text:'OptA'}], correct_answer: 'a', state_code: 'S2B', explanation: 'Expl5' },
+  { id: 'q6', question_text: 'Q6 Text: No Category', options: [{id:'a',text:'OptA'}], correct_answer: 'a', state_code: 'S2C', explanation: 'Expl6' }, // No category
+  { id: 'q7', question_text: 'Q7 Text: Unique', category: 'UniqueCategory', options: [{id:'a',text:'OptA'}], correct_answer: 'a', state_code: 'S4', explanation: 'Expl7' },
+  { id: 'q8', question_text: 'Q8 Text: Category S2', category: 'S2', options: [{id:'a',text:'OptA'}], correct_answer: 'a', state_code: 'S5', explanation: 'Expl8' } // Explicit category 'S2'
 ];
 
 
@@ -157,7 +158,8 @@ describe('PracticeMode', () => {
   test('displays passed score (>=60%) message correctly', () => {
     render(
       <PracticeMode
-        questions={mockPracticeQuestions}
+        questions={mockSimplePracticeQuestions} // Corrected variable name
+        questions={mockSimplePracticeQuestions} // Corrected variable name
         onNavigateHome={mockOnNavigateHome}
         selectedLanguageCode="en"
         enablePracticeTranslation={false}
@@ -280,7 +282,7 @@ describe('PracticeMode - Category Filtering', () => {
   test('renders category selector with "All" selected by default and shows all questions', () => {
     render(
       <PracticeMode
-        questions={mockQuestionsWithCategories}
+        questions={mockQuestionsWithCategoriesUpdated} // Use updated mock
         onNavigateHome={mockOnNavigateHome}
         selectedLanguageCode="en"
         enablePracticeTranslation={false}
@@ -292,13 +294,13 @@ describe('PracticeMode - Category Filtering', () => {
 
     // Check first question of all is displayed
     expect(screen.getByText('Q1 Text: History')).toBeInTheDocument();
-    expect(screen.getByText('Q 1/7')).toBeInTheDocument(); // 7 total questions in mock
+    expect(screen.getByText('Q 1/8')).toBeInTheDocument(); // 8 total questions in updated mock
   });
 
   test('populates category selector correctly', () => {
     render(
       <PracticeMode
-        questions={mockQuestionsWithCategories}
+        questions={mockQuestionsWithCategoriesUpdated} // Use updated mock
         onNavigateHome={mockOnNavigateHome}
         selectedLanguageCode="en"
         enablePracticeTranslation={false}
@@ -306,15 +308,15 @@ describe('PracticeMode - Category Filtering', () => {
     );
     const categorySelect = screen.getByLabelText(/Filter by Category:/i);
     const options = Array.from(categorySelect.querySelectorAll('option')).map(opt => opt.value);
-    // Expected categories: All, History, Math, Science, S2 (from q6 state_code), UniqueCategory
-    expect(options).toEqual(expect.arrayContaining(['All', 'History', 'Math', 'Science', 'S2', 'UniqueCategory']));
-    expect(options.length).toBe(6); // 5 unique + "All"
+    // Expected categories: All, History, Math, Science, UniqueCategory, S2. q6 (No Category) does not contribute.
+    expect(options).toEqual(expect.arrayContaining(['All', 'History', 'Math', 'Science', 'UniqueCategory', 'S2']));
+    expect(options.length).toBe(6); // 5 unique explicit categories + "All"
   });
 
   test('filters questions when a category is selected and resets index', () => {
     render(
       <PracticeMode
-        questions={mockQuestionsWithCategories}
+        questions={mockQuestionsWithCategoriesUpdated} // Use updated mock
         onNavigateHome={mockOnNavigateHome}
         selectedLanguageCode="en"
         enablePracticeTranslation={false}
@@ -332,13 +334,13 @@ describe('PracticeMode - Category Filtering', () => {
     fireEvent.click(screen.getByText('OptA')); // Answer Q1
     fireEvent.click(screen.getByRole('button', { name: /Next/i }));
     expect(screen.getByText('Q3 Text: History')).toBeInTheDocument(); // Second History question
-    expect(screen.getByText('Q 2/2')).toBeInTheDocument();
+    expect(screen.getByText('Q 2/2')).toBeInTheDocument(); // History has q1, q3
   });
 
-  test('filters by state_code when category field is missing and resets index', () => {
+  test('filters by explicit "S2" category correctly', () => { // Renamed and logic updated
     render(
       <PracticeMode
-        questions={mockQuestionsWithCategories}
+        questions={mockQuestionsWithCategoriesUpdated} // Use updated mock
         onNavigateHome={mockOnNavigateHome}
         selectedLanguageCode="en"
         enablePracticeTranslation={false}
@@ -346,29 +348,17 @@ describe('PracticeMode - Category Filtering', () => {
     );
     const categorySelect = screen.getByLabelText(/Filter by Category:/i);
 
-    // Select "S2" (derived from state_code for q6, also q2 and q5 have state_code S2 and category Math)
-    // The logic is (q.category === selectedCategory) || q.state_code === selectedCategory
-    // q2 (Math, S2), q5 (Math, S2), q6 (No Cat, S2)
+    // Select "S2" category (now only q8 has this category explicitly)
     fireEvent.change(categorySelect, { target: { value: 'S2' } });
     expect(categorySelect).toHaveValue('S2');
-    expect(screen.getByText('Q2 Text: Math')).toBeInTheDocument(); // q2 is first with state_code S2
-    expect(screen.getByText('Q 1/3')).toBeInTheDocument(); // q2, q5, q6 match S2
-
-    fireEvent.click(screen.getByText('OptA'));
-    fireEvent.click(screen.getByRole('button', { name: /Next/i }));
-    expect(screen.getByText('Q5 Text: Math')).toBeInTheDocument();
-    expect(screen.getByText('Q 2/3')).toBeInTheDocument();
-
-    fireEvent.click(screen.getByText('OptA'));
-    fireEvent.click(screen.getByRole('button', { name: /Next/i }));
-    expect(screen.getByText('Q6 Text: S2 (No Cat)')).toBeInTheDocument();
-    expect(screen.getByText('Q 3/3')).toBeInTheDocument();
+    expect(screen.getByText('Q8 Text: Category S2')).toBeInTheDocument(); // q8 is the only one in category "S2"
+    expect(screen.getByText('Q 1/1')).toBeInTheDocument(); // Only 1 question in category "S2"
   });
 
   test('switches back to "All" category correctly', () => {
     render(
       <PracticeMode
-        questions={mockQuestionsWithCategories}
+        questions={mockQuestionsWithCategoriesUpdated} // Use updated mock
         onNavigateHome={mockOnNavigateHome}
         selectedLanguageCode="en"
         enablePracticeTranslation={false}
@@ -383,13 +373,13 @@ describe('PracticeMode - Category Filtering', () => {
     fireEvent.change(categorySelect, { target: { value: 'All' } });
     expect(categorySelect).toHaveValue('All');
     expect(screen.getByText('Q1 Text: History')).toBeInTheDocument(); // First question overall
-    expect(screen.getByText('Q 1/7')).toBeInTheDocument();
+    expect(screen.getByText('Q 1/8')).toBeInTheDocument(); // Total 8 questions
   });
 
   test('resets quiz progress (index and answers) when category changes', () => {
     render(
       <PracticeMode
-        questions={mockQuestionsWithCategories}
+        questions={mockQuestionsWithCategoriesUpdated} // Use updated mock
         onNavigateHome={mockOnNavigateHome}
         selectedLanguageCode="en"
         enablePracticeTranslation={false}
@@ -443,7 +433,7 @@ describe('PracticeMode - Category Filtering', () => {
     // Let's try to simulate it by having a category with one question, and then selecting it.
     render(
       <PracticeMode
-        questions={mockQuestionsWithCategories} // Contains 'UniqueCategory' with q7
+        questions={mockQuestionsWithCategoriesUpdated} // Contains 'UniqueCategory' with q7
         onNavigateHome={mockOnNavigateHome}
         selectedLanguageCode="en"
         enablePracticeTranslation={false}

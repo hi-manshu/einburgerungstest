@@ -98,11 +98,9 @@ const PracticeMode: React.FC<PracticeModeProps> = ({
     setAllQuestionsForMode(initialQuestions);
     const uniqueCategories = new Set<string>();
     initialQuestions.forEach(q => {
-      if (q.category) {
+      // Only use 'category' field and ensure it's a non-empty string
+      if (q.category && (q.category as string).trim() !== "") {
         uniqueCategories.add(q.category as string);
-      } else if (q.state_code) {
-        // Using state_code as a fallback category if an explicit 'category' field doesn't exist.
-        uniqueCategories.add(q.state_code);
       }
     });
     setCategories(['All', ...Array.from(uniqueCategories)]);
@@ -116,8 +114,9 @@ const PracticeMode: React.FC<PracticeModeProps> = ({
     if (selectedCategory === 'All') {
       filteredQuestions = allQuestionsForMode;
     } else {
+      // Filter strictly by category field
       filteredQuestions = allQuestionsForMode.filter(q =>
-        (q.category as string === selectedCategory) || q.state_code === selectedCategory
+        q.category === selectedCategory
       );
     }
     setQuestions(filteredQuestions);
