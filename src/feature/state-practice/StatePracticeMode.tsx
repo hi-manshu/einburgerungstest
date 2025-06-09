@@ -7,6 +7,7 @@ interface StatePracticeModeProps {
   questions: Question[];
   onNavigateHome: () => void;
   selectedLanguageCode: string;
+  enableTranslation: boolean;
 }
 
 // Minimal UserAnswer type for this mode
@@ -22,6 +23,7 @@ const StatePracticeMode: React.FC<StatePracticeModeProps> = ({
   questions,
   onNavigateHome,
   selectedLanguageCode,
+  enableTranslation,
 }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [userAnswers, setUserAnswers] = useState<UserAnswers>({});
@@ -36,7 +38,8 @@ const StatePracticeMode: React.FC<StatePracticeModeProps> = ({
     return (
       <div className="text-center p-4">
         <p className="text-xl text-gray-700 mb-4">
-          No specific practice questions available for this state, or an error occurred.
+          No specific practice questions available for this state, or an error
+          occurred.
         </p>
       </div>
     );
@@ -44,9 +47,13 @@ const StatePracticeMode: React.FC<StatePracticeModeProps> = ({
 
   const currentQuestion = questions[currentQuestionIndex];
   const userAnswerInfo = userAnswers[currentQuestion.id];
-  const isAnswered = userAnswerInfo?.answer !== null && userAnswerInfo?.answer !== undefined;
+  const isAnswered =
+    userAnswerInfo?.answer !== null && userAnswerInfo?.answer !== undefined;
 
-  const handleAnswerSelection = (questionId: string, selectedOptionId: string) => {
+  const handleAnswerSelection = (
+    questionId: string,
+    selectedOptionId: string
+  ) => {
     if (userAnswers[questionId]?.answer) return; // Already answered
     const question = questions.find((q) => q.id === questionId);
     if (!question) return;
@@ -69,17 +76,17 @@ const StatePracticeMode: React.FC<StatePracticeModeProps> = ({
   return (
     <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg max-w-3xl mx-auto">
       <p className="text-sm text-gray-600 mb-3">
-        State Practice: Question {currentQuestionIndex + 1} of {questions.length}
+        State Practice: Question {currentQuestionIndex + 1} of{" "}
+        {questions.length}
       </p>
       <h3 className="text-lg md:text-xl font-semibold mb-1">
         {currentQuestion.question_text}
       </h3>
-      {currentQuestion.question_text_translation && (
+      {enableTranslation && currentQuestion.question_text_translation && (
         <p className="text-sm text-gray-500 mt-1 mb-4 italic">
           {currentQuestion.question_text_translation}
         </p>
       )}
-      {/* START: Added image display */}
       {currentQuestion.image && (
         <div className="my-4 text-center">
           <img
@@ -89,7 +96,6 @@ const StatePracticeMode: React.FC<StatePracticeModeProps> = ({
           />
         </div>
       )}
-      {/* END: Added image display */}
       <div className="space-y-3">
         {currentQuestion.options.map((opt: Option) => {
           let btnClass = "border-gray-300 hover:bg-gray-100 text-gray-800";
@@ -99,9 +105,11 @@ const StatePracticeMode: React.FC<StatePracticeModeProps> = ({
                 ? "bg-green-200 border-green-400 text-green-800 pointer-events-none"
                 : "bg-red-200 border-red-400 text-red-800 pointer-events-none";
             } else if (opt.id === currentQuestion.correct_answer) {
-              btnClass = "bg-green-100 border-green-300 text-green-700 pointer-events-none opacity-90";
+              btnClass =
+                "bg-green-100 border-green-300 text-green-700 pointer-events-none opacity-90";
             } else {
-              btnClass = "border-gray-200 text-gray-500 pointer-events-none opacity-70";
+              btnClass =
+                "border-gray-200 text-gray-500 pointer-events-none opacity-70";
             }
           }
           return (
@@ -112,9 +120,10 @@ const StatePracticeMode: React.FC<StatePracticeModeProps> = ({
               className={`option-btn block w-full text-left p-3 border rounded-md transition-all ${btnClass}`}
             >
               <div>
-                <span className="font-bold mr-2">{opt.id.toUpperCase()}.</span> {opt.text}
+                <span className="font-bold mr-2">{opt.id.toUpperCase()}.</span>{" "}
+                {opt.text}
               </div>
-              {opt.text_translation && (
+              {enableTranslation && opt.text_translation && (
                 <div className="italic text-xs text-gray-500 ml-6 mt-1">
                   {opt.text_translation}
                 </div>
@@ -125,11 +134,22 @@ const StatePracticeMode: React.FC<StatePracticeModeProps> = ({
       </div>
       {isAnswered && userAnswerInfo && (
         <div
-          className={`mt-4 p-3 rounded-md ${userAnswerInfo.correct ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}
+          className={`mt-4 p-3 rounded-md ${
+            userAnswerInfo.correct
+              ? "bg-green-50 text-green-700 border border-green-200"
+              : "bg-red-50 text-red-700 border border-red-200"
+          }`}
         >
           {userAnswerInfo.correct ? "Correct!" : "Incorrect."}
           {!userAnswerInfo.correct && (
-            <span> Correct answer: <span className="font-bold">{currentQuestion.correct_answer.toUpperCase()}</span>.</span>
+            <span>
+              {" "}
+              Correct answer:{" "}
+              <span className="font-bold">
+                {currentQuestion.correct_answer.toUpperCase()}
+              </span>
+              .
+            </span>
           )}
           {currentQuestion.explanation && (
             <p className="text-sm mt-1">{currentQuestion.explanation}</p>
@@ -146,7 +166,9 @@ const StatePracticeMode: React.FC<StatePracticeModeProps> = ({
         </button>
         <button
           onClick={() => handleNavigate(1)}
-          disabled={currentQuestionIndex === questions.length - 1 || !isAnswered}
+          disabled={
+            currentQuestionIndex === questions.length - 1 || !isAnswered
+          }
           className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
         >
           Next

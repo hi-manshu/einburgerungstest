@@ -4,7 +4,6 @@ import App from "./App";
 import "./index.css";
 import "./custom.css";
 import { BrowserRouter } from "react-router-dom";
-import { app, analytics } from "../firebaseConfig";
 
 const rootElement = document.getElementById("root");
 
@@ -16,7 +15,7 @@ if (rootElement) {
         {/* console.log("Firebase Analytics initialized:", analytics); */}
         {/* console.log("Firebase App initialized:", app); */}
       </BrowserRouter>
-    </React.StrictMode>,
+    </React.StrictMode>
   );
 } else {
   console.error("Failed to find the root element");

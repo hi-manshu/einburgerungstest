@@ -84,24 +84,11 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
       <Route
         path="/state-practice"
         element={
-          // Replace with actual StatePracticeMode component once created
-          // For now, to make this file syntactically valid if StatePracticeMode is not yet defined,
-          // we might put a placeholder or ensure the component is created in the next step.
-          // Assuming StatePracticeMode will be similar to PracticeMode:
-          /*
           <StatePracticeMode
             questions={statePracticeSessionQuestions}
             onNavigateHome={onNavigateHome}
             selectedLanguageCode={selectedLanguage}
-          />
-          */
-          // To prevent errors in this subtask as StatePracticeMode.tsx doesn't exist yet,
-          // I will use PracticeMode as a placeholder, but this will be changed in the next step.
-          // This is a temporary measure to ensure the subtask can complete.
-          <StatePracticeMode // Update this
-            questions={statePracticeSessionQuestions}
-            onNavigateHome={onNavigateHome}
-            selectedLanguageCode={selectedLanguage}
+            enableTranslation={enablePracticeTranslation}
           />
         }
       />
@@ -112,7 +99,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
             questions={practiceSessionQuestions}
             onNavigateHome={onNavigateHome}
             selectedLanguageCode={selectedLanguage}
-             enablePracticeTranslation={enablePracticeTranslation}
+            enablePracticeTranslation={enablePracticeTranslation}
           />
         }
       />
