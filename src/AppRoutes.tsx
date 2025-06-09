@@ -7,12 +7,14 @@ import FlashcardMode from "./feature/flashcard/FlashcardMode";
 import HomePage from "./component/HomePage";
 import SettingsPage from "./component/SettingsPage";
 import BummerPage from "./component/BummerPage";
+import StatePracticeMode from "./feature/state-practice/StatePracticeMode"; // Add this
 import { Question, StatesData, ExamResultsData, Language } from "./types";
 
 interface AppRoutesProps {
   onStartPractice: (stateCode: string) => void;
   onStartExam: (stateCode: string) => void;
   onStartFlashcards: (stateCode: string) => void;
+  onStartStatePractice: (stateCode: string) => void; // New prop
 
   statesData: StatesData;
   selectedState: string;
@@ -23,6 +25,7 @@ interface AppRoutesProps {
   availableLanguages: Language[];
 
   practiceSessionQuestions: Question[];
+  statePracticeSessionQuestions: Question[]; // New prop
 
   examQuestionsForMode: Question[];
   onShowResultsPage: (results: ExamResultsData) => void;
@@ -40,6 +43,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
   onStartPractice,
   onStartExam,
   onStartFlashcards,
+  onStartStatePractice, // New prop
   statesData,
   selectedState,
   onStateChange,
@@ -48,6 +52,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
   onLanguageChange,
   availableLanguages,
   practiceSessionQuestions,
+  statePracticeSessionQuestions, // New prop
   examQuestionsForMode,
   onShowResultsPage,
   examResultsData,
@@ -65,11 +70,37 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
             onStartPractice={onStartPractice}
             onStartExam={onStartExam}
             onStartFlashcards={onStartFlashcards}
+            onStartStatePractice={onStartStatePractice} // Pass it here
             selectedState={selectedState}
+            statesData={statesData} // Pass statesData
           />
         }
       />
       <Route path="/" element={<Navigate to="/home" replace />} />
+      <Route
+        path="/state-practice"
+        element={
+          // Replace with actual StatePracticeMode component once created
+          // For now, to make this file syntactically valid if StatePracticeMode is not yet defined,
+          // we might put a placeholder or ensure the component is created in the next step.
+          // Assuming StatePracticeMode will be similar to PracticeMode:
+          /*
+          <StatePracticeMode
+            questions={statePracticeSessionQuestions}
+            onNavigateHome={onNavigateHome}
+            selectedLanguageCode={selectedLanguage}
+          />
+          */
+          // To prevent errors in this subtask as StatePracticeMode.tsx doesn't exist yet,
+          // I will use PracticeMode as a placeholder, but this will be changed in the next step.
+          // This is a temporary measure to ensure the subtask can complete.
+          <StatePracticeMode // Update this
+            questions={statePracticeSessionQuestions}
+            onNavigateHome={onNavigateHome}
+            selectedLanguageCode={selectedLanguage}
+          />
+        }
+      />
       <Route
         path="/practice"
         element={

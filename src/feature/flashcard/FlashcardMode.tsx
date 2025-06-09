@@ -220,6 +220,17 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
       </div>
 
       <div className="bg-gray-50 p-6 rounded-lg shadow-inner min-h-[150px] flex flex-col justify-center items-center mb-6">
+        {/* START: Added image display */}
+        {currentCard.image && (
+          <div className="mb-3 text-center"> {/* text-center for centering */}
+            <img
+              src={currentCard.image}
+              alt={`Illustration for question ${currentCard.id}`}
+              className="max-w-xs h-auto rounded-md shadow-sm inline-block" // max-w-xs to constrain size a bit on flashcards
+            />
+          </div>
+        )}
+        {/* END: Added image display */}
         <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-2">
           {currentCard.question_text}
         </h3>
