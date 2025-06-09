@@ -8,7 +8,7 @@ import HomePage from "./component/HomePage";
 import SettingsPage from "./component/SettingsPage";
 import BummerPage from "./component/BummerPage";
 import StatePracticeMode from "./feature/state-practice/StatePracticeMode";
-import PracticeByCategoryMode from "./feature/practice/PracticeByCategoryMode"; // Added this
+// PracticeByCategoryMode import removed as the route is being removed
 import { Question, StatesData, ExamResultsData, Language } from "./types";
 
 interface AppRoutesProps {
@@ -16,7 +16,7 @@ interface AppRoutesProps {
   onStartExam: (stateCode: string) => void;
   onStartFlashcards: (stateCode: string) => void;
   onStartStatePractice: (stateCode: string) => void;
-  onStartPracticeByCategory: () => void; // Changed: no stateCode needed
+  // onStartPracticeByCategory removed
 
   statesData: StatesData;
   selectedState: string;
@@ -48,7 +48,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
   onStartExam,
   onStartFlashcards,
   onStartStatePractice,
-  onStartPracticeByCategory, // Added for the new card
+  // onStartPracticeByCategory removed
   statesData,
   selectedState,
   onStateChange,
@@ -78,7 +78,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
             onStartExam={onStartExam}
             onStartFlashcards={onStartFlashcards}
             onStartStatePractice={onStartStatePractice}
-            onStartPracticeByCategory={onStartPracticeByCategory} // Pass it here
+            // onStartPracticeByCategory prop removed
             selectedState={selectedState}
             statesData={statesData}
           />
@@ -152,17 +152,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
           />
         }
       />
-      {/* Placeholder for Practice by Category */}
-      <Route
-        path="/practice-by-category"
-        element={
-          <PracticeByCategoryMode
-            onNavigateHome={onNavigateHome}
-            selectedLanguageCode={selectedLanguage}
-            enablePracticeTranslation={enablePracticeTranslation}
-          />
-        }
-      />
+      {/* Route for /practice-by-category removed */}
       <Route
         path="/settings"
         element={

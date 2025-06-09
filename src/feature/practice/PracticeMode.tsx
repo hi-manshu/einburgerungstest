@@ -58,11 +58,19 @@ const failedMessages: string[] = [
 ];
 
 const PracticeMode: React.FC<PracticeModeProps> = ({
-  questions: initialQuestions,
+  questions: initialQuestions, // These are ALL questions for the current mode (e.g. selected state + general)
   onNavigateHome,
   selectedLanguageCode,
   enablePracticeTranslation,
 }) => {
+  // State for all questions passed to this mode instance (doesn't change unless props change)
+  const [allQuestionsForMode, setAllQuestionsForMode] = useState<Question[]>(initialQuestions);
+  // State for available categories derived from allQuestionsForMode
+  const [categories, setCategories] = useState<string[]>(['All']);
+  // State for the currently selected category
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+
+  // 'questions' now stores the currently *filtered* list of questions for display/interaction
   const [questions, setQuestions] = useState<Question[]>(initialQuestions);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [userAnswers, setUserAnswers] = useState<UserAnswers>({});
@@ -85,30 +93,39 @@ const PracticeMode: React.FC<PracticeModeProps> = ({
     };
   }, []);
 
+  // Effect to update allQuestionsForMode and derive categories when initialQuestions prop changes
   useEffect(() => {
-    let shouldResetSession = false;
+    setAllQuestionsForMode(initialQuestions);
+    const uniqueCategories = new Set<string>();
+    initialQuestions.forEach(q => {
+      if (q.category) {
+        uniqueCategories.add(q.category as string);
+      } else if (q.state_code) {
+        // Using state_code as a fallback category if an explicit 'category' field doesn't exist.
+        uniqueCategories.add(q.state_code);
+      }
+    });
+    setCategories(['All', ...Array.from(uniqueCategories)]);
+    // When initialQuestions change, reset to 'All' category and let the filtering effect handle questions
+    setSelectedCategory('All');
+  }, [initialQuestions]);
 
-    if (!questions || questions.length === 0) {
-      shouldResetSession = true;
-    } else if (initialQuestions.length !== questions.length) {
-      shouldResetSession = true;
-    } else if (currentQuestionIndex >= initialQuestions.length) {
-      shouldResetSession = true;
-    } else if (
-      questions[currentQuestionIndex]?.id !==
-      initialQuestions[currentQuestionIndex]?.id
-    ) {
-      shouldResetSession = true;
+  // Effect to filter questions when selectedCategory or allQuestionsForMode changes
+  useEffect(() => {
+    let filteredQuestions: Question[];
+    if (selectedCategory === 'All') {
+      filteredQuestions = allQuestionsForMode;
+    } else {
+      filteredQuestions = allQuestionsForMode.filter(q =>
+        (q.category as string === selectedCategory) || q.state_code === selectedCategory
+      );
     }
-
-    setQuestions(initialQuestions);
-
-    if (shouldResetSession) {
-      setCurrentQuestionIndex(0);
-      setUserAnswers({});
-      setShowResults(false);
-    }
-  }, [initialQuestions, questions, currentQuestionIndex]);
+    setQuestions(filteredQuestions);
+    // Reset progress when questions/category changes
+    setCurrentQuestionIndex(0);
+    setUserAnswers({});
+    setShowResults(false);
+  }, [selectedCategory, allQuestionsForMode]);
 
   const currentQuestion: Question | null =
     questions && questions.length > 0 ? questions[currentQuestionIndex] : null;
@@ -151,12 +168,16 @@ const PracticeMode: React.FC<PracticeModeProps> = ({
   };
 
   const handleRestart = () => {
+    // This will restart the quiz with the current set of filtered questions
     setCurrentQuestionIndex(0);
     setUserAnswers({});
     setShowResults(false);
+    // To reset category as well, uncomment next line:
+    // setSelectedCategory('All');
   };
 
-  if (!initialQuestions || initialQuestions.length === 0) {
+  // Check against allQuestionsForMode for the initial "No practice questions" message
+  if (!allQuestionsForMode || allQuestionsForMode.length === 0) {
     return (
       <div className="text-center p-4">
         <p className="text-xl text-gray-700 mb-4">
@@ -263,11 +284,39 @@ const PracticeMode: React.FC<PracticeModeProps> = ({
 
   return (
     <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg max-w-3xl mx-auto">
-      {currentQuestion && (
+      <div className="mb-4">
+        <label htmlFor="category-select" className="block text-sm font-medium text-gray-700 mb-1">
+          Filter by Category:
+        </label>
+        <select
+          id="category-select"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm"
+        >
+          {categories.map(category => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Display message if no questions for selected category, but questions for the mode exist */}
+      {allQuestionsForMode && allQuestionsForMode.length > 0 && questions.length === 0 && (
+        <div className="text-center p-4">
+          <p className="text-xl text-gray-700 mb-4">
+            No questions available for the selected category "{selectedCategory}".
+          </p>
+        </div>
+      )}
+
+      {/* Only render question UI if there are questions to display after filtering */}
+      {questions && questions.length > 0 && currentQuestion && (
         <>
           <div className="flex justify-between items-center mb-3">
             <p className="text-sm text-gray-600">
-              Q {currentQuestionIndex + 1}/{questions.length}
+              Q {currentQuestionIndex + 1}/{questions.length} {/* This now correctly reflects filtered count */}
             </p>
             <button
               onClick={() => toggleMarkForLater(currentQuestion.id)}

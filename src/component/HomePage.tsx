@@ -7,8 +7,8 @@ interface HomePageProps {
   onStartExam: (stateCode: string) => void;
   onStartFlashcards: (stateCode: string) => void;
   onStartStatePractice: (stateCode: string) => void;
-  onStartPracticeByCategory: () => void; // Changed this: no stateCode needed
-  selectedState: string; // selectedState is still used for analytics in this component
+  // onStartPracticeByCategory removed
+  selectedState: string;
   statesData: StatesData;
 }
 
@@ -17,7 +17,7 @@ const HomePage: React.FC<HomePageProps> = ({
   onStartExam,
   onStartFlashcards,
   onStartStatePractice,
-  onStartPracticeByCategory, // Added this
+  // onStartPracticeByCategory removed
   selectedState,
   statesData,
 }) => {
@@ -97,34 +97,7 @@ const HomePage: React.FC<HomePageProps> = ({
         handleActivityNavigation(onStartPractice);
       },
     },
-    {
-      id: "practice-by-category",
-      title: "Practice by Category",
-      subtitle: "Practice questions based on specific categories.",
-      icon: (
-        <svg
-          className="w-12 h-12 mb-4 text-yellow-500" // Changed color
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          {/* Using a generic list/category icon */}
-          <path d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-        </svg>
-      ),
-      action: () => {
-        logAnalyticsEvent("select_content", {
-          content_type: "button",
-          item_id: "start_practice_by_category",
-          selected_state: selectedState, // Analytics can still use selectedState if relevant
-        });
-        // Directly call onStartPracticeByCategory as it doesn't need stateCode
-        onStartPracticeByCategory();
-      },
-    },
+    // "practice-by-category" card removed
     {
       id: "exam",
       title: "Mock Exam",

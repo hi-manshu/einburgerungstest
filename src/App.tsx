@@ -424,9 +424,7 @@ const App: React.FC = () => {
     [allQuestionsData, setSelectedState, navigate]
   );
 
-  const handleStartPracticeByCategory = useCallback(() => {
-    navigate("/practice-by-category");
-  }, [navigate]);
+  // handleStartPracticeByCategory removed
 
   const handleNavigateHome = useCallback(() => {
     setExamResultsData(null);
@@ -537,7 +535,7 @@ const App: React.FC = () => {
         onStartExam={handleStartExam}
         onStartFlashcards={handleStartFlashcards}
         onStartStatePractice={handleStartStatePractice}
-        onStartPracticeByCategory={handleStartPracticeByCategory} // Added this
+        // onStartPracticeByCategory prop removed
         selectedState={selectedState}
         onStateChange={handleStateChange}
         onResetState={handleResetState}
