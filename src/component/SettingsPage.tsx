@@ -10,6 +10,8 @@ interface SettingsPageProps {
   selectedLanguage: string;
   onLanguageChange: (newLanguage: string) => void;
   availableLanguages: Language[];
+  enablePracticeTranslation: boolean;
+  onTogglePracticeTranslation: () => void;
 }
 
 const SettingsPage: React.FC<SettingsPageProps> = ({
@@ -19,6 +21,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   selectedLanguage,
   onLanguageChange,
   availableLanguages,
+  enablePracticeTranslation,
+  onTogglePracticeTranslation,
 }) => {
   const navigate = useNavigate();
 

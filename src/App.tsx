@@ -55,6 +55,8 @@ const App: React.FC = () => {
   const [showOnboardingDialog, setShowOnboardingDialog] =
     useState<boolean>(false);
   const [preferencesLoaded, setPreferencesLoaded] = useState<boolean>(false);
+  const [enablePracticeTranslation, setEnablePracticeTranslation] =
+    useState<boolean>(true);
 
   useEffect(() => {
     const storedStateVal = localStorage.getItem("selectedState");
@@ -73,6 +75,15 @@ const App: React.FC = () => {
 
     setShowOnboardingDialog(needsOnboarding);
     setPreferencesLoaded(true);
+
+    const storedEnablePracticeTranslation = localStorage.getItem(
+      "enablePracticeTranslation"
+    );
+    if (storedEnablePracticeTranslation !== null) {
+      setEnablePracticeTranslation(storedEnablePracticeTranslation === "true");
+    } else {
+      localStorage.setItem("enablePracticeTranslation", "true"); // Set default if not found
+    }
   }, []);
 
   const handleStateChange = useCallback(
@@ -117,6 +128,19 @@ const App: React.FC = () => {
     setShowOnboardingDialog(false);
     localStorage.setItem("hasOnboarded", "true");
   }, [setShowOnboardingDialog]);
+
+  const handleTogglePracticeTranslation = useCallback(() => {
+    setEnablePracticeTranslation((prevValue) => {
+      const newValue = !prevValue;
+      localStorage.setItem("enablePracticeTranslation", String(newValue));
+      logAnalyticsEvent("select_content", {
+        content_type: "setting_toggle",
+        item_id: "toggle_practice_translation",
+        value: newValue, // Log the new state
+      });
+      return newValue;
+    });
+  }, []);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -524,6 +548,8 @@ const App: React.FC = () => {
         onStartNewTest={handleStartNewTestFromResults}
         flashcardSessionQuestions={flashcardSessionQuestions}
         onNavigateHome={handleNavigateHome}
+        enablePracticeTranslation={enablePracticeTranslation}
+        onTogglePracticeTranslation={handleTogglePracticeTranslation}
       />
     </MainLayout>
   );
