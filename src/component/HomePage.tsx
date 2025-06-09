@@ -7,6 +7,7 @@ interface HomePageProps {
   onStartExam: (stateCode: string) => void;
   onStartFlashcards: (stateCode: string) => void;
   onStartStatePractice: (stateCode: string) => void;
+  // onStartPracticeByCategory removed
   selectedState: string;
   statesData: StatesData;
 }
@@ -16,6 +17,7 @@ const HomePage: React.FC<HomePageProps> = ({
   onStartExam,
   onStartFlashcards,
   onStartStatePractice,
+  // onStartPracticeByCategory removed
   selectedState,
   statesData,
 }) => {
@@ -95,6 +97,7 @@ const HomePage: React.FC<HomePageProps> = ({
         handleActivityNavigation(onStartPractice);
       },
     },
+    // "practice-by-category" card removed
     {
       id: "exam",
       title: "Mock Exam",

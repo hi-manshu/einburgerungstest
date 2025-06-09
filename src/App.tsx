@@ -40,7 +40,8 @@ const App: React.FC = () => {
   const [practiceSessionQuestions, setPracticeSessionQuestions] = useState<
     Question[]
   >([]);
-  const [statePracticeSessionQuestions, setStatePracticeSessionQuestions] = useState<Question[]>([]);
+  const [statePracticeSessionQuestions, setStatePracticeSessionQuestions] =
+    useState<Question[]>([]);
   const [examQuestionsForMode, setExamQuestionsForMode] = useState<Question[]>(
     []
   );
@@ -235,6 +236,7 @@ const App: React.FC = () => {
 
         return {
           id: newQuestion.id,
+          category: newQuestion.category,
           question_text: newQuestion.question || "",
           question_text_translation:
             newQuestion.translation?.[selectedLanguage]?.question ||
@@ -248,7 +250,12 @@ const App: React.FC = () => {
             newQuestion.context ||
             "",
           state_code: stateCode,
-          image: (newQuestion.image && newQuestion.image.trim() !== "" && newQuestion.image !== "-") ? newQuestion.image : undefined, // Added image handling
+          image:
+            newQuestion.image &&
+            newQuestion.image.trim() !== "" &&
+            newQuestion.image !== "-"
+              ? newQuestion.image
+              : undefined, // Added image handling
         };
       }
     );
@@ -328,7 +335,7 @@ const App: React.FC = () => {
   const handleStartStatePractice = useCallback(
     async (stateCode: string) => {
       if (!allQuestionsData || allQuestionsData.length === 0) {
-        console.error("All questions data is not loaded yet."); // Or handle more gracefully
+        console.error("All questions data is not loaded yet.");
         return;
       }
 
@@ -346,20 +353,21 @@ const App: React.FC = () => {
         console.warn(`No specific questions found for state ${stateCode}.`);
         setStatePracticeSessionQuestions([]);
       } else {
-        const shuffledStateQuestions = shuffleArray(stateSpecificQuestions) as Question[];
+        const shuffledStateQuestions = shuffleArray(
+          stateSpecificQuestions
+        ) as Question[];
         const selectedQuestions = shuffledStateQuestions.slice(0, 10);
         setStatePracticeSessionQuestions(selectedQuestions);
       }
 
       navigate("/state-practice");
     },
-    [allQuestionsData, navigate, setSelectedState] // Add other dependencies as needed
+    [allQuestionsData, navigate, setSelectedState]
   );
 
   const handleStartExam = useCallback(
     (stateCodeFromButton: string) => {
       if (!stateCodeFromButton) {
-        // console.log("Please select a state for the exam."); // Removed console.log
         return;
       }
       setSelectedState(stateCodeFromButton);
