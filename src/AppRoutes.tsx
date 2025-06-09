@@ -16,7 +16,7 @@ interface AppRoutesProps {
   onStartExam: (stateCode: string) => void;
   onStartFlashcards: (stateCode: string) => void;
   onStartStatePractice: (stateCode: string) => void;
-  onStartPracticeByCategory: (stateCode: string) => void; // Added for the new card
+  onStartPracticeByCategory: () => void; // Changed: no stateCode needed
 
   statesData: StatesData;
   selectedState: string;

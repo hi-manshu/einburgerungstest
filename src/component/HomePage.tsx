@@ -7,8 +7,8 @@ interface HomePageProps {
   onStartExam: (stateCode: string) => void;
   onStartFlashcards: (stateCode: string) => void;
   onStartStatePractice: (stateCode: string) => void;
-  onStartPracticeByCategory: (stateCode: string) => void; // Added this
-  selectedState: string;
+  onStartPracticeByCategory: () => void; // Changed this: no stateCode needed
+  selectedState: string; // selectedState is still used for analytics in this component
   statesData: StatesData;
 }
 
@@ -119,10 +119,10 @@ const HomePage: React.FC<HomePageProps> = ({
         logAnalyticsEvent("select_content", {
           content_type: "button",
           item_id: "start_practice_by_category",
-          selected_state: selectedState,
+          selected_state: selectedState, // Analytics can still use selectedState if relevant
         });
-        // Assuming navigation to /practice-by-category will be handled by onStartPracticeByCategory
-        handleActivityNavigation(onStartPracticeByCategory);
+        // Directly call onStartPracticeByCategory as it doesn't need stateCode
+        onStartPracticeByCategory();
       },
     },
     {

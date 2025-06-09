@@ -424,6 +424,10 @@ const App: React.FC = () => {
     [allQuestionsData, setSelectedState, navigate]
   );
 
+  const handleStartPracticeByCategory = useCallback(() => {
+    navigate("/practice-by-category");
+  }, [navigate]);
+
   const handleNavigateHome = useCallback(() => {
     setExamResultsData(null);
     setExamQuestionsForMode([]);
@@ -533,6 +537,7 @@ const App: React.FC = () => {
         onStartExam={handleStartExam}
         onStartFlashcards={handleStartFlashcards}
         onStartStatePractice={handleStartStatePractice}
+        onStartPracticeByCategory={handleStartPracticeByCategory} // Added this
         selectedState={selectedState}
         onStateChange={handleStateChange}
         onResetState={handleResetState}
