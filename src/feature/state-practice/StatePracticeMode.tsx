@@ -27,11 +27,14 @@ const StatePracticeMode: React.FC<StatePracticeModeProps> = ({
 }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [userAnswers, setUserAnswers] = useState<UserAnswers>({});
+  const [showStatePracticeResults, setShowStatePracticeResults] =
+    useState<boolean>(false);
 
   // Reset state if questions prop changes (e.g., user goes home and starts a new session for a different state)
   useEffect(() => {
     setCurrentQuestionIndex(0);
     setUserAnswers({});
+    setShowStatePracticeResults(false);
   }, [questions]);
 
   if (!questions || questions.length === 0) {
@@ -62,6 +65,16 @@ const StatePracticeMode: React.FC<StatePracticeModeProps> = ({
       ...prev,
       [questionId]: { answer: selectedOptionId, correct: isCorrect },
     }));
+
+    if (currentQuestionIndex === questions.length - 1) {
+      setShowStatePracticeResults(true);
+    }
+  };
+
+  const handleRestartPractice = () => {
+    setCurrentQuestionIndex(0);
+    setUserAnswers({});
+    setShowStatePracticeResults(false);
   };
 
   const handleNavigate = (direction: number) => {
@@ -73,6 +86,45 @@ const StatePracticeMode: React.FC<StatePracticeModeProps> = ({
   };
 
   // Basic JSX structure (adapt from PracticeMode.tsx, simplifying as needed)
+  if (showStatePracticeResults) {
+    const correctAnswersCount = Object.values(userAnswers).filter(
+      (answer) => answer.correct
+    ).length;
+
+    return (
+      <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg max-w-3xl mx-auto text-center">
+        <h2 className="text-2xl font-bold text-indigo-700 mb-4">
+          Practice Complete!
+        </h2>
+        <p className="text-lg text-gray-700 mb-2">
+          Congratulations! You've completed all questions for this state!
+        </p>
+        <p className="text-xl font-semibold text-blue-600 mb-4">
+          You answered {correctAnswersCount} out of {questions.length} questions
+          correctly.
+        </p>
+        <p className="text-md text-gray-600 mb-6">
+          Keep practicing to master the material! Review your answers and try
+          again to solidify your knowledge.
+        </p>
+        <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
+          <button
+            onClick={handleRestartPractice}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+          >
+            Restart Practice
+          </button>
+          <button
+            onClick={onNavigateHome}
+            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+          >
+            Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg max-w-3xl mx-auto">
       <p className="text-sm text-gray-600 mb-3">
