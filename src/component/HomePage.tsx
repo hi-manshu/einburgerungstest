@@ -1,18 +1,23 @@
 import React from "react";
 import { logAnalyticsEvent } from "../analytics/analytics";
+import { StatesData } from "../types"; // Add this
 
 interface HomePageProps {
   onStartPractice: (stateCode: string) => void;
   onStartExam: (stateCode: string) => void;
   onStartFlashcards: (stateCode: string) => void;
+  onStartStatePractice: (stateCode: string) => void; // New
   selectedState: string;
+  statesData: StatesData; // New
 }
 
 const HomePage: React.FC<HomePageProps> = ({
   onStartPractice,
   onStartExam,
   onStartFlashcards,
+  onStartStatePractice, // New
   selectedState,
+  statesData, // New
 }) => {
   const handleActivityNavigation = (
     activityStartFunction: (stateCode: string) => void
@@ -26,7 +31,40 @@ const HomePage: React.FC<HomePageProps> = ({
     activityStartFunction(selectedState);
   };
 
+  const stateName = selectedState && statesData[selectedState] ? statesData[selectedState] : "";
+  const dynamicTitle = stateName ? `Practice for ${stateName}` : "State Practice";
+  const dynamicSubtitle = stateName ? `10 quick questions for ${stateName}.` : "Select a state in settings first.";
+
   const cardData = [
+    {
+      id: "state-practice",
+      title: dynamicTitle,
+      subtitle: dynamicSubtitle,
+      icon: ( // Reusing practice icon, consider a new one later
+        <svg
+          className="w-12 h-12 mb-4 text-indigo-500" // Changed color slightly
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          {/* Using a map or location pin icon might be more thematic */}
+          <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+          <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+      ),
+      action: () => {
+        logAnalyticsEvent("select_content", {
+          content_type: "button",
+          item_id: "start_state_practice",
+          selected_state: selectedState, // This will be empty if no state selected, which is fine
+        });
+        // handleActivityNavigation already checks for selectedState
+        handleActivityNavigation(onStartStatePractice);
+      },
+    },
     {
       id: "practice",
       title: "Practice Questions",

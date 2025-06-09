@@ -40,6 +40,7 @@ const App: React.FC = () => {
   const [practiceSessionQuestions, setPracticeSessionQuestions] = useState<
     Question[]
   >([]);
+  const [statePracticeSessionQuestions, setStatePracticeSessionQuestions] = useState<Question[]>([]);
   const [examQuestionsForMode, setExamQuestionsForMode] = useState<Question[]>(
     []
   );
@@ -223,6 +224,7 @@ const App: React.FC = () => {
             newQuestion.context ||
             "",
           state_code: stateCode,
+          image: (newQuestion.image && newQuestion.image.trim() !== "" && newQuestion.image !== "-") ? newQuestion.image : undefined, // Added image handling
         };
       }
     );
@@ -297,6 +299,37 @@ const App: React.FC = () => {
       navigate("/practice");
     },
     [allQuestionsData, setSelectedState, navigate]
+  );
+
+  const handleStartStatePractice = useCallback(
+    async (stateCode: string) => {
+      if (!allQuestionsData || allQuestionsData.length === 0) {
+        console.error("All questions data is not loaded yet."); // Or handle more gracefully
+        return;
+      }
+
+      // It's good practice to ensure the selected state is updated if this function can be called with a new state.
+      setSelectedState(stateCode);
+      localStorage.setItem("selectedState", stateCode);
+
+      const stateSpecificQuestions = allQuestionsData.filter(
+        (q) => q.state_code === stateCode
+      );
+
+      if (stateSpecificQuestions.length === 0) {
+        // Handle case with no questions for the state - maybe navigate to a different page or show a message.
+        // For now, we'll set an empty array and navigate. The target page should handle this.
+        console.warn(`No specific questions found for state ${stateCode}.`);
+        setStatePracticeSessionQuestions([]);
+      } else {
+        const shuffledStateQuestions = shuffleArray(stateSpecificQuestions) as Question[];
+        const selectedQuestions = shuffledStateQuestions.slice(0, 10);
+        setStatePracticeSessionQuestions(selectedQuestions);
+      }
+
+      navigate("/state-practice");
+    },
+    [allQuestionsData, navigate, setSelectedState] // Add other dependencies as needed
   );
 
   const handleStartExam = useCallback(
@@ -475,6 +508,7 @@ const App: React.FC = () => {
         onStartPractice={handleStartPractice}
         onStartExam={handleStartExam}
         onStartFlashcards={handleStartFlashcards}
+        onStartStatePractice={handleStartStatePractice}
         selectedState={selectedState}
         onStateChange={handleStateChange}
         onResetState={handleResetState}
@@ -483,6 +517,7 @@ const App: React.FC = () => {
         availableLanguages={LANGUAGES}
         practiceSessionQuestions={practiceSessionQuestions}
         examQuestionsForMode={examQuestionsForMode}
+        statePracticeSessionQuestions={statePracticeSessionQuestions}
         onShowResultsPage={handleShowResultsPage}
         examResultsData={examResultsData}
         onRetryTest={handleRetryTestFromResults}

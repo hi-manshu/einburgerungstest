@@ -13,6 +13,7 @@ export interface Question {
   correct_answer: string;
   explanation?: string;
   state_code: string | null;
+  image?: string; // Add this line
 
   num?: string;
   translation?: {
@@ -58,6 +59,7 @@ export interface RawQuestion {
   id: string;
   num?: string;
   question?: string;
+  image?: string; // Add this line
   a?: string;
   b?: string;
   c?: string;
