@@ -10,6 +10,7 @@ interface LanguageSelectorProps {
   onLanguageChange: (newLanguage: string) => void;
   languages: Language[];
   id?: string;
+  disabled?: boolean; // Added this line
 }
 
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({
@@ -17,9 +18,10 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   onLanguageChange,
   languages,
   id = "language-select",
+  disabled = false, // Added this, and defaulting to false
 }) => {
   return (
-    <div className="p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 self-start w-full">
+    <div className={`p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 self-start w-full ${disabled ? 'opacity-50' : ''}`}> {/* Optional: Add opacity to whole container if disabled */}
       <h3 className="text-lg font-semibold mb-2 text-gray-700">
         Language for Practice Translations
       </h3>
@@ -37,7 +39,8 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         onChange={(e: ChangeEvent<HTMLSelectElement>) =>
           onLanguageChange(e.target.value)
         }
-        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow"
+        disabled={disabled} // Added this line
+        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow disabled:bg-gray-100 disabled:cursor-not-allowed" // Added disabled:bg-gray-100 and disabled:cursor-not-allowed
       >
         {languages.map((lang) => (
           <option key={lang.code} value={lang.code}>
@@ -45,6 +48,11 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           </option>
         ))}
       </select>
+      {disabled && (
+        <p className="text-xs text-gray-500 mt-1">
+          Enable "Translate questions and answers" in settings to change this.
+        </p>
+      )}
     </div>
   );
 };

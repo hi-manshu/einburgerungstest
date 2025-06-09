@@ -98,11 +98,7 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
               </button>
             </div>
 
-            <div
-              className={`transition-opacity duration-300 ${
-                !enablePracticeTranslation ? "opacity-50" : "opacity-100"
-              }`}
-            >
+            <div>
               <LanguageSelector
                 selectedLanguage={selectedLanguage}
                 onLanguageChange={onLanguageChange}
@@ -110,12 +106,6 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
                 id="onboarding-language-select"
                 disabled={!enablePracticeTranslation}
               />
-              {!enablePracticeTranslation && (
-                <p className="text-xs text-gray-500 mt-1 px-1">
-                  Enable "Translate questions and answers" to change the
-                  practice language.
-                </p>
-              )}
             </div>
           </div>
         </div>
