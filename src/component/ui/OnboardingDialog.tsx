@@ -11,6 +11,8 @@ interface OnboardingDialogProps {
   onLanguageChange: (newLanguage: string) => void;
   onSavePreferences: () => void;
   availableLanguages: Language[];
+  enablePracticeTranslation: boolean;
+  onTogglePracticeTranslation: () => void;
   title?: string;
   introText?: string | null;
   saveButtonText?: string;
@@ -24,6 +26,8 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
   onLanguageChange,
   onSavePreferences,
   availableLanguages,
+  enablePracticeTranslation,
+  onTogglePracticeTranslation,
   title,
   introText,
   saveButtonText,
@@ -58,12 +62,39 @@ const OnboardingDialog: React.FC<OnboardingDialogProps> = ({
             statesData={statesData}
             id="onboarding-state-select"
           />
-          <LanguageSelector
-            selectedLanguage={selectedLanguage}
-            onLanguageChange={onLanguageChange}
-            languages={availableLanguages}
-            id="onboarding-language-select"
-          />
+        </div>
+
+        <div className="mt-6">
+          <h3 className="text-lg font-medium text-gray-900">
+            Practice Mode Settings
+          </h3>
+          <div className="mt-3 space-y-3">
+            <div className="flex items-center p-3 bg-gray-50 rounded-md">
+              <input
+                type="checkbox"
+                id="translatePracticeModeCheckbox"
+                checked={enablePracticeTranslation}
+                onChange={onTogglePracticeTranslation}
+                className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+              />
+              <label
+                htmlFor="translatePracticeModeCheckbox"
+                className="ml-3 block text-sm text-gray-900"
+              >
+                Translate questions and answers in practice mode
+              </label>
+            </div>
+
+            <div>
+              <LanguageSelector
+                selectedLanguage={selectedLanguage}
+                onLanguageChange={onLanguageChange}
+                languages={availableLanguages}
+                id="onboarding-language-select"
+                disabled={!enablePracticeTranslation}
+              />
+            </div>
+          </div>
         </div>
 
         <button

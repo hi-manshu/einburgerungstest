@@ -16,6 +16,7 @@ interface PracticeModeProps {
   questions: Question[];
   onNavigateHome: () => void;
   selectedLanguageCode: string;
+  enablePracticeTranslation: boolean;
 }
 
 const languageMap: { [key: string]: string } = {
@@ -36,6 +37,7 @@ const PracticeMode: React.FC<PracticeModeProps> = ({
   questions: initialQuestions,
   onNavigateHome,
   selectedLanguageCode,
+  enablePracticeTranslation,
 }) => {
   const [questions, setQuestions] = useState<Question[]>(initialQuestions);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
@@ -222,7 +224,7 @@ const PracticeMode: React.FC<PracticeModeProps> = ({
           <h3 className="text-lg md:text-xl font-semibold mb-1">
             {currentQuestion.question_text}
           </h3>
-          {currentQuestion.question_text_translation && (
+          {enablePracticeTranslation && currentQuestion.question_text_translation && (
             <p className="text-sm text-gray-500 mt-1 mb-4 italic">
               {`${currentQuestion.question_text_translation}`}
             </p>
@@ -269,7 +271,7 @@ const PracticeMode: React.FC<PracticeModeProps> = ({
                     </span>{" "}
                     {opt.text}
                   </div>
-                  {opt.text_translation && (
+                  {enablePracticeTranslation && opt.text_translation && (
                     <div className="italic text-xs text-gray-500 ml-6 mt-1">
                       {`${opt.text_translation}`}
                     </div>

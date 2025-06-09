@@ -37,6 +37,8 @@ interface AppRoutesProps {
   flashcardSessionQuestions: Question[];
 
   onNavigateHome: () => void;
+  enablePracticeTranslation: boolean;
+  onTogglePracticeTranslation: () => void;
 }
 
 const AppRoutes: React.FC<AppRoutesProps> = ({
@@ -60,6 +62,8 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
   onStartNewTest,
   flashcardSessionQuestions,
   onNavigateHome,
+  enablePracticeTranslation,
+  onTogglePracticeTranslation,
 }) => {
   return (
     <Routes>
@@ -108,6 +112,7 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
             questions={practiceSessionQuestions}
             onNavigateHome={onNavigateHome}
             selectedLanguageCode={selectedLanguage}
+             enablePracticeTranslation={enablePracticeTranslation}
           />
         }
       />
@@ -167,6 +172,8 @@ const AppRoutes: React.FC<AppRoutesProps> = ({
             selectedLanguage={selectedLanguage}
             onLanguageChange={onLanguageChange}
             availableLanguages={availableLanguages}
+            enablePracticeTranslation={enablePracticeTranslation}
+            onTogglePracticeTranslation={onTogglePracticeTranslation}
           />
         }
       />

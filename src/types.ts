@@ -84,3 +84,9 @@ export interface Language {
   code: string;
   name: string;
 }
+
+// Add new interface for practice mode translation settings
+export interface PracticeTranslationSettings {
+  enablePracticeTranslation: boolean;
+  practiceTranslationLanguage: string;
+}
