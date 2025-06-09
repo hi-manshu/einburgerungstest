@@ -182,12 +182,6 @@ const PracticeMode: React.FC<PracticeModeProps> = ({
     const markedCount = Object.values(userAnswers).filter(
       (ans) => ans?.marked
     ).length;
-    const correctCount = Object.values(userAnswers).filter(
-      (ans) => ans?.correct
-    ).length;
-    const markedCount = Object.values(userAnswers).filter(
-      (ans) => ans?.marked
-    ).length;
 
     const totalQuestions = questions.length;
     const scorePercentage =
@@ -277,7 +271,11 @@ const PracticeMode: React.FC<PracticeModeProps> = ({
             </p>
             <button
               onClick={() => toggleMarkForLater(currentQuestion.id)}
-              className={`px-3 py-1 border rounded text-sm font-medium transition-colors ${userAnswerInfo?.marked ? "bg-yellow-400 text-white border-yellow-500 hover:bg-yellow-500" : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"}`}
+              className={`px-3 py-1 border rounded text-sm font-medium transition-colors ${
+                userAnswerInfo?.marked
+                  ? "bg-yellow-400 text-white border-yellow-500 hover:bg-yellow-500"
+                  : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+              }`}
             >
               {userAnswerInfo?.marked ? "✓ Marked" : "Mark"}
             </button>
@@ -285,14 +283,17 @@ const PracticeMode: React.FC<PracticeModeProps> = ({
           <h3 className="text-lg md:text-xl font-semibold mb-1">
             {currentQuestion.question_text}
           </h3>
-          {enablePracticeTranslation && currentQuestion.question_text_translation && (
-            <p className="text-sm text-gray-500 mt-1 mb-4 italic">
-              {`${currentQuestion.question_text_translation}`}
-            </p>
-          )}
+          {enablePracticeTranslation &&
+            currentQuestion.question_text_translation && (
+              <p className="text-sm text-gray-500 mt-1 mb-4 italic">
+                {`${currentQuestion.question_text_translation}`}
+              </p>
+            )}
           {/* START: Added image display */}
           {currentQuestion.image && (
-            <div className="my-4 text-center"> {/* Added text-center to center the image if it's smaller than container */}
+            <div className="my-4 text-center">
+              {" "}
+              {/* Added text-center to center the image if it's smaller than container */}
               <img
                 src={currentQuestion.image}
                 alt={`Illustration for question ${currentQuestion.id}`}
@@ -343,7 +344,11 @@ const PracticeMode: React.FC<PracticeModeProps> = ({
           </div>
           {isAnswered && userAnswerInfo && (
             <div
-              className={`mt-4 p-3 rounded-md ${userAnswerInfo.correct ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}
+              className={`mt-4 p-3 rounded-md ${
+                userAnswerInfo.correct
+                  ? "bg-green-50 text-green-700 border border-green-200"
+                  : "bg-red-50 text-red-700 border border-red-200"
+              }`}
             >
               {userAnswerInfo.correct ? "Correct!" : "Incorrect."}
               {!userAnswerInfo.correct && (
