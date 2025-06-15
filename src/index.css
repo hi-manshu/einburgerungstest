@@ -1,3 +1,169 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
+
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 9%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Subtle gradient backgrounds */
+.gradient-bg {
+  background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted)/0.3) 100%);
+}
+
+.dark .gradient-bg {
+  background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted)/0.2) 100%);
+}
+
+/* Ensure the QuestionNavigator scroll bar is always visible and numbers aren't clipped */
+.question-navigator::-webkit-scrollbar {
+  height: 6px;
+}
+.question-navigator {
+  scrollbar-color: hsl(var(--muted-foreground)) hsl(var(--muted));
+  scrollbar-width: thin;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+
+/* Add style to perfectly round/circle the current indicator if needed (extra redundancy) */
+.question-navigator button[aria-current="true"] {
+  z-index: 2;
+}
+
+/* Make QuestionNavigator more visually clear and smooth */
+.question-navigator::-webkit-scrollbar {
+  height: 8px;
+}
+.question-navigator {
+  scrollbar-color: hsl(var(--muted-foreground)) hsl(var(--muted));
+  scrollbar-width: thin;
+  padding-bottom: 0.8rem;
+  margin-bottom: 0.3rem;
+}
+
+/* Strong circle shadow for selected, tick for answered */
+.question-navigator button[aria-current="true"] {
+  z-index: 2;
+  border-width: 2.5px !important;
+  box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.10) !important;
+}
+.question-navigator button .lucide-check {
+  background: white;
+  border-radius: 9999px;
+  box-shadow: 0 1px 2px 0 rgba(60,180,80,0.06);
+  padding: 1.5px;
+}
+
+.question-navigator button[aria-current="true"] .lucide-check {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+/* Ensure ticks don't overlap border visually */
+.question-navigator button .lucide-check {
+  border: 2px solid hsl(var(--green-500, 142, 70%, 47%));
+}
+
+/* Add redundant styling in case tailwind/hover order changes */
+.question-navigator button {
+  transition: box-shadow 0.2s, border-color 0.15s, background 0.15s;
+}
+
+/* Responsive: slightly bigger clickable area on mobile */
+@media (max-width: 512px) {
+  .question-navigator button {
+    min-width: 34px;
+    min-height: 32px;
+  }
+}

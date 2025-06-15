@@ -1,54 +1,73 @@
-![App Screenshot](public/website.png)
+# Welcome to your Lovable project
 
-# Einbürgerungstest Practice Application
+## Project info
 
-🌐 [Visit the live app: einburgerungstest-practice.de](https://www.einburgerungstest-practice.de)
+**URL**: https://lovable.dev/projects/9122f6f6-e10c-4e0e-90cd-f601cf5a2acb
 
-## Einbürgerungstest – German Naturalization Test
+## How can I edit this code?
 
-The **Einbürgerungstest** is the official German naturalization (citizenship) test. It consists of **33 multiple-choice questions** covering essential topics such as German history, politics, society, and values. To pass, you must correctly answer **at least 17 questions** within the allotted time.
+There are several ways of editing your application.
 
----
+**Use Lovable**
 
-## Why This Project Is Useful
+Simply visit the [Lovable Project](https://lovable.dev/projects/9122f6f6-e10c-4e0e-90cd-f601cf5a2acb) and start prompting.
 
-- **Prepare for German Citizenship:** Practice and familiarize yourself with the actual test format to confidently approach the exam.
-- **Learn About Germany:** Gain insights into Germany’s culture, laws, and democratic system—even if you are not applying for citizenship.
-- **Improve German Language Skills:** The test is conducted in German, making this a great tool to enhance your language comprehension through practical application.
+Changes made via Lovable will be committed automatically to this repo.
 
----
+**Use your preferred IDE**
 
-## 🚀 Features
+If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
-- **Practice Mode:** Answer general or state-specific questions with instant feedback.
-- **Exam Mode:** Timed 33-question simulation including state questions.
-- **Flashcard Mode:** Quick review of questions and answers.
-- **State Selection:** Focus practice on a chosen German federal state.
-- **Multilingual Support:** View questions in multiple languages (Exam mode is German only).
+The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
----
+Follow these steps:
 
-## 🚩 Getting Started: Firebase Setup
+```sh
+# Step 1: Clone the repository using the project's Git URL.
+git clone <YOUR_GIT_URL>
 
-To run this project locally, you need to add your Firebase configuration file:
+# Step 2: Navigate to the project directory.
+cd <YOUR_PROJECT_NAME>
 
-1. Create a file named `firebase.ts` in the following directory of the project:  
-   `src/analytics/`
+# Step 3: Install the necessary dependencies.
+npm i
 
-2. Add the following Firebase configuration structure inside `firebase.ts` with dummy values:
-
-```typescript
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY_HERE",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
-  measurementId: "YOUR_MEASUREMENT_ID",
-};
+# Step 4: Start the development server with auto-reloading and an instant preview.
+npm run dev
 ```
 
-For detailed instructions and more information, visit the official Firebase documentation: https://firebase.google.com/
+**Edit a file directly in GitHub**
 
-> If you like this project, please give it a ⭐ on GitHub!
+- Navigate to the desired file(s).
+- Click the "Edit" button (pencil icon) at the top right of the file view.
+- Make your changes and commit the changes.
+
+**Use GitHub Codespaces**
+
+- Navigate to the main page of your repository.
+- Click on the "Code" button (green button) near the top right.
+- Select the "Codespaces" tab.
+- Click on "New codespace" to launch a new Codespace environment.
+- Edit files directly within the Codespace and commit and push your changes once you're done.
+
+## What technologies are used for this project?
+
+This project is built with:
+
+- Vite
+- TypeScript
+- React
+- shadcn-ui
+- Tailwind CSS
+
+## How can I deploy this project?
+
+Simply open [Lovable](https://lovable.dev/projects/9122f6f6-e10c-4e0e-90cd-f601cf5a2acb) and click on Share -> Publish.
+
+## Can I connect a custom domain to my Lovable project?
+
+Yes, you can!
+
+To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+
+Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
